@@ -1,42 +1,251 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+	/* typography */
+	.heading-1 {
+		@apply font-bold !text-h-1 font-manrope;
+	}
+
+	.heading-2 {
+		@apply font-bold !text-h-2 font-manrope;
+	}
+
+	.heading-3 {
+		@apply font-bold !text-h-3 font-manrope;
+	}
+
+	.heading-4 {
+		@apply font-bold !text-h-4 font-manrope;
+	}
+
+	.heading-5 {
+		@apply font-semibold !text-h-5 font-manrope;
+	}
+
+	.heading-6 {
+		@apply font-semibold !text-h-6 font-manrope;
+	}
+
+	.heading-7 {
+		@apply font-semibold !text-h-7 font-manrope;
+	}
+
+	.heading-8 {
+		@apply font-semibold !text-h-8 font-manrope;
+	}
+
+	.body-1 {
+		@apply font-medium !text-b-1 font-manrope;
+	}
+
+	.body-2 {
+		@apply font-medium !text-b-2 font-manrope;
+	}
+
+	.body-3 {
+		@apply font-medium !text-b-3 font-manrope;
+	}
+
+	.body-4 {
+		@apply font-normal !text-b-4 font-manrope;
+	}
+
+	.body-5 {
+		@apply font-normal !text-b-5 font-manrope;
+	}
+
+	/* button */
+	.button {
+		@apply px-3 py-3 font-medium text-center transition-all duration-300 rounded cursor-pointer font-manrope first-letter:uppercase active:opacity-50 hover:lg:opacity-50 disabled:cursor-default disabled:opacity-50 !text-b-3;
+	}
+
+	.button-primary {
+		@apply button bg-primary-500 text-neutral-100;
+	}
+
+	.button-secondary {
+		@apply button bg-secondary-300 text-neutral-100;
+	}
+
+	.button-destructive {
+		@apply button bg-error-500 text-neutral-100;
+	}
+
+	.button-warning {
+		@apply button bg-warning-300 text-neutral-100;
+	}
+
+	.button-success {
+		@apply button bg-success-300 text-neutral-100;
+	}
+
+	.button-black {
+		@apply button bg-[#1A1A1A] text-neutral-100;
+	}
+
+	.button-muted {
+		@apply button bg-muted text-neutral-900;
+	}
+
+	.button-ghost {
+		@apply bg-transparent button text-neutral-900;
+	}
+
+	.button-outline {
+		@apply bg-transparent border button text-neutral-900;
+	}
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@layer base {
+	body {
+		@apply box-border p-0 m-0;
+	}
+
+	html {
+		@apply font-manrope;
+		scroll-behavior: smooth !important;
+	}
+	:root {
+		--background: 0 0% 100%;
+		--foreground: 0 0% 3.9%;
+		--card: 0 0% 100%;
+		--card-foreground: 0 0% 3.9%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 0 0% 3.9%;
+		--primary: 0 0% 9%;
+		--primary-foreground: 0 0% 98%;
+		--secondary: 0 0% 96.1%;
+		--secondary-foreground: 0 0% 9%;
+		--muted: 0 0% 96.1%;
+		--muted-foreground: 0 0% 45.1%;
+		--accent: 0 0% 96.1%;
+		--accent-foreground: 0 0% 9%;
+		--destructive: 0 84.2% 60.2%;
+		--destructive-foreground: 0 0% 98%;
+		--border: 0 0% 89.8%;
+		--input: 0 0% 89.8%;
+		--ring: 0 0% 3.9%;
+		--chart-1: 12 76% 61%;
+		--chart-2: 173 58% 39%;
+		--chart-3: 197 37% 24%;
+		--chart-4: 43 74% 66%;
+		--chart-5: 27 87% 67%;
+		--radius: 0.5rem;
+		--sidebar-background: 0 0% 98%;
+		--sidebar-foreground: 240 5.3% 26.1%;
+		--sidebar-primary: 240 5.9% 10%;
+		--sidebar-primary-foreground: 0 0% 98%;
+		--sidebar-accent: 240 4.8% 95.9%;
+		--sidebar-accent-foreground: 240 5.9% 10%;
+		--sidebar-border: 220 13% 91%;
+		--sidebar-ring: 217.2 91.2% 59.8%;
+	}
+	.dark {
+		--background: 0 0% 3.9%;
+		--foreground: 0 0% 98%;
+		--card: 0 0% 3.9%;
+		--card-foreground: 0 0% 98%;
+		--popover: 0 0% 3.9%;
+		--popover-foreground: 0 0% 98%;
+		--primary: 0 0% 98%;
+		--primary-foreground: 0 0% 9%;
+		--secondary: 0 0% 14.9%;
+		--secondary-foreground: 0 0% 98%;
+		--muted: 0 0% 14.9%;
+		--muted-foreground: 0 0% 63.9%;
+		--accent: 0 0% 14.9%;
+		--accent-foreground: 0 0% 98%;
+		--destructive: 0 62.8% 30.6%;
+		--destructive-foreground: 0 0% 98%;
+		--border: 0 0% 14.9%;
+		--input: 0 0% 14.9%;
+		--ring: 0 0% 83.1%;
+		--chart-1: 220 70% 50%;
+		--chart-2: 160 60% 45%;
+		--chart-3: 30 80% 55%;
+		--chart-4: 280 65% 60%;
+		--chart-5: 340 75% 55%;
+		--sidebar-background: 240 5.9% 10%;
+		--sidebar-foreground: 240 4.8% 95.9%;
+		--sidebar-primary: 224.3 76.3% 48%;
+		--sidebar-primary-foreground: 0 0% 100%;
+		--sidebar-accent: 240 3.7% 15.9%;
+		--sidebar-accent-foreground: 240 4.8% 95.9%;
+		--sidebar-border: 240 3.7% 15.9%;
+		--sidebar-ring: 217.2 91.2% 59.8%;
+	}
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+@keyframes shake {
+	10%,
+	90% {
+		transform: translate3d(-1px, 0, 0);
+	}
+
+	20%,
+	80% {
+		transform: translate3d(2px, 0, 0);
+	}
+
+	30%,
+	50%,
+	70% {
+		transform: translate3d(-4px, 0, 0);
+	}
+
+	40%,
+	60% {
+		transform: translate3d(4px, 0, 0);
+	}
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.shake-animation {
+	animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+.hide-scrollbar {
+	scrollbar-width: none !important;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+
+.thin-scrollbar, .sidebar-scrollbar::-webkit-scrollbar {
+	width: 3px;
+	height: 3px;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+/* width */
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track,
+.thin-scrollbar::-webkit-scrollbar-track {
+	background: none;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb,
+.thin-scrollbar::-webkit-scrollbar-thumb {
+	background: #68748965 !important;
+	border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover,
+.thin-scrollbar::-webkit-scrollbar-thumb {
+	background: #555;
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
 }

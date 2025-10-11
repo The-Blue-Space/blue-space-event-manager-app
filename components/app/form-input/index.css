@@ -1,0 +1,102 @@
+@keyframes shake {
+	10%,
+	90% {
+		transform: translate3d(-1px, 0, 0);
+	}
+	20%,
+	80% {
+		transform: translate3d(2px, 0, 0);
+	}
+	30%,
+	50%,
+	70% {
+		transform: translate3d(-4px, 0, 0);
+	}
+	40%,
+	60% {
+		transform: translate3d(4px, 0, 0);
+	}
+}
+
+.shake-animation {
+	animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.input-container {
+	@apply flex flex-col w-full;
+}
+
+.input-container input,
+.input-container select,
+.input-container textarea {
+	@apply p-2 border border-opacity-50 rounded-md placeholder:text-b-2 text-b-2 border-neutral-500 outline-neutral-500 read-only:outline-none read-only:bg-neutral-50;
+}
+
+.input-style {
+	@apply p-2 border border-opacity-50 rounded-lg placeholder:text-b-2 text-b-2 border-neutral-500 outline-neutral-500 read-only:outline-none;
+}
+
+.input-container label {
+	@apply mb-0 font-medium text-b-2 text-primary-500 ;
+}
+
+/* .input-container label:has(> *:last-child) * {
+  color: #ef4444 !important;
+} */
+
+.input-container label:has(+ input:required:not([type="file"]))::after,
+.input-container label:has(+ textarea:required:not([type="file"]))::after {
+	content: " *"; /* Space + asterisk for natural spacing */
+	color: #29285C; /* Your red color; or theme var like var(--error) */
+	font-weight: bold; /* Optional: make it stand out */
+}
+/* Fallback for older browsers without :has() support */
+@supports not selector(:has(+ *)) {
+	.input-container input:required + label::after {
+		content: " *";
+		color: #ef4444;
+		font-weight: bold;
+	}
+	.input-container {
+		display: flex; /* Reorder if needed: put input before label in JSX temporarily? Nah, stick with :has() */
+	}
+}
+
+div {
+	position: relative;
+}
+
+.icon {
+	position: absolute;
+	right: 0%;
+	top: 55%;
+	padding-right: 20px;
+}
+
+/* input ,
+textarea {
+	@apply placeholder:uppercase;
+} */
+
+.invalid {
+	border: 1px solid red !important;
+	animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+	@apply !outline-[red];
+}
+
+.invalid input[type="checkBox"] {
+	border-color: red !important;
+	accent-color: red;
+}
+
+.password-input {
+	@apply flex pr-3 rounded border-neutral-500;
+}
+
+.password-input input {
+	@apply border-none outline-none;
+}
+
+select {
+	text-transform: capitalize !important;
+}
