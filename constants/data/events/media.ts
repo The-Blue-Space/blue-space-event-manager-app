@@ -1,0 +1,47 @@
+import { EventMedia } from "@/types/event-media.types";
+import { images } from "../images";
+
+export const eventMedias: EventMedia[] = [
+	{
+		id: "1",
+		event_id: "1",
+		url: images[0],
+		file_name: "event-1.jpg",
+		file_size: 100,
+		mime_type: "image/jpeg",
+		public_id: "1",
+		media_type: "image",
+		order: 1,
+		is_active: true,
+		created_at: new Date().toISOString(),
+		updated_at: new Date().toISOString(),
+	},
+	{
+		id: "2",
+		event_id: "1",
+		url: images[1],
+		file_name: "event-2.jpg",
+		file_size: 100,
+		mime_type: "image/jpeg",
+		public_id: "2",
+		media_type: "cover",
+		order: 2,
+		is_active: true,
+		created_at: new Date().toISOString(),
+		updated_at: new Date().toISOString(),
+	},
+	{
+		id: "3",
+		event_id: "1",
+		url: images[2],
+		file_name: "event-3.jpg",
+		file_size: 100,
+		mime_type: "image/jpeg",
+		public_id: "3",
+		media_type: "image",
+		order: 3,
+		is_active: true,
+		created_at: new Date().toISOString(),
+		updated_at: new Date().toISOString(),
+	},
+];

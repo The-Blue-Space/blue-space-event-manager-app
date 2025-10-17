@@ -1,18 +1,23 @@
 import { User } from "lucide-react";
 import AppDropdown from "../../app-dropdown";
-// import useAppSelector from "@/store/hooks";
-// import mergeText from "@/lib/transform-text";
-import Logout from "./log-out";
+import useAppSelector from "@/store/hooks";
+
+import LogOut from "./log-out";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 export default function UserIcon() {
-	// const { account } = useAppSelector("account");
-	const fullName = "";
+	const { account } = useAppSelector("account");
+	const fullName = account?.name;
 	return (
 		<AppDropdown
 			contentStyle="p-0"
 			triggerStyle="hover:scale-110 transition-all duration-300 hover:bg-neutral-200 rounded-full"
-			trigger={<User className="!size-5" />}
+			trigger={
+				<Badge className="bg-primary-300/30 rounded-full p-0 size-8 flex items-center justify-center">
+					<User className="!size-5 text-primary-500" />
+				</Badge>
+			}
 		>
 			<div className="space-y">
 				<div className="flex flex-col gap-3">
@@ -23,15 +28,13 @@ export default function UserIcon() {
 							<span className="font-semibold capitalize body-3 line-clamp-1 text-black-base">
 								{fullName}
 							</span>
-							<small className="font-normal body-3 text-neutral-700">
-								{/* {account?.user_id?.email} */}
-							</small>
+							<small className="font-normal body-3 text-neutral-700">{account?.email}</small>
 						</div>
 					</div>
 				</div>
 
 				<Separator />
-				<Logout />
+				<LogOut />
 			</div>
 		</AppDropdown>
 	);

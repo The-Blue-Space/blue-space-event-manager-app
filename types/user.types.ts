@@ -1,3 +1,5 @@
+import { Order } from "./order.types";
+
 export const ACCOUNT_STATUS = [
 	"pending_verification",
 	"active",
@@ -9,16 +11,16 @@ export type AccountStatus = (typeof ACCOUNT_STATUS)[number];
 
 export type User = {
 	id: string;
-	email: string;
-	username: string;
+	username?: string;
 	name: string;
-	avatar_url: string | null;
+	email: string;
+	phone?: string;
+	avatar_url?: string;
 	is_verified: boolean;
 	is_admin: boolean;
 	account_status: AccountStatus;
-	phone: string;
 	status_changed_at: string;
-	deleted_at: string | null;
+	deleted_at?: string | null;
 	created_at: string;
 	updated_at: string;
 };
@@ -33,4 +35,26 @@ export type ManagerProfile = {
 	user: User;
 	created_at: string;
 	updated_at: string;
+};
+
+export type UserDashboardData = {
+	overview: {
+		total_events: {
+			total_events: number;
+			upcoming_events: number;
+		};
+		total_attendees: {
+			total_attendees: number;
+			attendees_this_month: number;
+		};
+		ticket_sales: {
+			ticket_sales: number;
+			ticket_sales_this_month: number;
+		};
+		revenue: {
+			total_revenue: number;
+			revenue_this_month: number;
+		};
+	};
+	recent_orders: Order[];
 };

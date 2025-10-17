@@ -17,13 +17,13 @@ type Props = {
 export default function AppCheckbox({ placement = "left", ...props }: Props) {
 	const containerCn = classNames("flex items-center gap-2", props.containerClassName);
 	const checkboxCn = classNames(
-		"data-[state=checked]:bg-[#FD9727] data-[state=checked]:border-secondary-100",
+		"data-[state=checked]:bg-accent-500 data-[state=checked]:border-neutral-100",
 		props.className
 	);
 
 	const labelCn = classNames("body-2", props.labelClassName);
 
-	const checkIconStyle = classNames("", props.checkIconStyle);
+	const checkIconStyle = classNames("text-white", props.checkIconStyle);
 	return (
 		<div className={containerCn}>
 			{props.label && placement === "left" && (

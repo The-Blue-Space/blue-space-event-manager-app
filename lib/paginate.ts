@@ -40,39 +40,18 @@ export default function paginate<T>(params: PaginatePayload<T>): PaginatedRespon
 	};
 }
 
-// {
-//     "status": true,
-//     "message": "Transactions Retrieved Successfully",
-//     "data": {
-//         "current_page": 1,
-//         "data": [],
-//         "first_page_url": "http://127.0.0.1:8000/api/account/transactions?page=1",
-//         "from": 1,
-//         "last_page": 1,
-//         "last_page_url": "http://127.0.0.1:8000/api/account/transactions?page=1",
-//         "links": [
-//             {
-//                 "url": null,
-//                 "label": "&laquo; Previous",
-//                 "active": false
-//             },
-//             {
-//                 "url": "http://127.0.0.1:8000/api/account/transactions?page=1",
-//                 "label": "1",
-//                 "active": true
-//             },
-//             {
-//                 "url": null,
-//                 "label": "Next &raquo;",
-//                 "active": false
-//             }
-//         ],
-//         "next_page_url": null,
-//         "path": "http://127.0.0.1:8000/api/account/transactions",
-//         "per_page": 20,
-//         "prev_page_url": null,
-//         "to": 2,
-//         "total": 2
-//     },
-//     "status_code": 200
-// }
+
+export function generatePaginateResponse<T>(data: T[]): PaginatedResponse<T> {
+	return {
+		docs: data,
+		totalDocs: data.length,
+		limit: 10,
+		page: 1,
+		totalPages: 1,
+		hasNextPage: false,
+		nextPage: null,
+		hasPrevPage: false,
+		prevPage: null,
+		pagingCounter: 1,
+	};
+}

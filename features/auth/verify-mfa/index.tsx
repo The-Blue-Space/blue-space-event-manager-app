@@ -35,7 +35,7 @@ export default function VerifyMFA() {
 					});
 					setCookie(variables.STORAGE_KEYS.manager_profile_id, res.manager_profile.id);
 
-					navigate("/dashboard", { replace: true });
+					navigate("/home", { replace: true });
 				}
 			} catch (error) {
 				const errMsg = ensureError(error).message;

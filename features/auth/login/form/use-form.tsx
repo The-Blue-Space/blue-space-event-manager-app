@@ -5,6 +5,7 @@ import useStorage from "@/hooks/use-storage";
 import ensureError, { formatZodErrors } from "@/lib/ensure-error";
 import loginAccount from "@/services/account/login-account";
 
+
 import * as React from "react";
 
 import { toast } from "sonner";
@@ -54,7 +55,12 @@ export default function useForm() {
 
 			setStorage(emailKey, response?.user?.email ?? "");
 
-			navigate("/verify-mfa");
+			if(variables.IS_DEV){
+				navigate("/verify-mfa?token=123456")
+				return 
+			}
+
+			navigate("/mfa");
 		} catch (error) {
 			if (error instanceof ZodError) {
 				setErrors(formatZodErrors(error));
@@ -62,10 +68,7 @@ export default function useForm() {
 			}
 			const errMsg = ensureError(error);
 			toast.error(errMsg.message, {
-				position: "top-left",
-				style: {
-					marginTop: "60px",
-				},
+				
 			});
 		} finally {
 			setIsLoading(false);

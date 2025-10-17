@@ -41,7 +41,7 @@ export default function Form() {
 				</Button>
 
 				<a
-					href={variables.EXTERNAL_LINKS.client_app}
+					href={variables.EXTERNAL_LINKS.mobile_app}
 					target="_blank"
 					className="text-primary-300 hover:text-primary-1000 body-3 transition-colors"
 				>

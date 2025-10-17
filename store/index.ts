@@ -3,12 +3,12 @@ import accountSlice from "./account.slice";
 import uiSlice from "./ui.slice";
 import { variables } from "@/constants";
 import managerProfileSlice from "./manager-profile.slice";
-// import initSlice from "./init.slice";
+import initSlice from "./init.slice";
 
 export const store = configureStore({
 	reducer: {
 		ui: uiSlice,
-		// init: initSlice,
+		init: initSlice,
 		account: accountSlice,
 		managerProfile: managerProfileSlice,
 	},

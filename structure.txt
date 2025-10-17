@@ -1,0 +1,67 @@
+
+├── app
+|  ├── (auth)
+|  ├── (protected)
+|  ├── favicon.ico
+|  ├── globals.css
+|  ├── layout.tsx
+|  └── page.tsx
+├── components
+|  ├── app
+|  └── ui
+├── components.json
+├── config
+|  └── query-client-config.ts
+├── constants
+|  ├── assets.ts
+|  ├── data
+|  ├── file-types.ts
+|  ├── index.ts
+|  └── vars.ts
+├── contexts
+|  └── use-auth-gate.tsx
+├── eslint.config.mjs
+├── example.env
+├── features
+|  └── auth
+├── hooks
+|  ├── use-app-query-client.tsx
+|  ├── use-cookie.tsx
+|  ├── use-countdown.tsx
+|  ├── use-init.tsx
+|  ├── use-mobile.ts
+|  ├── use-mobile.tsx
+|  ├── use-navigation.tsx
+|  └── use-storage.tsx
+├── layout
+|  └── app-layout.tsx
+├── lib
+├── next-env.d.ts
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── project-structure.txt
+├── public
+|  ├── icons
+|  ├── images
+|  └── logos
+├── README.md
+├── services
+|  └── account
+├── store
+|  ├── account.slice.ts
+|  ├── actions.ts
+|  ├── hooks.ts
+|  ├── index.ts
+|  ├── init.slice.ts
+|  ├── manager-profile.slice.ts
+|  └── ui.slice.ts
+├── structure.txt
+├── tailwind.config.js
+├── tsconfig.json
+└── types
+   ├── global.types.ts
+   └── user.types.ts
+
+

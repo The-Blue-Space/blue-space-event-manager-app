@@ -1,0 +1,91 @@
+import {
+	Drawer,
+	DrawerClose,
+	DrawerContent,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerTitle,
+} from "@/components/ui/drawer";
+import classNames from "classnames";
+import { X } from "lucide-react";
+import React from "react";
+import ErrorBoundary from "./error-boundary";
+
+type DrawerProps = {
+	direction: "left" | "right" | "top" | "bottom";
+	children: React.ReactNode;
+	footer?: React.ReactNode;
+	open: boolean;
+	handleChange(state: boolean): void;
+	title?: string;
+	className?: string;
+	showLogo?: boolean;
+	logoScope?: "1" | "2" | "3";
+	sticky?: string;
+	headerClassName?: string;
+	drawerTitleClassName?: string;
+	handleOnly?: boolean;
+	showCloseButton?: boolean;
+	showHeader?: boolean;
+};
+export default function AppDrawer({
+	handleOnly = true,
+	showHeader = true,
+	showCloseButton = true,
+	...props
+}: DrawerProps) {
+	const headerClx = classNames(
+		"flex justify-between items-center border-b border-neutral-200",
+		props.headerClassName,
+		{
+			"sticky top-0 z-10 bg-white": props.sticky,
+		}
+	);
+
+	const drawerTitleClx = classNames(
+		"flex gap-2 items-center font-semibold body-1 text-neutral-1000",
+		props.drawerTitleClassName
+	);
+
+	const cn = classNames("h-full  outline-none ", props.className, {
+		"lg:ml-[68%] !overflow-x-hidden": props.direction === "right",
+		"lg:mr-[68%] !overflow-x-hidden": props.direction === "left",
+		"overflow-hidden border-none": props.direction === "bottom",
+	});
+
+	return (
+		<Drawer
+			direction={props.direction}
+			onOpenChange={props.handleChange}
+			open={props.open}
+			handleOnly={handleOnly}
+		>
+			<DrawerContent className={cn} draggable={false}>
+				<div className="flex overflow-y-auto flex-col h-screen">
+					<DrawerDescription />
+					{showHeader && (
+						<DrawerHeader className={headerClx}>
+							{props.title && (
+								<DrawerTitle className={drawerTitleClx}>
+									{/* {showLogo && <AppLogo scope={props.logoScope ?? "1"} />} */}
+									{props.title}
+								</DrawerTitle>
+							)}
+							{showCloseButton && (
+								<DrawerClose
+									onClick={() => props.handleChange(false)}
+									className="p-1 rounded-full bg-neutral-300"
+								>
+									<X className="w-5 h-5" />
+								</DrawerClose>		
+							)}
+						</DrawerHeader>
+					)}
+					<ErrorBoundary>{props.children}</ErrorBoundary>
+					{props.footer && <DrawerFooter>{props.footer}</DrawerFooter>}
+				</div>
+			</DrawerContent>
+		</Drawer>
+	);
+}

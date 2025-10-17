@@ -25,10 +25,16 @@ export default function Logout() {
 		>
 			<SidebarMenuButton
 				asChild
-				className={cn(linkStyle, "group-data-[collapsible=icon]:", {
-					"bg-[#CCE9FE] font-semibold text-primary-800": isActive,
+				className={cn(linkStyle, "group-data-[collapsible=icon]:justify-center", {
+					"font-semibold text-primary-800": isActive,
 					"font-normal text-[#CCE9FE]": !isActive,
 				})}
+				tooltip={{
+					asChild: true,
+					children: (
+						<span className="body-2 capitalize !bg-neutral-800 text-neutral-200">Log out</span>
+					),
+				}}
 			>
 				<button onClick={click} className="p-0">
 					<Image

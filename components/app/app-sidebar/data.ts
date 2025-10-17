@@ -1,54 +1,80 @@
-import * as icons from "./icons";
+import classNames from "classnames";
+import React from "react";
+import {  CalendarCheck2, CreditCard, Home, Megaphone, Recycle, Settings, TicketPlus } from "lucide-react";
 export type SidebarLink = {
 	name: string;
 	path: string;
-	icon?: string;
-	activeIcon?: string;
+	icon?: React.ReactNode;
+	activeIcon?: React.ReactNode;
 	relativePaths?: string[];
 	subLinks?: SidebarLink[];
+};
+
+// Sidebar links
+// home
+// events
+// orders
+// marketing
+// refunds
+// finance
+// settings
+
+const IconContainer = (node: any, isActiveIcon?: boolean) => {
+	const cn = classNames("size-full text-neutral-200/50", {
+		"text-neutral-200/50": !isActiveIcon,
+		"!text-accent-500": isActiveIcon,
+	});
+	return React.createElement(node, { className: cn });
 };
 
 export const sidebarLinks: SidebarLink[] = [
 	{
 		name: "home",
 		path: "/home",
-		icon: icons.homeIcon,
-		activeIcon: icons.homeIcon02,
+		icon: IconContainer(Home),
+		activeIcon: IconContainer(Home, true),
 		relativePaths: [],
 	},
 	{
-		name: "transfers",
-		path: "/transfers",
-		icon: icons.transfersIcon,
-		activeIcon: icons.transfersIcon02,
+		name: "events",
+		path: "/events",
+		icon: IconContainer(CalendarCheck2),
+		activeIcon: IconContainer(CalendarCheck2, true),
 		relativePaths: [],
 	},
 	{
-		name: "placement",
-		path: "/placements",
-		icon: icons.placementIcon,
-		activeIcon: icons.placementIcon02,
+		name: "orders",
+		path: "/orders",
+		icon: IconContainer(TicketPlus),
+		activeIcon: IconContainer(TicketPlus, true),
 		relativePaths: [],
 	},
 	{
-		name: "beneficiaries",
-		path: "/beneficiaries",
-		icon: icons.beneficiariesIcon,
-		activeIcon: icons.beneficiariesIcon02,
+		name: "marketing",
+		path: "/marketing",
+		icon: IconContainer(Megaphone),
+		activeIcon: IconContainer(Megaphone, true),
 		relativePaths: [],
 	},
 	{
-		name: "transactions",
-		path: "/transactions",
-		icon: icons.transactionsIcon,
-		activeIcon: icons.transactionsIcon02,
+		name: "refunds",
+		path: "/refunds",
+		icon: IconContainer(Recycle),
+		activeIcon: IconContainer(Recycle, true),
 		relativePaths: [],
 	},
 	{
-		name: "my account",
-		path: "/account",
-		icon: icons.myAccountIcon,
-		activeIcon: icons.myAccountIcon02,
+		name: "finance",
+		path: "/finance",
+		icon: IconContainer(CreditCard),
+		activeIcon: IconContainer(CreditCard, true),
+		relativePaths: [],
+	},
+	{
+		name: "settings",
+		path: "/settings",
+		icon: IconContainer(Settings),
+		activeIcon: IconContainer(Settings, true),
 		relativePaths: [],
 	},
 ];

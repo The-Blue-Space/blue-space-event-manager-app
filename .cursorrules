@@ -1,0 +1,335 @@
+# Blue Space Manager App - Cursor Rules
+
+## Component Architecture & Organization
+
+### Component Size & Breakdown Guidelines
+
+**When to Break Down Components:**
+
+- Components exceeding **100-150 lines** should be broken down into smaller sub-components
+- Components with multiple distinct sections/responsibilities should be modularized
+- Repeated UI patterns should be extracted into reusable sub-components
+
+**Folder Structure Pattern:**
+
+```
+feature-name/
+├── index.tsx              # Main component (orchestration)
+├── sub-component-1.tsx    # Sub-component 1
+├── sub-component-2.tsx    # Sub-component 2
+└── sub-component-3.tsx    # Sub-component 3
+```
+
+**Example Structure (Order Details):**
+
+```
+order-details/
+├── index.tsx                  # Main OrderDetailsDrawer component
+├── payment-information.tsx    # Payment details section
+├── amount-details.tsx         # Amount breakdown section
+├── customer-details.tsx       # Customer info section
+├── order-ticket-details.tsx   # Ticket & event details
+└── order-timeline.tsx         # Order timeline/history
+```
+
+### Component Breakdown Principles
+
+1. **Single Responsibility**: Each sub-component should handle one specific aspect of the feature
+2. **Clear Naming**: Use descriptive names that indicate the component's purpose
+3. **Flat Structure**: Keep sub-components at the same level as `index.tsx` (no nested folders)
+4. **Props Interface**: Each sub-component should have a clear, typed props interface
+5. **Reusability**: Extract patterns that appear multiple times into shared sub-components
+
+### Main Component (index.tsx) Responsibilities
+
+The main component (`index.tsx`) should:
+
+- Handle data fetching and state management
+- Orchestrate sub-components
+- Manage component-level business logic
+- Pass down data to sub-components via props
+- Handle user interactions that affect multiple sub-components
+
+Example:
+
+```tsx
+export default function OrderDetailsDrawer() {
+  // Data fetching
+  const { data: order, isLoading } = useQuery(...);
+
+  // State management
+  const [selectedTab, setSelectedTab] = useState('details');
+
+  // Render sub-components
+  return (
+    <AppDrawer>
+      <PaymentInformation order={order} />
+      <AmountDetails order={order} />
+      <CustomerDetails order={order} />
+      <OrderTicketDetails order={order} />
+      <OrderTimeline order={order} />
+    </AppDrawer>
+  );
+}
+```
+
+### Sub-Component Responsibilities
+
+Sub-components should:
+
+- Focus on rendering a specific section/feature
+- Receive data via props (not fetch data themselves)
+- Be independently testable
+- Be reusable across similar contexts
+
+Example:
+
+```tsx
+type PaymentInformationProps = {
+	order: Order;
+};
+
+export default function PaymentInformation({ order }: PaymentInformationProps) {
+	return <div>{/* Render payment information */}</div>;
+}
+```
+
+## Service Layer Patterns
+
+### Service Function Standards
+
+All service functions must follow this pattern:
+
+```typescript
+import { variables } from "@/constants";
+import { dataFromConstants } from "@/constants/data/...";
+import axios from "@/lib/axios";
+import { ResponseType } from "@/types/...";
+
+type Parameters = {
+	id: string;
+	// other params...
+};
+
+type Response = ResponseType;
+
+export async function production(params: Parameters): Promise<Response> {
+	const response = await axios.get(`/v1/resource/${params.id}`);
+	return response.data.data;
+}
+
+export async function development(params: Parameters): Promise<Response> {
+	// Use constants data for mock response
+	return new Promise((resolve) => {
+		setTimeout(() => resolve(dataFromConstants[0]), 800);
+	});
+}
+
+export default async function getResourceDetails(params: Parameters): Promise<Response> {
+	if (variables.SERVICE_ENV === "development") return development(params);
+	return production(params);
+}
+```
+
+**Key Requirements:**
+
+- All services must use `Parameters` type object pattern (not individual parameters)
+- Development mode must use constants data from `@/constants/data/`
+- Export `production`, `development`, and default function
+- Proper TypeScript typing for all functions
+- Consistent timeout for development mode (800-1500ms)
+
+## Data & Constants
+
+### Static Data Location
+
+All static/mock data must be stored in:
+
+```
+constants/
+└── data/
+    ├── events/
+    │   ├── events.ts
+    │   ├── event-tickets.ts
+    │   ├── event-category.ts
+    │   └── media.ts
+    ├── orders.ts
+    ├── user.ts
+    └── ...
+```
+
+**Rules:**
+
+- No hardcoded mock data in components or services
+- All development data should come from constants
+- Use realistic, production-like data
+- Include proper relationships (nested objects) as per TypeScript types
+
+## UI Component Usage
+
+### Preferred Components
+
+**Drawers:**
+
+- Use `AppDrawer` from `@/components/app/app-drawer` (NOT Sheet component)
+- Direction: `"right"` for detail views, `"bottom"` for mobile-friendly modals
+- Always set `showLogo={false}` for detail drawers
+- Add `className="hide-scrollbar"` for clean appearance
+
+Example:
+
+```tsx
+<AppDrawer
+	title="Order Details"
+	open={open}
+	direction="right"
+	handleChange={onOpenChange}
+	className="hide-scrollbar"
+	showLogo={false}
+>
+	{children}
+</AppDrawer>
+```
+
+### Loading States
+
+**Always include loading states for:**
+
+- Data fetching operations
+- Async operations (metrics, details, lists)
+- Use `Skeleton` components from `@/components/ui/skeleton`
+
+Example:
+
+```tsx
+const { data: metrics, isLoading } = useQuery(...);
+
+{isLoading ? (
+  <MetricsLoading />
+) : (
+  <MetricsDisplay data={metrics} />
+)}
+```
+
+## TypeScript & Type Safety
+
+### Type Alignment
+
+- All components must align with defined TypeScript types
+- No `any` types unless absolutely necessary
+- Use proper optional chaining for nullable fields
+- Prefer union types over loose types
+
+Example:
+
+```tsx
+// Good
+const coverImage = event.event_media?.find((m) => m.media_type === "cover")?.url;
+
+// Bad
+const coverImage = event.image; // Wrong property
+```
+
+### Type Exports
+
+```typescript
+export type ComponentProps = {
+	data: DataType;
+	onAction: (id: string) => void;
+};
+```
+
+## Code Style & Best Practices
+
+### Import Organization
+
+1. React & Next.js imports
+2. Third-party libraries
+3. UI components
+4. App components
+5. Services & utilities
+6. Types
+7. Constants
+
+### Component Exports
+
+- Use default exports for main components
+- Use named exports for sub-components used elsewhere
+- Export helper components (Loading, Empty) if reusable
+
+### Error Handling
+
+- Wrap feature components in `ErrorBoundary`
+- Provide fallback UI for error states
+- Use `Render` component for unified loading/error handling
+
+Example:
+
+```tsx
+<ErrorBoundary>
+	<Render isLoading={isLoading} isError={isError} error={error}>
+		{children}
+	</Render>
+</ErrorBoundary>
+```
+
+## Performance Considerations
+
+### Query Configuration
+
+- Enable queries conditionally with `enabled` flag
+- Use proper query keys with dependencies
+- Implement proper cache invalidation
+
+Example:
+
+```tsx
+const { data } = useQuery({
+	queryKey: ["event-metrics", eventId],
+	queryFn: () => getEventMetrics({ eventId }),
+	enabled: !!eventId,
+});
+```
+
+### Component Optimization
+
+- Use `React.memo` for components that don't need frequent re-renders
+- Implement proper key props for lists
+- Avoid inline function definitions in render when possible
+
+## Documentation
+
+### Component Documentation
+
+Include JSDoc comments for complex components:
+
+```tsx
+/**
+ * OrderDetailsDrawer - Displays comprehensive order information
+ *
+ * Features:
+ * - Payment information display
+ * - Customer details
+ * - Order timeline
+ * - Amount breakdown
+ *
+ * @param orderId - The ID of the order to display
+ * @param open - Controls drawer visibility
+ * @param onOpenChange - Callback when drawer state changes
+ */
+```
+
+## Summary Checklist
+
+When creating or refactoring components:
+
+- [ ] Component is under 150 lines or properly broken down
+- [ ] Follows `feature-name/index.tsx + sub-component.tsx` structure
+- [ ] Uses AppDrawer instead of Sheet
+- [ ] Services use Parameters pattern and constants data
+- [ ] Includes loading states for async operations
+- [ ] Properly typed with TypeScript
+- [ ] Wrapped in ErrorBoundary
+- [ ] Uses proper React Query configuration
+- [ ] Imports are organized
+- [ ] Mock data comes from constants

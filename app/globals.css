@@ -67,7 +67,7 @@
 	}
 
 	.button-secondary {
-		@apply button bg-secondary-300 text-neutral-100;
+		@apply button bg-accent-500 text-neutral-100;
 	}
 
 	.button-destructive {
@@ -97,6 +97,12 @@
 	.button-outline {
 		@apply bg-transparent border button text-neutral-900;
 	}
+
+	/* utils */
+	.primary-badge {
+		@apply !bg-primary-300/30
+	}
+
 }
 
 @layer base {
@@ -135,7 +141,7 @@
 		--chart-5: 27 87% 67%;
 		--radius: 0.5rem;
 		--sidebar-background: 0 0% 98%;
-		--sidebar-foreground: 240 5.3% 26.1%;
+		--sidebar-foreground: 245 40% 20%; /* #29285C */
 		--sidebar-primary: 240 5.9% 10%;
 		--sidebar-primary-foreground: 0 0% 98%;
 		--sidebar-accent: 240 4.8% 95.9%;

@@ -4,10 +4,18 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="skeleton"
-      className={cn("bg-accent animate-pulse rounded-sm", className)}
+      className={cn("bg-neutral-200 animate-pulse rounded-md", className)}
       {...props}
     />
   )
 }
 
-export { Skeleton }
+
+function SkeletonList({ count, className }: { count: number; className?: string }) {
+
+  return (Array.from({ length: count }).map((_, index) => (
+    <Skeleton key={index} className={className} />
+  )))
+}
+
+export { Skeleton, SkeletonList }

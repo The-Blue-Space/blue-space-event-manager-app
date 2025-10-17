@@ -17,7 +17,8 @@ export type StorageKeys = {
 export type ExternalLinks = {
 	terms: string;
 	privacy: string;
-	client_app: string;
+	mobile_app: string;
+	website: string;
 };
 
 export type SupportLinks = {
@@ -49,7 +50,8 @@ const STORAGE_KEYS: StorageKeys = {
 const EXTERNAL_LINKS: ExternalLinks = {
 	terms: "",
 	privacy: "",
-	client_app: (process.env.NEXT_PUBLIC_HALO_PERSONAL_BANKING_URL as string) ?? "",
+	mobile_app: (process.env.NEXT_PUBLIC_MOBILE_APP_URL as string) ?? "",
+	website: (process.env.NEXT_PUBLIC_WEBSITE_URL as string) ?? "",
 };
 
 const SUPPORT_LINKS: SupportLinks = {
