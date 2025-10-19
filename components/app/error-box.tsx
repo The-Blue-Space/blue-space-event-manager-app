@@ -7,7 +7,7 @@ type ErrorBoxProps = {
 
 export default React.memo(function ErrorBox(props: ErrorBoxProps) {
 	const [error, setError] = React.useState<Error | null>(null);
-	const cn = classnames("w-full h-full flex items-center justify-center");
+	const cn = classnames("w-full h-full flex items-center justify-center col-span-full");
 
 	React.useLayoutEffect(() => {
 		if (!props.error) return;

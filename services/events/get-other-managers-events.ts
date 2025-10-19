@@ -16,7 +16,7 @@ export async function development(): Promise<Response> {
 	const upcomingEvents = events.filter((event) => {
 		if (!event.event_start_date) return false;
 		const startDate = new Date(event.event_start_date);
-		return startDate > now && event.is_active;
+		return startDate > now && event.published;
 	});
 
 	// Return a portion as "other managers' events"

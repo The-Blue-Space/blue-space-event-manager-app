@@ -6,6 +6,7 @@ type Props = {
 	trigger: React.ReactNode | string;
 	contentClass?: string;
 	triggerClass?: string;
+	side?: "top" | "bottom" | "left" | "right";
 };
 
 export default function AppTooltip({ children, trigger, ...props }: Props) {
@@ -21,7 +22,7 @@ export default function AppTooltip({ children, trigger, ...props }: Props) {
 					{trigger}
 				</TooltipTrigger>
 			)}
-			<TooltipContent className={contentClass}>{children}</TooltipContent>
+			<TooltipContent className={contentClass} side={props.side}>{children}</TooltipContent>
 		</Tooltip>
 	);
 }

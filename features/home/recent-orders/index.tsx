@@ -38,7 +38,7 @@ export default function RecentOrders({ isLoading, data }: HomeProps) {
 						<div className="overflow-auto border rounded-lg">
 							<OrdersTable
 								data={data?.recent_orders ?? []}
-								isEmpty={!isLoading && data?.recent_orders.length === 0}
+								isEmpty={!isLoading && data?.recent_orders?.length === 0}
 								onViewDetails={handleViewDetails}
 							/>
 						</div>

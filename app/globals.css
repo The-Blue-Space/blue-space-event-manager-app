@@ -59,7 +59,7 @@
 
 	/* button */
 	.button {
-		@apply px-3 py-3 font-medium text-center transition-all duration-300 rounded cursor-pointer font-manrope first-letter:uppercase active:opacity-50 hover:lg:opacity-50 disabled:cursor-default disabled:opacity-50 !text-b-3;
+		@apply px-3 py-2 !text-b-3 rounded-lg font-medium text-center transition-all duration-300 cursor-pointer font-manrope first-letter:uppercase active:opacity-50 hover:lg:opacity-50 disabled:cursor-default disabled:opacity-50;
 	}
 
 	.button-primary {

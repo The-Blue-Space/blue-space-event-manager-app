@@ -22,41 +22,42 @@ const useCustomNavigation = () => {
 				return acc;
 			}, {} as Record<string, string>);
 		},
-		set: (name: string, value: string) => {
+		set: (name: string, value: string,scroll: boolean = false) => {
 			const params = new URLSearchParams(searchParams.toString());
 			params.set(name, value);
-			router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+			router.replace(`${pathname}?${params.toString()}`, { scroll });
 		},
-		setQueries: (queries: Record<string, string>) => {
+		setQueries: (queries: Record<string, string>,scroll: boolean = false) => {
 			const params = new URLSearchParams(searchParams.toString());
 			Object.entries(queries)
 				.filter((item) => item[1] !== undefined && item[1] !== "")
 				.forEach(([key, value]) => params.set(key, value));
-			router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+			router.replace(`${pathname}?${params.toString()}`, { scroll });
 		},
-		append: (name: string, value: string) => {
+		append: (name: string, value: string,scroll: boolean = false) => {
 			const params = new URLSearchParams(searchParams.toString());
 			params.append(name, value);
-			router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+			router.replace(`${pathname}?${params.toString()}`, { scroll });
 		},
 		deleteAndUpdate: (
 			deleteString: string[],
-			update: Record<string, string>
+			update: Record<string, string>,
+			scroll: boolean = false
 		) => {
 			const params = new URLSearchParams(searchParams.toString());
 			deleteString.forEach((name) => params.delete(name));
 			Object.entries(update).forEach(([key, value]) => params.set(key, value));
-			router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+			router.replace(`${pathname}?${params.toString()}`, { scroll });
 		},
-		delete: (name: string) => {
+		delete: (name: string,scroll: boolean = false) => {
 			const params = new URLSearchParams(searchParams.toString());
 			params.delete(name);
-			router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+			router.replace(`${pathname}?${params.toString()}`, { scroll });
 		},
-		deleteQueries: (names: string[]) => {
+		deleteQueries: (names: string[],scroll: boolean = false) => {
 			const params = new URLSearchParams(searchParams.toString());
 			names.forEach((name) => params.delete(name));
-			router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+			router.replace(`${pathname}?${params.toString()}`, { scroll });
 		},
 	};
 

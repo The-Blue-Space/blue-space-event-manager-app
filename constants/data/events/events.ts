@@ -64,7 +64,7 @@ export const events: Event[] = [
 		enable_downloads: true,
 		allow_individual_upload: true,
 		allow_professional_upload: true,
-		is_active: true,
+		published: true,
 		is_duplicated: false,
 		event_plan_id: "plan_premium",
 		event_shot_quota_id: eventShotQuotas[0]?.id,
@@ -78,6 +78,13 @@ export const events: Event[] = [
 		created_at: "2024-11-01T10:00:00.000Z",
 		updated_at: new Date().toISOString(),
 		created_by: manager_profiles[0],
+		// Metrics
+		ticket_sold: 18500,
+		total_uploads: 42300,
+		total_participants: 18500,
+		total_revenue: 925000, // $925,000
+		total_refunds: 12500, // $12,500
+		published_at: "2024-11-05T10:00:00.000Z",
 		event_media: [
 			{
 				id: "media_001_1",
@@ -152,7 +159,7 @@ export const events: Event[] = [
 		enable_downloads: true,
 		allow_individual_upload: false,
 		allow_professional_upload: true,
-		is_active: true,
+		published: true,
 		is_duplicated: false,
 		event_plan_id: "plan_enterprise",
 		event_shot_quota_id: eventShotQuotas[1]?.id,
@@ -166,6 +173,13 @@ export const events: Event[] = [
 		created_at: "2024-09-15T09:00:00.000Z",
 		updated_at: new Date().toISOString(),
 		created_by: manager_profiles[0],
+		// Metrics
+		ticket_sold: 4250,
+		total_uploads: 15680,
+		total_participants: 4250,
+		total_revenue: 637500, // $637,500
+		total_refunds: 8750, // $8,750
+		published_at: "2024-09-20T09:00:00.000Z",
 		event_media: [
 			{
 				id: "media_002_1",
@@ -226,7 +240,7 @@ export const events: Event[] = [
 		enable_downloads: true,
 		allow_individual_upload: true,
 		allow_professional_upload: true,
-		is_active: false,
+		published: false,
 		is_duplicated: false,
 		event_plan_id: "plan_standard",
 		event_shot_quota_id: eventShotQuotas[0]?.id,
@@ -240,6 +254,13 @@ export const events: Event[] = [
 		created_at: "2024-10-01T11:00:00.000Z",
 		updated_at: "2024-12-15T20:05:00.000Z",
 		created_by: manager_profiles[0],
+		// Metrics (Past event, unpublished - had some sales before being unpublished)
+		ticket_sold: 890,
+		total_uploads: 3420,
+		total_participants: 890,
+		total_revenue: 44500, // $44,500
+		total_refunds: 2250, // $2,250
+		published_at: null, // Never published or unpublished later
 		event_media: [
 			{
 				id: "media_003_1",
@@ -300,7 +321,7 @@ export const events: Event[] = [
 		enable_downloads: true,
 		allow_individual_upload: false,
 		allow_professional_upload: true,
-		is_active: true,
+		published: true,
 		is_duplicated: false,
 		event_plan_id: "plan_premium",
 		event_shot_quota_id: eventShotQuotas[1]?.id,
@@ -314,6 +335,13 @@ export const events: Event[] = [
 		created_at: "2024-12-01T08:00:00.000Z",
 		updated_at: new Date().toISOString(),
 		created_by: manager_profiles[0],
+		// Metrics (Individual access - no tickets)
+		ticket_sold: null,
+		total_uploads: 2150,
+		total_participants: 425,
+		total_revenue: null,
+		total_refunds: null,
+		published_at: "2024-12-05T08:00:00.000Z",
 		event_media: [
 			{
 				id: "media_004_1",
@@ -374,7 +402,7 @@ export const events: Event[] = [
 		enable_downloads: true,
 		allow_individual_upload: true,
 		allow_professional_upload: true,
-		is_active: true,
+		published: true,
 		is_duplicated: false,
 		event_plan_id: "plan_premium",
 		event_shot_quota_id: eventShotQuotas[0]?.id,
@@ -388,6 +416,13 @@ export const events: Event[] = [
 		created_at: "2024-11-15T14:00:00.000Z",
 		updated_at: new Date().toISOString(),
 		created_by: manager_profiles[0],
+		// Metrics
+		ticket_sold: 2340,
+		total_uploads: 8920,
+		total_participants: 2340,
+		total_revenue: 351000, // $351,000
+		total_refunds: 4500, // $4,500
+		published_at: "2024-11-20T14:00:00.000Z",
 		event_media: [
 			{
 				id: "media_005_1",
@@ -448,7 +483,7 @@ export const events: Event[] = [
 		enable_downloads: false,
 		allow_individual_upload: false,
 		allow_professional_upload: true,
-		is_active: true,
+		published: true,
 		is_duplicated: false,
 		event_plan_id: "plan_standard",
 		event_shot_quota_id: eventShotQuotas[1]?.id,
@@ -462,6 +497,13 @@ export const events: Event[] = [
 		created_at: "2025-01-05T10:00:00.000Z",
 		updated_at: new Date().toISOString(),
 		created_by: manager_profiles[0],
+		// Metrics
+		ticket_sold: 650,
+		total_uploads: 1240,
+		total_participants: 650,
+		total_revenue: 48750, // $48,750
+		total_refunds: 1250, // $1,250
+		published_at: "2025-01-10T10:00:00.000Z",
 		event_media: [
 			{
 				id: "media_006_1",

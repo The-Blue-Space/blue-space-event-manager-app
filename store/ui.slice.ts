@@ -11,14 +11,21 @@ export type DialogPayload = {
 		// this is for success,info delete and any static dialogs
 		title?: string;
 		text?: string;
+		customTitle?: React.ReactNode;
+		customText?: React.ReactNode;
+		customContent?: React.ReactNode;
+		showTitle?: boolean;
+		showText?: boolean;
 		showActionButton?: boolean;
 		actionButtonVariant?: ButtonVariant;
 		actionButtonText?: string;
+		dismissAfterAction?: boolean; // closes the modal after the action is performed mostly for delete dialogs
 
 		showDismissButton?: boolean;
 		dismissButtonVariant?: ButtonVariant;
 		dismissButtonText?: string;
 		allowDismiss?: boolean;
+		showCloseButton?: boolean;
 	};
 	data?: Record<string, any> | null;
 	action?: ((payload?: any) => Promise<void> | void) | null;

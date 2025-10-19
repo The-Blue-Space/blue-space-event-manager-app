@@ -1,5 +1,10 @@
-export const amountSeparator = (num: string | number, separator = ",") => {
+
+export const amountSeparator = (num: string | number, format:"kobo"|"default"="default" , separator = ",") => {
   if (!num) return num as string;
+
+  if(format === "kobo"){
+    num = (Number(num) / 100).toFixed(2);
+  }
 
   // Split the number into integer and decimal parts
   const [integerPart, decimalPart] = num.toString().split(".");

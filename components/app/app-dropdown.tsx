@@ -17,11 +17,13 @@ type AppDropdownProps = {
 	open?: boolean;
 };
 
+//  each dropdown  item should be wrapped in the DropdownMenuItem component
+
 export default React.memo(function AppDropdown(props: AppDropdownProps) {
 	const [open, setOpen] = React.useState(props.open || false);
 
 	const triggerClx = classNames("w-full cursor-pointer", props.triggerStyle);
-	const contentClx = classNames("w-56", props.contentStyle);
+	const contentClx = classNames("w-auto", props.contentStyle);
 
 	React.useEffect(() => {
 		setOpen(props.open || false);
@@ -36,6 +38,7 @@ export default React.memo(function AppDropdown(props: AppDropdownProps) {
 				}
 			}}
 			modal={props.modal || false}
+			
 		>
 			<DropdownMenuTrigger
 				asChild
