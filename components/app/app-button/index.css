@@ -24,7 +24,7 @@
 .simple {
   border: 3px solid #f3f3f3;
   border-radius: 50%;
-  border-top: 3px solid #1A7547;
+  border-top: 3px solid #eba800;
   -webkit-animation: spin 2s linear infinite;
   /* Safari */
   animation: spin 2s linear infinite;

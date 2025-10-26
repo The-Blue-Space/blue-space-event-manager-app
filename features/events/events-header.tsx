@@ -1,13 +1,16 @@
 import AppButton from "@/components/app/app-button";
-import useCustomNavigation from "@/hooks/use-navigation";
+import useActions from "@/store/actions";
 import { CalendarPlus } from "lucide-react";
 import * as React from "react";
 
 export default React.memo(function EventsHeader() {
-	const { navigate } = useCustomNavigation();
+	const { ui } = useActions();
 
 	const handleCreateEvent = () => {
-		navigate("/events/create");
+		ui.changeDialog({
+			show: true,
+			type: "create_event",
+		});
 	};
 
 	return (

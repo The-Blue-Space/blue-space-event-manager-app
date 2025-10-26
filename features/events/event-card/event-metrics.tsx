@@ -66,7 +66,7 @@ export default React.memo(function EventMetrics({ event }: EventMetricsProps) {
 					<div key={index} className="flex items-center gap-2">
 						<Icon className="w-4 h-4 text-neutral-500" />
 						<div className="flex flex-col">
-							<span className="text-xs text-neutral-500">{metric.label}</span>
+							<span className="text-xs text-primary-500">{metric.label}</span>
 							<span className="text-sm font-semibold text-neutral-900">{metric.value}</span>
 						</div>
 					</div>

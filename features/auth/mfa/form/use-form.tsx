@@ -53,7 +53,7 @@ export default function useForm() {
 				setCookie(sessionKey, response.access_token, { expires: response.expires_in });
 				setCookie(managerProfileIdKey, response?.manager_profile?.id);
 				account.changeToken(response.access_token);
-				managerProfile.changeBusiness(response.manager_profile);
+				managerProfile.changeProfile(response.manager_profile);
 
 				toast.success("2FA code verified successfully");
 				navigate("/dashboard", { replace: true });

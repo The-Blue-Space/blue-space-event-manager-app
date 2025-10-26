@@ -5,7 +5,8 @@ import LogoutDialog from './logout-dialog';
 import SuccessDialog from "./success-dialog";
 import DeleteDialog from "./delete-dialog";
 import InfoDialog from "./info-dialog";
-// import Init from "@/components/app/init";
+import Init from '@/components/app/init';
+import CreateEventDialog from './create-event';
 
 export default function Dialogs() {
 	const { ui } = useActions();
@@ -17,11 +18,12 @@ export default function Dialogs() {
 	}, []);
 	return (
 		<React.Fragment>
-			{/* <Init /> */}
+			<Init />
 			<LogoutDialog />
 			<DeleteDialog />
 			<SuccessDialog />
 			<InfoDialog />
+			<CreateEventDialog />
 		</React.Fragment>
 	);
 }

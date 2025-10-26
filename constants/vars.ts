@@ -37,6 +37,7 @@ const SERVER = `${BASE_URL}/api`;
 const SOCKET = "";
 const SOCKET_URL = ``;
 const CLIENT_BASE_URL = ``;
+const GOOGLE_MAPS_API_KEY = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string) ?? "";
 
 const STORAGE_KEYS: StorageKeys = {
 	email: "_BSM_email",
@@ -78,4 +79,5 @@ export {
 	EXTERNAL_LINKS,
 	SUPPORT_LINKS,
 	IS_DEV,
+	GOOGLE_MAPS_API_KEY,
 };

@@ -1,6 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type DialogType = "" | "order_details" | "success" | "delete_dialog" | "info_dialog" | "logout";
+type DialogType =
+	| ""
+	| "order_details"
+	| "create_event"
+	| "success"
+	| "delete_dialog"
+	| "info_dialog"
+	| "logout";
 type ButtonVariant = "primary" | "muted" | "black" | "destructive" | "outline";
 export type DialogPayload = {
 	id?: string;

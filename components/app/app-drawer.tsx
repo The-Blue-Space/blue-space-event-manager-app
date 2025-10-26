@@ -11,6 +11,7 @@ import classNames from "classnames";
 import { X } from "lucide-react";
 import React from "react";
 import ErrorBoundary from "./error-boundary";
+import AppLogo, { LogoScope } from "./app-logo";
 
 type DrawerProps = {
 	direction: "left" | "right" | "top" | "bottom";
@@ -21,22 +22,26 @@ type DrawerProps = {
 	title?: string;
 	className?: string;
 	showLogo?: boolean;
-	logoScope?: "1" | "2" | "3";
+	logoSize?:number
+	logoScope?:LogoScope;
 	sticky?: string;
 	headerClassName?: string;
 	drawerTitleClassName?: string;
 	handleOnly?: boolean;
 	showCloseButton?: boolean;
 	showHeader?: boolean;
+	closeComponent?: React.ReactNode;
+	closeButtonClassName?: string;
 };
 export default function AppDrawer({
 	handleOnly = true,
 	showHeader = true,
 	showCloseButton = true,
+	showLogo = false,
 	...props
 }: DrawerProps) {
 	const headerClx = classNames(
-		"flex justify-between items-center border-b border-neutral-200",
+		"flex justify-between items-center border-b border-neutral-200 text-primary-500",
 		props.headerClassName,
 		{
 			"sticky top-0 z-10 bg-white": props.sticky,
@@ -54,6 +59,8 @@ export default function AppDrawer({
 		"overflow-hidden border-none": props.direction === "bottom",
 	});
 
+	const closeButtonClx = classNames("p-1 rounded-full bg-neutral-300", props.closeButtonClassName);
+
 	return (
 		<Drawer
 			direction={props.direction}
@@ -68,16 +75,17 @@ export default function AppDrawer({
 						<DrawerHeader className={headerClx}>
 							{props.title && (
 								<DrawerTitle className={drawerTitleClx}>
-									{/* {showLogo && <AppLogo scope={props.logoScope ?? "1"} />} */}
+									{showLogo && <AppLogo scope={props.logoScope ?? "logo_black"} size={props.logoSize} />}
 									{props.title}
 								</DrawerTitle>
 							)}
 							{showCloseButton && (
 								<DrawerClose
 									onClick={() => props.handleChange(false)}
-									className="p-1 rounded-full bg-neutral-300"
+									className={closeButtonClx}
+									asChild={!!props.closeComponent}
 								>
-									<X className="w-5 h-5" />
+									{props.closeComponent ?? <X className="w-5 h-5 text-primary-500" />}
 								</DrawerClose>		
 							)}
 						</DrawerHeader>

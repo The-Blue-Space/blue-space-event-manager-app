@@ -51,7 +51,7 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 	const container = classnames("input-container !outline-0", props.containerStyle);
 
 	const selectContainer = classnames(
-		"shadow-none  w-full !outline-0 text-b-2 px-2 !h-auto text-neutral-500",
+		"shadow-none  w-full !outline-0 text-b-2 px-2 !h-auto text-neutral-500 capitalize",
 		props.className,
 		{
 			"!text-neutral-500": !props.value?.trim(),
@@ -87,7 +87,7 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 			<div className={container}>
 				{props.label && (
 					<label htmlFor={props.name} className="">
-						{props.label} <span className="text-red-500">{props.required && "*"}</span>
+						{props.label} <span className="text-red-500 ">{props.required && "*"}</span>
 					</label>
 				)}
 				<Select
@@ -98,7 +98,7 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 					required={required}
 				>
 					<SelectTrigger className={selectContainer}>
-						<SelectValue placeholder={props.placeholder ?? "Select Option"} />
+						<SelectValue className="capitalize" placeholder={props.placeholder ?? "Select Option"} />
 					</SelectTrigger>
 					<SelectContent
 						position={props.contentMode}

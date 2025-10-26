@@ -79,9 +79,8 @@ export default function EventDetailsView({ event }: EventDetailsViewProps) {
 				)}
 				{/* Status Badge */}
 				<div className="absolute top-3 right-3">
-					<Badge variant="default" className="bg-red-500 flex items-center gap-2">
+					<Badge variant="default" className="bg-red-500 flex justify-center items-center gap-2 rounded-lg size-4 p-0">
 						<Circle className="w-2 h-2 fill-white  group-hover:animate-none animate-pulse " />
-						Live
 					</Badge>
 				</div>
 			</div>

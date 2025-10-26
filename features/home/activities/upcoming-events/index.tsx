@@ -10,12 +10,14 @@ import Render from "@/components/app/render";
 import ErrorBoundary from "@/components/app/error-boundary";
 import AppTooltip from "@/components/app/app-tooltip";
 import { CalendarPlus, Info } from "lucide-react";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import useAppSelector from "@/store/hooks";
+import AppButton from "@/components/app/app-button";
+import useActions from "@/store/actions";
 
 export default function UpcomingEvents() {
-	const { manager_profile } = useAppSelector("managerProfile");
+	const { managerProfile: manager_profile } = useAppSelector("manager_profile");
+	const { ui } = useActions();
 	const {
 		data: userEvents,
 		isLoading: userLoading,
@@ -25,6 +27,13 @@ export default function UpcomingEvents() {
 		queryKey: ["upcoming-events", manager_profile?.id],
 		queryFn: () => getUpcomingEvents({ managerId: manager_profile?.id }),
 	});
+
+	const createEvent = () => {
+		ui.changeDialog({
+			show: true,
+			type: "create_event",
+		});
+	};
 
 	const { data: otherEvents, isLoading: otherLoading } = useQuery({
 		queryKey: ["other-upcoming-events"],
@@ -70,13 +79,13 @@ export default function UpcomingEvents() {
 									className="!justify-start py-8"
 									iconType="event"
 									action={
-										<Link
-											href="/events/create"
-											className="button-primary flex items-center gap-1 p-2"
+										<AppButton
+											variant="black"
+											onClick={createEvent}
+											leftIcon={<CalendarPlus className="w-4 h-4" />}
 										>
-											<CalendarPlus className="w-4 h-4" />
 											Create Event
-										</Link>
+										</AppButton>
 									}
 								/>
 							)}

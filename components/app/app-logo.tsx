@@ -4,7 +4,7 @@ import classNames from "classnames";
 import Image, { ImageProps } from "next/image";
 import { useRouter } from "next/navigation";
 
-type Scope =
+export type LogoScope =
 	| "logo_black"
 	| "logo_blue"
 	| "logo_text_black"
@@ -16,7 +16,7 @@ type Scope =
 	| "logo_with_text_white";
 
 type AppLogoProps = {
-	scope: Scope;
+	scope: LogoScope;
 	size?: number;
 	className?: string;
 	clickable?: boolean;

@@ -1,19 +1,17 @@
+import { Currency } from "@/types/global.types";
+import { Country } from "@/types/global.types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export type AccountBalancePayload = {
 	available_balance: string;
 };
 
-type Currency = {
-	id: string;
-	name: string;
-	code: string;
-	symbol: string;
-};
+
 
 type InitState = {
 	activeCurrency: Currency;
 	accountBalance: AccountBalancePayload;
+	countries: Country[];
 };
 
 const initialState: InitState = {
@@ -26,6 +24,7 @@ const initialState: InitState = {
 	accountBalance: {
 		available_balance: "0.00",
 	},
+	countries: [],
 };
 
 /**
@@ -48,8 +47,14 @@ const initSlice = createSlice({
 				accountBalance: action.payload,
 			};
 		},
+		setCountries: (state, action: PayloadAction<Country[]>) => {
+			return {
+				...state,
+				countries: action.payload,
+			};
+		},
 	},
 });
 
-export const { setActiveCurrency, setAccountBalance } = initSlice.actions;
+export const { setActiveCurrency, setAccountBalance, setCountries } = initSlice.actions;
 export default initSlice.reducer;

@@ -1,16 +1,25 @@
 import AppButton from "@/components/app/app-button";
 import EmptyData from "@/components/app/empty-data";
 import useCustomNavigation from "@/hooks/use-navigation";
+import useActions from "@/store/actions";
 
 import { CalendarPlus2 } from "lucide-react";
 import React from "react";
 
 type Props = {
-	filters: Record<string,any>;
+	filters: Record<string, any>;
 };
 
 export default function EmptyEvent({ filters }: Props) {
 	const { navigate } = useCustomNavigation();
+	const { ui } = useActions();
+
+	const createEvent = () => {
+		ui.changeDialog({
+			show: true,
+			type: "create_event",
+		});
+	};
 	const hasFilters = React.useMemo(() => {
 		return Object.values(filters).some((value) => value !== undefined && value !== "");
 	}, [filters]);
@@ -32,7 +41,7 @@ export default function EmptyEvent({ filters }: Props) {
 					) : (
 						<AppButton
 							variant="black"
-							onClick={() => navigate("/events/create")}
+							onClick={createEvent}
 							leftIcon={<CalendarPlus2 className="w-4 h-4" />}
 						>
 							Create Event

@@ -86,7 +86,7 @@ const AppButton = React.forwardRef<Ref, ButtonProps>((props: ButtonProps, ref) =
 			{...rest}
 		>
 			{/** render icon before */}
-			{icon && iconPlacement === "left" ? (
+			{ !isLoading && icon && iconPlacement === "left" ? (
 				<span
 					className={`inline-flex shrink-0 self-center items-center ${
 						children && !isLoading && "mr-2"
@@ -101,7 +101,7 @@ const AppButton = React.forwardRef<Ref, ButtonProps>((props: ButtonProps, ref) =
 			{loadingIcon}
 
 			{/** render icon after */}
-			{icon && iconPlacement === "right" ? (
+			{ !isLoading && icon && iconPlacement === "right" ? (
 				<span className={`inline-flex shrink-0 self-center  ${children && !isLoading && "ml-2"}`}>
 					{icon}
 				</span>

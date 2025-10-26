@@ -74,7 +74,7 @@ function LoadingComponent() {
 	return (
 		<>
 			{[...Array(4)].map((_, index) => (
-				<Card key={index} className="overflow-hidden">
+				<Card key={index} className="overflow-hidden w-full min-w-[280px]  lg:min-w-0 snap-start">
 					<CardContent className="p-5">
 						<div className="flex items-center justify-between gap-3">
 							<div className="flex-1 space-y-2">

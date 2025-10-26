@@ -1,5 +1,5 @@
 import type { EventTicketPromo } from "./event-ticket-promo.types";
-import type { Currency } from "./currency.types";
+import type { Currency } from "./global.types";
 
 export type EventTicket = {
 	id: string;

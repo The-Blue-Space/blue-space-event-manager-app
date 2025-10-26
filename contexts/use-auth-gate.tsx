@@ -47,7 +47,7 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const { account } = useAppSelector("account");
 	const interceptor = React.useRef<number | null>(null);
 	const { get: getCookie, delete: deleteCookie } = useCookie();
-	const { account: accountActions } = useActions();
+	const { account: accountActions, managerProfile: managerProfileActions } = useActions();
 	const { navigate } = useCustomNavigation();
 	const query = clientQuery;
 	const sessionKey = variables.STORAGE_KEYS.session;
@@ -121,7 +121,8 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				queryKey: ["whoami"],
 				queryFn: whoami,
 			});
-			accountActions.changeAccount(response);
+			accountActions.changeAccount(response.user);
+			managerProfileActions.changeProfile(response.managerProfile);
 			setIsAuthenticated(true);
 		} catch (error) {
 			toast.error("Failed to authenticate user");

@@ -91,12 +91,22 @@ export default function DateInput({
 		}
 	};
 
-	const sanitizeData = (date: Date) => {
+	const sanitizeData = (date?: Date) => {
 		logger.log("date", date);
-		if (typeof date === "string") {
-			return new Date(date);
+		try {
+			if (typeof date === "string") {
+				logger.log("date is string", date);
+
+				if (date === "invalid date") return undefined;
+				logger.log("date is not invalid date", date);
+				return new Date(date);
+			}
+		} catch (error) {
+			throw error;
+			return undefined;
 		}
-		return date;
+	
+		
 	};
 
 	return (
@@ -118,8 +128,8 @@ export default function DateInput({
 						>
 							{icon_placement === "left" ? icon ?? <CalendarIcon className="mr-2 w-4 h-4" /> : null}
 
-							{value ? (
-								format(sanitizeData(value), "PPP")
+							{sanitizeData(value) && value ? (
+								format(value, "PPP")
 							) : (
 								<span> {placeholder ?? "Pick a date"}</span>
 							)}

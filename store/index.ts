@@ -10,7 +10,7 @@ export const store = configureStore({
 		ui: uiSlice,
 		init: initSlice,
 		account: accountSlice,
-		managerProfile: managerProfileSlice,
+		manager_profile: managerProfileSlice,
 	},
 	devTools: variables.SERVICE_ENV === "development",
 	middleware: () => new Tuple(),

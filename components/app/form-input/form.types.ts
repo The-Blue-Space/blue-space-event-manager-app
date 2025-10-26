@@ -35,6 +35,7 @@ export type INPUT_TYPES =
 	| "select"
 	| "textarea"
 	| "layout"
+	| "switch"
 	| "select-country"
 	| "select-currency"
 	| "select-operating-country";

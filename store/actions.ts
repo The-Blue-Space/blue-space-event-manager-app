@@ -7,6 +7,12 @@ import { changePageTitle, DialogPayload, resetDialog } from "./ui.slice";
 import { changeDialog } from "./ui.slice";
 import { ManagerProfile } from "@/types/user.types";
 import { changeProfile, updateProfile } from "./manager-profile.slice";
+import { Currency } from "@/types/global.types";
+import { AccountBalancePayload } from "./init.slice";
+import { setActiveCurrency } from "./init.slice";
+import { setAccountBalance } from "./init.slice";
+import { setCountries } from "./init.slice";
+import { Country } from "@/types/global.types";
 
 export default function useActions() {
 	const dispatch = useAppDispatch();
@@ -17,7 +23,11 @@ export default function useActions() {
 		resetDialog: () => dispatch(resetDialog()),
 	};
 
-	const init = {};
+	const init = {
+		setActiveCurrency: (currency: Currency) => dispatch(setActiveCurrency(currency)),
+		setAccountBalance: (balance: AccountBalancePayload) => dispatch(setAccountBalance(balance)),
+		setCountries: (countries: Country[]) => dispatch(setCountries(countries)),
+	};
 
 	const account = {
 		changeAccount: (account: User) => dispatch(changeAccount(account)),
@@ -26,8 +36,8 @@ export default function useActions() {
 	};
 
 	const managerProfile = {
-		changeBusiness: (business: ManagerProfile) => dispatch(changeProfile(business)),
-		updateBusiness: (business: Partial<ManagerProfile>) => dispatch(updateProfile(business)),
+		changeProfile: (business: ManagerProfile) => dispatch(changeProfile(business)),
+		updateProfile: (business: Partial<ManagerProfile>) => dispatch(updateProfile(business)),
 	};
 
 	return {

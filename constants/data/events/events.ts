@@ -45,8 +45,12 @@ export const events: Event[] = [
 		description:
 			"Join us for the biggest music festival of the summer! Featuring top artists from around the world, multiple stages, food trucks, and an unforgettable experience under the stars. Three days of non-stop music across multiple genres including pop, rock, electronic, and hip-hop.",
 		location_id: "loc_001",
+		venue_name: "Griffith Park Amphitheater",
+		address: "4730 Crystal Springs Dr",
 		city: "Los Angeles",
-		address: "Griffith Park, 4730 Crystal Springs Dr",
+		state: "California",
+		country: "United States",
+		postal_code: "90027",
 		google_map_url: "https://www.google.com/maps?q=Griffith+Park,+Los+Angeles",
 		longitude: "-118.2967",
 		latitude: "34.1365",
@@ -85,6 +89,29 @@ export const events: Event[] = [
 		total_revenue: 925000, // $925,000
 		total_refunds: 12500, // $12,500
 		published_at: "2024-11-05T10:00:00.000Z",
+		// Overview and Good to Know
+		overview:
+			"<p><strong>Welcome to Summer Beats Music Festival 2025!</strong></p><p><strong>Date:</strong> Tuesday, July 15, 2025 at 2:00 PM</p><p><strong>Location:</strong> Griffith Park Amphitheater, Los Angeles, California</p><p>Join us for the biggest music festival of the summer! Featuring top artists from around the world, multiple stages, food trucks, and an unforgettable experience under the stars. Three days of non-stop music across multiple genres including pop, rock, electronic, and hip-hop.</p><p>Get ready for three days of non-stop entertainment featuring headlining acts, emerging artists, and everything in between. Bring your friends, make new ones, and create unforgettable memories under the summer sky!</p>",
+		doors_open_at: "13:00", // 1 hour before event start (14:00)
+		age_restriction: "18+",
+		parking_type: "free-parking",
+		faq: JSON.stringify([
+			{
+				question: "Is food available at the venue?",
+				answer:
+					"Yes! We have various food trucks and vendors offering a wide selection of cuisines throughout the festival.",
+			},
+			{
+				question: "Can I bring my own food?",
+				answer:
+					"Outside food and beverages are not permitted. Water bottles (sealed/empty) are allowed.",
+			},
+			{
+				question: "What items are prohibited?",
+				answer:
+					"Weapons, illegal substances, professional cameras, drones, and outside alcohol are strictly prohibited.",
+			},
+		]),
 		event_media: [
 			{
 				id: "media_001_1",
@@ -140,8 +167,12 @@ export const events: Event[] = [
 		description:
 			"The premier technology conference bringing together industry leaders, innovators, and visionaries. Featuring keynote speeches, panel discussions, networking sessions, and workshops on AI, blockchain, cloud computing, and the future of technology. Connect with 5,000+ tech professionals.",
 		location_id: "loc_002",
+		venue_name: "Moscone Center",
+		address: "747 Howard St",
 		city: "San Francisco",
-		address: "Moscone Center, 747 Howard St",
+		state: "California",
+		country: "United States",
+		postal_code: "94103",
 		google_map_url: "https://www.google.com/maps?q=Moscone+Center,+San+Francisco",
 		longitude: "-122.4007",
 		latitude: "37.7839",
@@ -180,6 +211,23 @@ export const events: Event[] = [
 		total_revenue: 637500, // $637,500
 		total_refunds: 8750, // $8,750
 		published_at: "2024-09-20T09:00:00.000Z",
+		// Overview and Good to Know
+		overview:
+			"<p><strong>Welcome to TechForward Summit 2025!</strong></p><p><strong>Date:</strong> Currently Active</p><p><strong>Location:</strong> Moscone Center, San Francisco, California</p><p>The premier technology conference bringing together industry leaders, innovators, and visionaries. Featuring keynote speeches, panel discussions, networking sessions, and workshops on AI, blockchain, cloud computing, and the future of technology. Connect with 5,000+ tech professionals.</p><p>Join us for an exciting day filled with engaging talks, interactive workshops, and networking opportunities with top tech professionals. Whether you're a seasoned developer or just starting in the tech industry, this event is perfect for anyone looking to stay ahead of the curve!</p>",
+		doors_open_at: "07:00", // 1 hour before event start (08:00)
+		age_restriction: "18+",
+		parking_type: "paid-parking",
+		faq: JSON.stringify([
+			{
+				question: "Is WiFi available?",
+				answer: "Yes, free high-speed WiFi is available throughout the venue for all attendees.",
+			},
+			{
+				question: "Will sessions be recorded?",
+				answer:
+					"Yes, all keynote sessions will be recorded and made available to attendees after the event.",
+			},
+		]),
 		event_media: [
 			{
 				id: "media_002_1",
@@ -221,8 +269,12 @@ export const events: Event[] = [
 		description:
 			"An exclusive showcase of contemporary art featuring works from emerging and established artists. Explore thought-provoking pieces across painting, sculpture, digital art, and mixed media. Includes artist talks, guided tours, and a networking reception with collectors and curators.",
 		location_id: "loc_003",
+		venue_name: "Chelsea Art Gallery",
+		address: "529 W 20th St",
 		city: "New York",
-		address: "Chelsea Art Gallery, 529 W 20th St",
+		state: "New York",
+		country: "United States",
+		postal_code: "10011",
 		google_map_url: "https://www.google.com/maps?q=Chelsea+Art+Gallery,+New+York",
 		longitude: "-74.0066",
 		latitude: "40.7456",
@@ -261,6 +313,24 @@ export const events: Event[] = [
 		total_revenue: 44500, // $44,500
 		total_refunds: 2250, // $2,250
 		published_at: null, // Never published or unpublished later
+		// Overview and Good to Know
+		overview:
+			"<p><strong>Welcome to Downtown Art Gallery Exhibition!</strong></p><p><strong>Date:</strong> March 10, 2025</p><p><strong>Location:</strong> New York Contemporary Art Gallery, New York, New York</p><p>Experience contemporary art from emerging local artists. This exhibition features paintings, sculptures, digital art, and interactive installations. Free entry, all ages welcome. Perfect for art enthusiasts and casual visitors alike.</p><p>Join us for a celebration of creativity and artistic expression. Explore diverse styles and mediums while mingling with fellow art lovers and the artists themselves!</p>",
+		doors_open_at: "09:00", // 1 hour before event start (10:00)
+		age_restriction: "18+",
+		parking_type: "no-parking",
+		faq: JSON.stringify([
+			{
+				question: "Is photography allowed?",
+				answer:
+					"Yes, personal photography is allowed. Flash photography and tripods are not permitted.",
+			},
+			{
+				question: "Are the artworks for sale?",
+				answer:
+					"Yes, many pieces are available for purchase. Please inquire at the front desk for details.",
+			},
+		]),
 		event_media: [
 			{
 				id: "media_003_1",
@@ -302,8 +372,12 @@ export const events: Event[] = [
 		description:
 			"An elegant evening celebrating outstanding achievements in business and community service. Black-tie event featuring a gourmet dinner, awards ceremony, live entertainment, silent auction, and dancing. Honoring leaders who have made significant contributions to industry and society.",
 		location_id: "loc_004",
+		venue_name: "The Drake Hotel Grand Ballroom",
+		address: "140 E Walton Pl",
 		city: "Chicago",
-		address: "The Drake Hotel, 140 E Walton Pl",
+		state: "Illinois",
+		country: "United States",
+		postal_code: "60611",
 		google_map_url: "https://www.google.com/maps?q=The+Drake+Hotel,+Chicago",
 		longitude: "-87.6254",
 		latitude: "41.8995",
@@ -342,6 +416,24 @@ export const events: Event[] = [
 		total_revenue: null,
 		total_refunds: null,
 		published_at: "2024-12-05T08:00:00.000Z",
+		// Overview and Good to Know
+		overview:
+			"<p><strong>Welcome to Winter Wonderland Holiday Market!</strong></p><p><strong>Date:</strong> December 20, 2024 at 10:00 AM</p><p><strong>Location:</strong> Chicago Holiday Village, Chicago, Illinois</p><p>Experience the magic of the season! Browse local artisan crafts, holiday decorations, seasonal treats, warm beverages, and enjoy live carolers. Meet Santa, enjoy hot cocoa, and find unique gifts for everyone on your list. Family-friendly event with activities for children.</p><p>Bring your family and friends to celebrate the holiday spirit in style. This is the perfect place to find one-of-a-kind gifts while enjoying festive entertainment!</p>",
+		doors_open_at: "09:30", // 30 minutes before event start (10:00)
+		age_restriction: "18+",
+		parking_type: "paid-parking",
+		faq: JSON.stringify([
+			{
+				question: "Will Santa be there?",
+				answer:
+					"Yes! Santa will be available for photos from 11 AM to 3 PM daily. Free photos with your own camera.",
+			},
+			{
+				question: "Is the market pet-friendly?",
+				answer:
+					"Service animals are welcome. Pets are not allowed due to crowding and safety concerns.",
+			},
+		]),
 		event_media: [
 			{
 				id: "media_004_1",
@@ -383,8 +475,12 @@ export const events: Event[] = [
 		description:
 			"Experience the latest trends from top designers and emerging talents at our exclusive fashion showcase. Featuring runway shows, designer presentations, pop-up shops, and networking opportunities with fashion industry professionals. Witness the future of fashion as models strut the latest collections.",
 		location_id: "loc_005",
+		venue_name: "Ice Palace Film Studios",
+		address: "59 NW 14th St",
 		city: "Miami",
-		address: "Ice Palace Studios, 59 NW 14th St",
+		state: "Florida",
+		country: "United States",
+		postal_code: "33136",
 		google_map_url: "https://www.google.com/maps?q=Ice+Palace+Studios,+Miami",
 		longitude: "-80.1976",
 		latitude: "25.7886",
@@ -423,6 +519,24 @@ export const events: Event[] = [
 		total_revenue: 351000, // $351,000
 		total_refunds: 4500, // $4,500
 		published_at: "2024-11-20T14:00:00.000Z",
+		// Overview and Good to Know
+		overview:
+			"<p><strong>Welcome to Yoga & Wellness Workshop!</strong></p><p><strong>Date:</strong> February 8, 2025 at 7:00 AM</p><p><strong>Location:</strong> Serenity Yoga Studio, Miami, Florida</p><p>Start your day with mindfulness, meditation, and rejuvenating yoga flows. Suitable for all skill levels. Includes guided meditation, breathing exercises, and a light healthy breakfast. Bring your own mat or rent one onsite. Limited spots available for an intimate experience.</p><p>Join us for a morning of peace, movement, and wellness. Perfect for beginners and experienced practitioners alike!</p>",
+		doors_open_at: "06:45", // 15 minutes before event start (07:00)
+		age_restriction: "18+",
+		parking_type: "free-parking",
+		faq: JSON.stringify([
+			{
+				question: "Do I need to bring my own mat?",
+				answer:
+					"You can bring your own mat or rent one from us for $5. Rental mats are sanitized after each use.",
+			},
+			{
+				question: "What should I wear?",
+				answer:
+					"Wear comfortable, stretchy clothing. We recommend layers as the studio temperature may vary.",
+			},
+		]),
 		event_media: [
 			{
 				id: "media_005_1",
@@ -464,8 +578,12 @@ export const events: Event[] = [
 		description:
 			"Be among the first to experience our revolutionary new smartphone. Join us for the official product launch featuring live demonstrations, hands-on experiences, exclusive pre-order offers, and Q&A sessions with the development team. Refreshments and swag bags for all attendees. Limited seats available.",
 		location_id: "loc_006",
+		venue_name: "Seattle Convention Center",
+		address: "705 Pike St",
 		city: "Seattle",
-		address: "Convention Center, 705 Pike St",
+		state: "Washington",
+		country: "United States",
+		postal_code: "98101",
 		google_map_url: "https://www.google.com/maps?q=Seattle+Convention+Center",
 		longitude: "-122.3321",
 		latitude: "47.6101",
@@ -504,6 +622,24 @@ export const events: Event[] = [
 		total_revenue: 48750, // $48,750
 		total_refunds: 1250, // $1,250
 		published_at: "2025-01-10T10:00:00.000Z",
+		// Overview and Good to Know
+		overview:
+			"<p><strong>Welcome to Startup Pitch Night!</strong></p><p><strong>Date:</strong> May 5, 2025 at 6:00 PM</p><p><strong>Location:</strong> Innovation Hub, Seattle, Washington</p><p>Watch 10 innovative startups pitch their ideas to a panel of investors and industry experts. Network with entrepreneurs, investors, and fellow innovators. Includes appetizers and drinks. Vote for your favorite pitch! Great opportunity to discover new companies and make valuable connections.</p><p>Whether you're an aspiring entrepreneur, investor, or just curious about the startup ecosystem, this event offers valuable insights and networking opportunities!</p>",
+		doors_open_at: "17:00", // 1 hour before event start (18:00)
+		age_restriction: "21+",
+		parking_type: "free-parking",
+		faq: JSON.stringify([
+			{
+				question: "Can I pitch my startup?",
+				answer:
+					"Pitching spots are pre-selected. However, you can submit your startup for future events via our website.",
+			},
+			{
+				question: "Will there be networking time?",
+				answer:
+					"Yes! There will be 30 minutes of structured networking before pitches and open networking afterward.",
+			},
+		]),
 		event_media: [
 			{
 				id: "media_006_1",

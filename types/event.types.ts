@@ -3,16 +3,34 @@ import type { EventMedia } from "./event-media.types";
 import type { EventCategory } from "./event-category.types";
 import type { EventShotQuota } from "./event-shot-quota.types";
 
-export type AccessType = "individual" | "general" | "none" | "ticket-based";
+export const ACCESS_TYPES = ["general", "individual", "ticket-based", "none"] as const;
+
+export type AccessType = (typeof ACCESS_TYPES)[number];
+
+export const AGE_RESTRICTION_TYPES = ["age-restricted", "no-age-restriction"] as const;
+export type AgeRestrictionType = (typeof AGE_RESTRICTION_TYPES)[number];
+
+export const AGE_RESTRICTIONS = ["12+", "13+", "14+", "16+", "18+", "19+", "21+"] as const;
+export type AgeRestriction = (typeof AGE_RESTRICTIONS)[number];
+
+export const PARKING_TYPES = ["free-parking", "paid-parking", "no-parking", ] as const;
+export type ParkingType = (typeof PARKING_TYPES)[number];
 
 export type Event = {
 	id: string;
 	title: string;
 	description: string;
 	location_id?: string | null;
-	city: string;
+	venue_name?: string | null;
 	address: string;
+	city: string;
+	state?: string | null;
+	country?: string | null;
+	postal_code?: string | null;
 	google_map_url?: string | null;
+	age_restriction_type?: AgeRestrictionType | null;
+	age_restriction?: AgeRestriction | null;
+	parking_type?: ParkingType | null;
 	longitude?: string | null;
 	latitude?: string | null;
 	event_category_id?: string | null;
@@ -41,6 +59,7 @@ export type Event = {
 	total_accessed_count?: number | null;
 	last_accessed_at?: string | null;
 	deleted_at?: string | null;
+	doors_open_at?: string | null;
 	created_at: string;
 	updated_at: string;
 	created_by: ManagerProfile;
@@ -53,6 +72,14 @@ export type Event = {
 	event_media?: EventMedia[];
 	event_category?: EventCategory;
 	event_shot_quota?: EventShotQuota;
+	// Overview and Good to Know
+	overview?: string | null;
+	faq?: string | null;
+};
+
+export type EventFaq = {
+	question: string;
+	answer: string;
 };
 
 export const ACTIVITY_TYPES = [

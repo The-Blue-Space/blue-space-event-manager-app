@@ -84,7 +84,7 @@ export default React.memo(function EventCard({ event }: EventCardProps) {
 				{/* Event Details */}
 				<div className="p-4 space-y-3">
 					{/* Title */}
-					<h3 className="font-bold text-lg text-neutral-900 line-clamp-2 group-hover:text-primary-600 transition-colors">
+					<h3 className="font-bold text-lg text-primary-500 line-clamp-2 group-hover:text-primary-600 transition-colors">
 						{event.title}
 					</h3>
 

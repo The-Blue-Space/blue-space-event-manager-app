@@ -2,11 +2,11 @@ import { ManagerProfile } from "@/types/user.types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type ManagerProfileState = {
-	manager_profile: ManagerProfile;
+	managerProfile: ManagerProfile;
 };
 
 const initialState: ManagerProfileState = {
-	manager_profile: {} as ManagerProfile,
+	managerProfile: {} as ManagerProfile,
 };
 
 const managerProfileSlice = createSlice({
@@ -16,14 +16,14 @@ const managerProfileSlice = createSlice({
 		changeProfile: (state, action: PayloadAction<ManagerProfile>) => {
 			return {
 				...state,
-				manager_profile: action.payload,
+				managerProfile: action.payload,
 			};
 		},
 
 		updateProfile: (state, action: PayloadAction<Partial<ManagerProfile>>) => {
 			return {
 				...state,
-				manager_profile: { ...state.manager_profile, ...action.payload },
+				managerProfile: { ...state.managerProfile, ...action.payload },
 			};
 		},
 	},

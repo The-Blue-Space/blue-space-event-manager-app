@@ -1,6 +1,6 @@
 import type { Event } from "./event.types";
 
-export type MediaType = "cover" | "image" | "video";
+export type EventMediaType = "cover" | "image" | "video";
 
 export type EventMedia = {
 	id: string;
@@ -10,7 +10,7 @@ export type EventMedia = {
 	file_size: number;
 	mime_type: string;
 	public_id: string;
-	media_type: MediaType;
+	media_type: EventMediaType;
 	order: number;
 	is_active: boolean;
 	deleted_at?: string | null;

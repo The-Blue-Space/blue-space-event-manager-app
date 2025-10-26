@@ -87,7 +87,7 @@ export default React.memo(function EventListItemHybridC({ event }: EventListItem
 					)}
 				</div>
 
-				{/* Content */}8
+				{/* Content */}
 				<div className="flex-1 min-w-0 space-y-2">
 					{/* Title Row */}
 					<div className="flex items-start justify-between gap-3">

@@ -47,7 +47,7 @@
 .input-container label:has(+ input:required:not([type="file"]))::after,
 .input-container label:has(+ textarea:required:not([type="file"]))::after {
 	content: " *"; /* Space + asterisk for natural spacing */
-	color: #29285C; /* Your red color; or theme var like var(--error) */
+	color: #ef4444; /* Your red color; or theme var like var(--error) */
 	font-weight: bold; /* Optional: make it stand out */
 }
 /* Fallback for older browsers without :has() support */

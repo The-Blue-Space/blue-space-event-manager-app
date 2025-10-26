@@ -1,6 +1,6 @@
 "use client";
 import type { ErrorBoundaryProps, ErrorBoundaryState } from "./types";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import * as React from "react";
 import { variables } from "@/constants";
@@ -40,6 +40,10 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 			this.setState({ showError: !this.state.showError });
 		};
 
+		const copyError = () => {
+			navigator.clipboard.writeText(this.state.error.toString());
+		};
+
 		if (!this.state.hasError) return this.props.children;
 		const mailTo = `mailto:${
 			variables.SUPPORT_LINKS.support
@@ -62,7 +66,16 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 					</small>
 
 					{this.state.showError && (
-						<div className="bg-muted p-2 rounded-md lg:max-w-96">
+						<div className="bg-muted p-2 rounded-md lg:max-w-96 relative">
+							<Button
+								onClick={copyError}
+								title="Copy Error"
+								className="absolute bg-neutral-300/30 bottom-1 right-1"
+								size="icon"
+								variant="ghost"
+							>
+								<Copy className="w-4 h-4" />
+							</Button>
 							<p className="text-sm break-words break-all">
 								{this.state.error && this.state.error.toString()}
 							</p>
