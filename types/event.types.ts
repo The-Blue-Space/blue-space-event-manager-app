@@ -2,6 +2,7 @@ import type { ManagerProfile, User } from "./user.types";
 import type { EventMedia } from "./event-media.types";
 import type { EventCategory } from "./event-category.types";
 import type { EventShotQuota } from "./event-shot-quota.types";
+import { EventAgenda, EventLineup } from "./event-agenda.types";
 
 export const ACCESS_TYPES = ["general", "individual", "ticket-based", "none"] as const;
 
@@ -13,7 +14,7 @@ export type AgeRestrictionType = (typeof AGE_RESTRICTION_TYPES)[number];
 export const AGE_RESTRICTIONS = ["12+", "13+", "14+", "16+", "18+", "19+", "21+"] as const;
 export type AgeRestriction = (typeof AGE_RESTRICTIONS)[number];
 
-export const PARKING_TYPES = ["free-parking", "paid-parking", "no-parking", ] as const;
+export const PARKING_TYPES = ["free-parking", "paid-parking", "no-parking"] as const;
 export type ParkingType = (typeof PARKING_TYPES)[number];
 
 export type Event = {
@@ -75,6 +76,8 @@ export type Event = {
 	// Overview and Good to Know
 	overview?: string | null;
 	faq?: string | null;
+	event_agenda?: EventAgenda[];
+	event_lineup?: EventLineup[];
 };
 
 export type EventFaq = {

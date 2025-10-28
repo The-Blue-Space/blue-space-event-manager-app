@@ -65,7 +65,7 @@ const AppButton = React.forwardRef<Ref, ButtonProps>((props: ButtonProps, ref) =
 	}, [loaderType, isLoading]);
 
 	const cn = classNames(className, {
-		"button-default": variant === "default",
+		"button": variant === "default",
 		"button-primary text-white": variant === "primary",
 		"button-secondary": variant === "secondary",
 		"button-destructive ": variant === "destructive",

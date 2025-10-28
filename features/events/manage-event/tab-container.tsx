@@ -8,7 +8,7 @@ type Props = {
 	className?: string;
 };
 export default function TabContainer({ children, value, className }: Props) {
-	const containerCn = cn("w-full h-full mt-0 p-5 space-y-5 max-w-4xl", className);
+	const containerCn = cn("w-full h-full mt-0 p-5 space-y-5 xl:max-w-3xl mx-auto", className);
 	return (
 		<TabsContent value={value} className={containerCn}>
 			{children}

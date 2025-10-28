@@ -40,6 +40,7 @@ function Details() {
 		<AppDrawer
 			title="Event Manager"
 			showLogo
+			sticky
 			logoSize={30}
 			logoScope="logo_blue"
 			direction="bottom"
@@ -67,7 +68,7 @@ function Details() {
 						isError={isError}
 						loadingComponent={<LoadingComponent />}
 					>
-						<Minimum className="max-w-60 p-5 space-y-5 ">
+						<Minimum className="max-w-60 p-5 space-y-5 xl:fixed  xl:h-fit">
 							<div className="rounded-lg border border-neutral-200 p-2 shadow-sm">
 								<h4 className="body-3 font-semibold text-primary-500">{event?.title}</h4>
 								<div className="flex items-center justify-between gap-2">
@@ -90,7 +91,7 @@ function Details() {
 								))}
 							</TabsList>
 						</Minimum>
-						<Maximum className="pb-20">
+						<Maximum className="xl:ml-60">
 							<EventSetupTabs />
 						</Maximum>
 					</Render>

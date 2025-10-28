@@ -13,7 +13,7 @@ export type FormDataNotation = "dot" | "bracket";
  */
 export function buildFormData(
 	data: Record<string, any>,
-	notation: FormDataNotation = "bracket"
+	notation: FormDataNotation = "dot"
 ): FormData {
 	const formData = new FormData();
 

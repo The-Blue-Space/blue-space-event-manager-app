@@ -24,7 +24,7 @@ type DrawerProps = {
 	showLogo?: boolean;
 	logoSize?:number
 	logoScope?:LogoScope;
-	sticky?: string;
+	sticky?: boolean;
 	headerClassName?: string;
 	drawerTitleClassName?: string;
 	handleOnly?: boolean;
@@ -67,6 +67,7 @@ export default function AppDrawer({
 			onOpenChange={props.handleChange}
 			open={props.open}
 			handleOnly={handleOnly}
+			
 		>
 			<DrawerContent className={cn} draggable={false}>
 				<div className="flex overflow-y-auto flex-col h-screen">
