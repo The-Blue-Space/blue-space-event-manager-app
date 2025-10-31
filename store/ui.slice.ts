@@ -2,6 +2,9 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type DialogType =
 	| ""
+	| "add_event_ticket"
+	| "edit_event_ticket"
+	| "configure_ticket_promo"
 	| "order_details"
 	| "create_event"
 	| "success"

@@ -29,7 +29,7 @@
 .input-container input,
 .input-container select,
 .input-container textarea {
-	@apply p-2 border border-opacity-50 rounded-md placeholder:text-b-2 text-b-2 border-neutral-500 outline-neutral-500 read-only:outline-none read-only:bg-neutral-50;
+	@apply p-2 border border-opacity-50 rounded-md placeholder:text-b-3 text-b-3 text-neutral-700 border-neutral-500 outline-neutral-500 read-only:outline-none read-only:bg-neutral-50;
 }
 
 .input-style {
@@ -37,7 +37,7 @@
 }
 
 .input-container label {
-	@apply mb-0 font-medium text-b-2 text-primary-500 ;
+	@apply mb-0 font-medium text-b-2 text-neutral-500 ;
 }
 
 /* .input-container label:has(> *:last-child) * {
@@ -99,4 +99,33 @@ textarea {
 
 select {
 	text-transform: capitalize !important;
+}
+
+
+
+
+/* Floating Label Styles */
+.floating-label-container {
+	@apply relative;
+}
+
+.floating-label {
+	@apply absolute text-b-2 top-1/2 -translate-y-1/2 left-2 text-neutral-500 pointer-events-none transition-all duration-200 ease-in-out;
+	transform-origin: left top;
+}
+
+.floating-label.floated {
+	@apply text-xs text-neutral-500 bg-white px-1 !top-[-0.5rem] left-[0.5rem] translate-y-0;
+}
+
+.floating-input {
+	@apply pt-2;
+}
+
+.floating-label.has-error {
+	@apply text-red-500;
+}
+
+.floating-label.floated.has-error {
+	@apply text-red-500;
 }

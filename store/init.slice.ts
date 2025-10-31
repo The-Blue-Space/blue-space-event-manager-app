@@ -12,6 +12,7 @@ type InitState = {
 	activeCurrency: Currency;
 	accountBalance: AccountBalancePayload;
 	countries: Country[];
+	currencies: Currency[];
 };
 
 const initialState: InitState = {
@@ -25,6 +26,7 @@ const initialState: InitState = {
 		available_balance: "0.00",
 	},
 	countries: [],
+	currencies: [],
 };
 
 /**
@@ -53,8 +55,14 @@ const initSlice = createSlice({
 				countries: action.payload,
 			};
 		},
+		setCurrencies: (state, action: PayloadAction<Currency[]>) => {
+			return {
+				...state,
+				currencies: action.payload,
+			};
+		},
 	},
 });
 
-export const { setActiveCurrency, setAccountBalance, setCountries } = initSlice.actions;
+export const { setActiveCurrency, setAccountBalance, setCountries, setCurrencies } = initSlice.actions;
 export default initSlice.reducer;

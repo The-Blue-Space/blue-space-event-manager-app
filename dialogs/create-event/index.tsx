@@ -35,13 +35,16 @@ export default React.memo(function CreateEventDialog() {
 			headerClassName="mb-5 py-2"
 			showLogo={false}
 		>
-			<form className="flex flex-col gap-2 w-full max-w-xl mx-auto p-4 rounded-lg border">
-				<span className="body-2 text-neutral-500">Setup by filling out the basic details below</span>
+			<form className="flex flex-col gap-4 w-full max-w-xl mx-auto p-4 rounded-lg border">
+				<span className="body-2 text-neutral-500">
+					Setup by filling out the basic details below
+				</span>
 				{/* Event Title */}
 				<Input
 					name="title"
 					type="text"
 					label="Event Title"
+					floatingLabel={true}
 					placeholder="e.g., Summer Music Festival 2025"
 					value={formData.title}
 					onChange={(e) => updateForm("title", e.target.value)}
@@ -59,6 +62,7 @@ export default React.memo(function CreateEventDialog() {
 					onChange={(e) => updateForm("description", e.target.value)}
 					disabled={isLoading}
 					errorMessage={errors.description}
+					floatingLabel={true}
 					required
 				/>
 
@@ -74,6 +78,7 @@ export default React.memo(function CreateEventDialog() {
 						options={eventCategoryOptions}
 						errorMessage={errors.event_category_id}
 						required
+						floatingLabel={true}
 					/>
 					<SelectBox
 						name="location_id"
@@ -85,6 +90,7 @@ export default React.memo(function CreateEventDialog() {
 						options={locationOptions}
 						errorMessage={errors.location_id}
 						required
+						floatingLabel={true}
 					/>
 				</div>
 
@@ -100,12 +106,13 @@ export default React.memo(function CreateEventDialog() {
 						disabled={isLoading}
 						errorMessage={errors.tags}
 						required
+						floatingLabel={true}
 					/>
 					<p className="text-xs text-neutral-500 mt-1">Separate multiple tags with commas</p>
 				</div>
 
 				{/* Access Type with Hover Card */}
-				<div className="flex items-start gap-2 w-full">
+				<div className="flex items-star gap-2 w-full">
 					<div className="flex-1">
 						<SelectBox
 							name="access_type"
@@ -120,11 +127,12 @@ export default React.memo(function CreateEventDialog() {
 							}))}
 							errorMessage={errors.access_type}
 							required
+							floatingLabel={true}
 						/>
 					</div>
 					<AppHoverCard
 						trigger={
-							<div className="mt-6">
+							<div className="">
 								<InfoIcon className="w-5 h-5 text-neutral-400 cursor-help hover:text-primary-500 transition-colors" />
 							</div>
 						}

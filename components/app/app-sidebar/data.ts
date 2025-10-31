@@ -1,6 +1,14 @@
 import classNames from "classnames";
 import React from "react";
-import {  CalendarCheck2, CreditCard, Home, Megaphone, Recycle, Settings, TicketPlus } from "lucide-react";
+import {
+	CalendarCheck2,
+	CreditCard,
+	Home,
+	Megaphone,
+	Recycle,
+	ScrollText,
+	Settings,
+} from "lucide-react";
 export type SidebarLink = {
 	name: string;
 	path: string;
@@ -20,8 +28,8 @@ export type SidebarLink = {
 // settings
 
 const IconContainer = (node: any, isActiveIcon?: boolean) => {
-	const cn = classNames("size-full text-neutral-200/50", {
-		"text-neutral-200/50": !isActiveIcon,
+	const cn = classNames("size-full", {
+		"text-neutral-400": !isActiveIcon,
 		"!text-accent-500": isActiveIcon,
 	});
 	return React.createElement(node, { className: cn });
@@ -45,8 +53,8 @@ export const sidebarLinks: SidebarLink[] = [
 	{
 		name: "orders",
 		path: "/orders",
-		icon: IconContainer(TicketPlus),
-		activeIcon: IconContainer(TicketPlus, true),
+		icon: IconContainer(ScrollText),
+		activeIcon: IconContainer(ScrollText, true),
 		relativePaths: [],
 	},
 	{

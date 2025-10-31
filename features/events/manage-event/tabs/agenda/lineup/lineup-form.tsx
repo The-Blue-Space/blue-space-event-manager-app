@@ -241,7 +241,7 @@ export default forwardRef<LineupFormRef, LineupFormProps>(function LineupForm(
 					<div className="flex gap-4">
 						<div className="flex flex-col gap-2">
 							<Label htmlFor="start_time" className="body-3 font-medium">
-								Performance Start
+								Start Time
 							</Label>
 							<TimeSelect
 								value={formData.start_time}
@@ -252,7 +252,7 @@ export default forwardRef<LineupFormRef, LineupFormProps>(function LineupForm(
 						</div>
 						<div className="flex flex-col gap-2">
 							<Label htmlFor="end_time" className="body-3 font-medium">
-								Performance End
+								End Time
 							</Label>
 							<TimeSelect
 								value={formData.end_time}

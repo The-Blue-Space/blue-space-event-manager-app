@@ -17,6 +17,10 @@ export type AgeRestriction = (typeof AGE_RESTRICTIONS)[number];
 export const PARKING_TYPES = ["free-parking", "paid-parking", "no-parking"] as const;
 export type ParkingType = (typeof PARKING_TYPES)[number];
 
+export const REFUND_POLICY_TYPES = ["no-refund", "partial-refund", "full-refund"] as const;
+export type RefundPolicyType = (typeof REFUND_POLICY_TYPES)[number];
+
+
 export type Event = {
 	id: string;
 	title: string;
@@ -61,6 +65,8 @@ export type Event = {
 	last_accessed_at?: string | null;
 	deleted_at?: string | null;
 	doors_open_at?: string | null;
+	refund_policy_type?: RefundPolicyType;
+	refund_policy_days?: number | null;
 	created_at: string;
 	updated_at: string;
 	created_by: ManagerProfile;

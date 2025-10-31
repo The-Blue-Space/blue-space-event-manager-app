@@ -18,6 +18,7 @@ type Props = {
 	onModeChange?: (mode: "view" | "edit") => void;
 	showSaveButton?: boolean;
 	showCancelButton?: boolean;
+	editComponent?: React.ReactNode;
 };
 
 export default function SectionWrapper({
@@ -34,6 +35,7 @@ export default function SectionWrapper({
 	onModeChange,
 	showSaveButton = true,
 	showCancelButton = true,
+	editComponent,
 }: Props) {
 	const [internalMode, setInternalMode] = useState<"view" | "edit">(externalMode || defaultMode);
 	const mode = externalMode !== undefined ? externalMode : internalMode;
@@ -82,17 +84,21 @@ export default function SectionWrapper({
 							{icon}
 							<span className="body-2 font-semibold text-primary-500">{title}</span>
 						</h3>
-						<AppButton
-							variant="outline"
-							className="gap-2 rounded-lg"
-							onClick={toggleMode}
-							disabled={isLoading}
-							leftIcon={
-								mode === "view" ? <Edit3 className="w-4 h-4" /> : <Eye className="w-4 h-4" />
-							}
-						>
-							{mode === "view" ? "Edit" : "View"}
-						</AppButton>
+						{editComponent ? (
+							editComponent
+						) : (
+							<AppButton
+								variant="outline"
+								className="gap-2 rounded-lg"
+								onClick={toggleMode}
+								disabled={isLoading}
+								leftIcon={
+									mode === "view" ? <Edit3 className="w-4 h-4" /> : <Eye className="w-4 h-4" />
+								}
+							>
+								{mode === "view" ? "Edit" : "View"}
+							</AppButton>
+						)}
 					</div>
 					{description && <p className="body-3 text-neutral-500">{description}</p>}
 				</div>

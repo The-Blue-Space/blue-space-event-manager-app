@@ -33,11 +33,19 @@ type SelectBoxProps = {
 	errorStyle?: string;
 	contentContainerStyle?: string;
 	showSearch?: boolean;
+	floatingLabel?: boolean;
 };
 
 export default React.memo(function SelectBox(props: SelectBoxProps) {
-	const { required = false, disabled = false, showRestItem = false, showSearch = false } = props;
+	const {
+		required = false,
+		disabled = false,
+		showRestItem = false,
+		showSearch = false,
+		floatingLabel = false,
+	} = props;
 	const [search, setSearch] = React.useState("");
+	const [isOpen, setIsOpen] = React.useState(false);
 
 	const { isInvalid } = React.useMemo(() => {
 		let isInvalid = false;
@@ -48,7 +56,16 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 		return { isInvalid };
 	}, [props.invalid, props.value, props.required]);
 
-	const container = classnames("input-container !outline-0", props.containerStyle);
+	const hasValue = React.useMemo(() => {
+		const userInput = props.value?.toString();
+		return !!userInput && userInput.trim().length > 0;
+	}, [props.value]);
+
+	const shouldFloat = floatingLabel && (isOpen || hasValue);
+
+	const container = classnames("input-container !outline-0", props.containerStyle, {
+		"floating-label-container": floatingLabel,
+	});
 
 	const selectContainer = classnames(
 		"shadow-none  w-full !outline-0 text-b-2 px-2 !h-auto text-neutral-500 capitalize",
@@ -62,6 +79,13 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 	const contentContainer = classnames("overflow-auto max-h-96", props.contentContainerStyle);
 	const errorCn = classnames("text-red-500 text-xs", props.errorStyle, {
 		hidden: !props.errorMessage,
+	});
+
+	const labelCn = classnames({
+		"floating-label": floatingLabel,
+		floated: shouldFloat,
+		"has-error": isInvalid || props.errorMessage,
+		capitalize: !floatingLabel,
 	});
 
 	const change = (val: string) => {
@@ -85,7 +109,7 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 	return (
 		<React.Fragment>
 			<div className={container}>
-				{props.label && (
+				{props.label && !floatingLabel && (
 					<label htmlFor={props.name} className="">
 						{props.label} <span className="text-red-500 ">{props.required && "*"}</span>
 					</label>
@@ -96,9 +120,14 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 					name={props.name}
 					disabled={disabled}
 					required={required}
+					onOpenChange={setIsOpen}
+					
 				>
 					<SelectTrigger className={selectContainer}>
-						<SelectValue className="capitalize" placeholder={props.placeholder ?? "Select Option"} />
+						<SelectValue
+							className="capitalize"
+							placeholder={floatingLabel? !shouldFloat ? "" : props.placeholder ?? "Select" : props.placeholder ?? "Select"}
+						/>
 					</SelectTrigger>
 					<SelectContent
 						position={props.contentMode}
@@ -132,6 +161,12 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 						))}
 					</SelectContent>
 				</Select>
+				{props.label && floatingLabel && (
+					<label htmlFor={props.name} className={labelCn}>
+						{props.label}{" "}
+						{props.required && shouldFloat ? <span className="ml-1 text-red-500">*</span> : ""}
+					</label>
+				)}
 				<small className={errorCn}>{props.errorMessage}</small>
 			</div>
 		</React.Fragment>

@@ -29,6 +29,10 @@ type DatePickerProps = {
 	errorStyle?: string;
 	icon_placement?: "left" | "right";
 	icon?: React.ReactNode;
+	floatingLabel?: boolean;
+	notePlacement?: "top" | "bottom";
+	note?: string;
+	noteStyle?: string;
 };
 
 export default function DateInput({
@@ -43,7 +47,10 @@ export default function DateInput({
 	invalid,
 	icon_placement = "right",
 	icon,
-
+	floatingLabel = false,
+	notePlacement = "bottom",
+	note,
+	noteStyle,
 	...props
 }: DatePickerProps) {
 	const [open, setOpen] = React.useState(false);
@@ -61,20 +68,37 @@ export default function DateInput({
 		return { isInvalid };
 	}, [invalid, value, props.required, props.overrideInvalid]);
 
+	const hasValue = React.useMemo(() => {
+		return !!value;
+	}, [value]);
+	const shouldFloat = floatingLabel && (open || hasValue);
+
 	// const daySelectedCn = classNames(
 	// 	"bg-primary text-stone-50 hover:bg-primary hover:text-stone-50 focus:bg-primary focus:text-stone-50",
 	// 	props.daySelectedStyle
 	// );
 
-	const triggerCn = classNames("w-full flex justify-between text-left font-normal", props.triggerStyle, {
-		"text-muted-foreground": !value,
-		invalid: isInvalid,
-	});
+	const triggerCn = classNames(
+		"w-full flex justify-between text-left font-normal body-3",
+		props.triggerStyle,
+		{
+			"text-muted-foreground": !value,
+			invalid: isInvalid,
+		}
+	);
 
+	const labelCn = classNames({
+		"floating-label !top-5": floatingLabel,
+		floated: shouldFloat,
+		"has-error": isInvalid || props.errorMessage,
+		capitalize: !floatingLabel,
+	});
 	const container = classNames("input-container", containerStyle);
 	const errorCn = classNames("text-red-500 text-xs ", props.errorStyle, {
 		hidden: !props.errorMessage,
 	});
+
+	const noteCn = classNames("text-neutral-700 body-3", noteStyle);
 
 	const handleOpenChange = (open: boolean) => {
 		setOpen(open);
@@ -91,7 +115,7 @@ export default function DateInput({
 		}
 	};
 
-	const sanitizeData = (date?: Date) => {
+	const sanitizeDate = (date?: Date) => {
 		logger.log("date", date);
 		try {
 			if (typeof date === "string") {
@@ -101,42 +125,68 @@ export default function DateInput({
 				logger.log("date is not invalid date", date);
 				return new Date(date);
 			}
+			// Return true for valid Date objects
+			if (date instanceof Date && !isNaN(date.getTime())) {
+				return true;
+			}
+			return undefined;
 		} catch (error) {
 			throw error;
 			return undefined;
 		}
-	
-		
 	};
 
 	return (
 		<React.Fragment>
 			<div className={container}>
-				{label && (
+				{label && !floatingLabel && (
 					<label htmlFor={name} className="capitalize">
 						{label} {props.required && <span className="text-red-500">*</span>}
 					</label>
 				)}
+				{note && notePlacement === "top" && <small className={noteCn}>{note}</small>}
 				<Popover modal={true} open={open} onOpenChange={handleOpenChange}>
 					<PopoverTrigger asChild>
+						{/* <> */}
+
 						<Button
+							type="button"
 							name={name}
 							variant={"outline"}
 							className={triggerCn}
 							onClick={toggleOpen}
 							disabled={disabled}
 						>
-							{icon_placement === "left" ? icon ?? <CalendarIcon className="mr-2 w-4 h-4" /> : null}
+							{icon_placement === "left" && floatingLabel
+								? shouldFloat
+									? icon ?? <CalendarIcon className="mr-2 w-4 h-4" />
+									: null
+								: icon_placement === "left" && !floatingLabel
+								? icon ?? <CalendarIcon className="mr-2 w-4 h-4" />
+								: null}
 
-							{sanitizeData(value) && value ? (
+							{floatingLabel ? (
+								!shouldFloat ? (
+									""
+								) : sanitizeDate(value) && value ? (
+									format(value, "PPP")
+								) : (
+									<span> {placeholder ?? "Pick a date"}</span>
+								)
+							) : sanitizeDate(value) && value ? (
 								format(value, "PPP")
 							) : (
 								<span> {placeholder ?? "Pick a date"}</span>
 							)}
-							{icon_placement === "right"
+							{icon_placement === "right" && floatingLabel
+								? shouldFloat
+									? icon ?? <CalendarIcon className="mr-2 w-4 h-4" />
+									: null
+								: icon_placement === "right" && !floatingLabel
 								? icon ?? <CalendarIcon className="mr-2 w-4 h-4" />
 								: null}
 						</Button>
+						{/* </> */}
 					</PopoverTrigger>
 					<PopoverContent className="z-50 p-0 w-auto">
 						<Calendar
@@ -159,6 +209,13 @@ export default function DateInput({
 						/>
 					</PopoverContent>
 				</Popover>
+
+				{note && notePlacement === "bottom" && <small className={noteCn}>{note}</small>}
+				{label && floatingLabel && (
+					<label htmlFor={name} className={labelCn}>
+						{label} {props.required && shouldFloat ? "*" : ""}
+					</label>
+				)}
 				<small className={errorCn}>{props.errorMessage}</small>
 			</div>
 		</React.Fragment>

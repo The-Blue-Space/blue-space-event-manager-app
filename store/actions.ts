@@ -13,6 +13,7 @@ import { setActiveCurrency } from "./init.slice";
 import { setAccountBalance } from "./init.slice";
 import { setCountries } from "./init.slice";
 import { Country } from "@/types/global.types";
+import { setCurrencies } from "./init.slice";
 
 export default function useActions() {
 	const dispatch = useAppDispatch();
@@ -27,6 +28,7 @@ export default function useActions() {
 		setActiveCurrency: (currency: Currency) => dispatch(setActiveCurrency(currency)),
 		setAccountBalance: (balance: AccountBalancePayload) => dispatch(setAccountBalance(balance)),
 		setCountries: (countries: Country[]) => dispatch(setCountries(countries)),
+		setCurrencies: (currencies: Currency[]) => dispatch(setCurrencies(currencies)),
 	};
 
 	const account = {

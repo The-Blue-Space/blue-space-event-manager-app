@@ -53,10 +53,10 @@ export default function AppDrawer({
 		props.drawerTitleClassName
 	);
 
-	const cn = classNames("h-full  outline-none ", props.className, {
-		"lg:ml-[68%] !overflow-x-hidden": props.direction === "right",
+	const cn = classNames("h-full  outline-none", props.className, {
+		"lg:ml-[68%] !overflow-x-hidden rounded-none": props.direction === "right",
 		"lg:mr-[68%] !overflow-x-hidden": props.direction === "left",
-		"overflow-hidden border-none": props.direction === "bottom",
+		"overflow-hidden border-none ": props.direction === "bottom",
 	});
 
 	const closeButtonClx = classNames("p-1 rounded-full bg-neutral-300", props.closeButtonClassName);
