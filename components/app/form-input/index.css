@@ -29,7 +29,7 @@
 .input-container input,
 .input-container select,
 .input-container textarea {
-	@apply p-2 border border-opacity-50 rounded-md placeholder:text-b-3 text-b-3 text-neutral-700 border-neutral-500 outline-neutral-500 read-only:outline-none read-only:bg-neutral-50;
+	@apply p-2 border z-0 border-opacity-50 rounded-md placeholder:text-b-3 text-b-3 text-neutral-700 border-neutral-500 outline-neutral-500 read-only:outline-none read-only:bg-neutral-50;
 }
 
 .input-style {

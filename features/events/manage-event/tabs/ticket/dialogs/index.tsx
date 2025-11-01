@@ -1,6 +1,7 @@
 import EditTicket from "./edit-ticket";
 import NewTicket from "./new-ticket";
 import TicketPromo from "./ticket-promo";
+import AddonDialog from "./addon";
 
 export default function TicketDialogs() {
 	return (
@@ -8,6 +9,7 @@ export default function TicketDialogs() {
 			<NewTicket />
 			<EditTicket />
 			<TicketPromo />
+			<AddonDialog />
 		</>
 	);
 }

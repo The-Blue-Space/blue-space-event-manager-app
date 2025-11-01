@@ -67,6 +67,7 @@ export type Event = {
 	doors_open_at?: string | null;
 	refund_policy_type?: RefundPolicyType;
 	refund_policy_days?: number | null;
+	automate_refunds: boolean;
 	created_at: string;
 	updated_at: string;
 	created_by: ManagerProfile;

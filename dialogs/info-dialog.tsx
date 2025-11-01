@@ -52,7 +52,7 @@ export default React.memo(function InfoDialog() {
 					</AppButton>
 
 					<AppButton
-						variant="black"
+						variant="primary"
 						className="rounded-lg text-neutral-base_white"
 						onClick={handleProceed}
 						isLoading={isLoading}
@@ -64,7 +64,7 @@ export default React.memo(function InfoDialog() {
 		>
 			<div className="flex flex-col gap-2 justify-center items-center text-center">
 				<Badge className="justify-center items-center rounded-full shadow-none bg-primary-10 size-14">
-					<Info className="size-10 text-primary-300" />
+					<Info className="size-10 text-accent-500" />
 				</Badge>
 				<span className="body-2 text-neutral-700">
 					{dialog.data?.text ?(dialog.data?.text as string)?.split("\n").map((line, idx) => (

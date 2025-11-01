@@ -1,6 +1,7 @@
 import Agenda from "./agenda";
 import BasicInfo from "./basic-info";
 import Media from "./media";
+import PublishTab from "./publish";
 import Ticket from "./ticket";
 
 export default function EventSetupTabs() {
@@ -10,6 +11,7 @@ export default function EventSetupTabs() {
 			<Media />
 			<Agenda />
 			<Ticket />
+			<PublishTab />
 		</>
 	);
 }

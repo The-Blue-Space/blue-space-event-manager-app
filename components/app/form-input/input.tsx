@@ -103,7 +103,7 @@ const Input = React.forwardRef<Ref, InputProps>((props: InputProps, ref) => {
 		"!border-transparent": hideBorder,
 	});
 
-	const errorCn = classNames("text-red-500 text-xs mt-[-10px]", errorStyle, {
+	const errorCn = classNames("text-red-500 text-xs", errorStyle, {
 		hidden: !errorMessage,
 	});
 

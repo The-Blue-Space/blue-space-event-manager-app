@@ -5,6 +5,8 @@ type DialogType =
 	| "add_event_ticket"
 	| "edit_event_ticket"
 	| "configure_ticket_promo"
+	| "add_event_addon"
+	| "edit_event_addon"
 	| "order_details"
 	| "create_event"
 	| "success"

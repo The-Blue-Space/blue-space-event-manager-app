@@ -3,6 +3,7 @@ import { Ticket } from "lucide-react";
 import SectionWrapper from "../../section-wrapper";
 import TabContainer from "../../tab-container";
 import TicketList from "./ticket-list";
+import TicketAddonTab from "./ticket-addon";
 
 import useActions from "@/store/actions";
 import AppButton from "@/components/app/app-button";
@@ -33,6 +34,10 @@ export default function AgendaTab() {
 			>
 				{(sectionMode) => (sectionMode === "view" ? <TicketList /> : null)}
 			</SectionWrapper>
+
+			{/* Addon Section */}
+			<TicketAddonTab />
+
 			<TicketDialogs />
 		</TabContainer>
 	);

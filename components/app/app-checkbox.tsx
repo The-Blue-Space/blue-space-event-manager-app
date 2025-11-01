@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { Checkbox } from "../ui/checkbox";
+import { cn } from "@/lib/utils";
 
 type Props = {
 	id: string;
@@ -21,7 +22,7 @@ export default function AppCheckbox({ placement = "left", ...props }: Props) {
 		props.className
 	);
 
-	const labelCn = classNames("body-2", props.labelClassName);
+	const labelCn = cn("body-3", props.labelClassName);
 
 	const checkIconStyle = classNames("text-white", props.checkIconStyle);
 	return (
