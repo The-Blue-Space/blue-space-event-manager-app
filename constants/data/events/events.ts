@@ -664,7 +664,7 @@ export const events: Event[] = [
 				public_id: "events/fashion-week-2025/gallery-1",
 				media_type: "image",
 				order: 2,
-				is_active: true,
+		is_active: true,
 				created_at: "2024-11-15T14:06:00.000Z",
 				updated_at: "2024-11-15T14:06:00.000Z",
 			},
