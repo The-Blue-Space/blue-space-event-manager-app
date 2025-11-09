@@ -1,6 +1,5 @@
 import type { User } from "./user.types";
-import type { EventTicket } from "./event-ticket.types";
-import type { EventTicketPromo } from "./event-ticket-promo.types";
+import type { EventTicket, EventTicketAddon, EventTicketPromo } from "./event-ticket.types";
 import type { Order } from "./order.types";
 
 export type TicketStatus = "pending" | "paid" | "failed";
@@ -20,5 +19,6 @@ export type UserTicket = {
 	user?: User;
 	ticket?: EventTicket;
 	ticket_promo?: EventTicketPromo;
+	ticket_addons?: EventTicketAddon[];
 	ticket_payment?: Order;
 };

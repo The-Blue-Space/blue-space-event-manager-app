@@ -129,6 +129,7 @@ export type EventMetrics = {
 	total_uploads: number;
 	total_refunds: number;
 	total_revenue: number;
+	total_refund_amount?: number
 };
 
 export type EventsOverview = {

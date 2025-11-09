@@ -46,7 +46,7 @@ export default React.memo(function DeleteBusinessTypeDialog() {
 				<div className="flex justify-between gap-5 [&_button]:w-full w-full [&_button]:py-3">
 					{data?.showDismissButton && (
 						<AppButton
-							variant={data?.dismissButtonVariant ?? "primary"}
+							variant={data?.dismissButtonVariant ?? "muted"}
 							onClick={close}
 							className="w-full text-primary-800"
 						>
@@ -79,7 +79,7 @@ export default React.memo(function DeleteBusinessTypeDialog() {
 						{data?.customTitle && data?.customTitle}
 
 						{data?.showTitle && (
-							<h1 className="font-bold heading-6 text-primary-800">{data?.title ?? "Delete"} </h1>
+							<h1 className="font-bold heading-6 text-red-600">{data?.title ?? "Delete"} </h1>
 						)}
 						{data?.customText && data?.customText}
 						{data?.showText && (

@@ -1,5 +1,5 @@
-import UnderConstruction from "@/components/app/prompts/under-construction";
 import { generateMetadata } from "@/lib/generate-metadata";
+import EventDetails from "@/features/events/event-details";
 
 export const metadata = generateMetadata({
 	title: "Event Details",
@@ -7,5 +7,5 @@ export const metadata = generateMetadata({
 });
 
 export default function EventDetailsPage() {
-	return <UnderConstruction />;
+	return <EventDetails />;
 }
