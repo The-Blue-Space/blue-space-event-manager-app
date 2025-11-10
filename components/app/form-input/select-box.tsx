@@ -68,7 +68,7 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 	});
 
 	const selectContainer = classnames(
-		"shadow-none  w-full !outline-0 text-b-2 px-2 !h-auto text-neutral-500 capitalize",
+		"shadow-none  w-full !outline-0 text-b-2 px-2 !h-auto text-neutral-500 capitalize overflow-hidden",
 		props.className,
 		{
 			"!text-neutral-500": !props.value?.trim(),
@@ -126,7 +126,8 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 					<SelectTrigger className={selectContainer}>
 						<SelectValue
 							className="capitalize"
-							placeholder={floatingLabel? !shouldFloat ? "" : props.placeholder ?? "Select" : props.placeholder ?? "Select"}
+							placeholder={floatingLabel ? !shouldFloat ? "" : props.placeholder ?? "Select" : props.placeholder ?? "Select"}
+							
 						/>
 					</SelectTrigger>
 					<SelectContent

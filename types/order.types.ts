@@ -14,6 +14,7 @@ export type Order = {
 	payment_method?: string | null;
 	payment_status: PaymentStatus;
 	payment_reference?: string | null;
+	event_name?: string;
 	paid_at?: string | null;
 	refunded_at?: string | null;
 	created_at: string;

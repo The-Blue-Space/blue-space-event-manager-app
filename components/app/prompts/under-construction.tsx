@@ -1,15 +1,13 @@
-"use client";
 import { underConstruction } from "@/constants/assets";
-import useCustomNavigation from "@/hooks/use-navigation";
 import Image from "next/image";
 
 const UnderConstruction = () => {
-	const { pathname } = useCustomNavigation();
-	const links = pathname.split("/");
-	const name = links[links.length > 0 ? links.length - 1 : links.length];
 	return (
 		<div className="flex flex-col items-center justify-center h-full lg:gap-3 grow">
-			<h1 className="capitalize heading-4 text-primary">{name.split("-").join(" ")} page</h1>
+			<div className="text-center">
+				<h1 className="capitalize heading-4 text-primary-500">Coming Soon</h1>
+				<p className="body-1 text-neutral-700">we are working on it</p>
+			</div>
 			<Image
 				src={underConstruction}
 				alt="underConstruction"

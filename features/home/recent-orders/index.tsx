@@ -4,8 +4,8 @@ import { useState } from "react";
 import Render from "@/components/app/render";
 import Link from "next/link";
 import { HomeProps } from "..";
-import OrdersTable from "./orders-table";
-import OrderDetailsDrawer from "./order-details";
+import OrdersTable from "@/features/orders/orders-table";
+import OrderDetailsDrawer from "@/features/orders/order-details";
 
 export default function RecentOrders({ isLoading, data }: HomeProps) {
 	const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);

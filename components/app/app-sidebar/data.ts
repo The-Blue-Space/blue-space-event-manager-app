@@ -2,8 +2,8 @@ import classNames from "classnames";
 import React from "react";
 import {
 	CalendarCheck2,
-	CreditCard,
 	Home,
+	Landmark,
 	Megaphone,
 	Recycle,
 	ScrollText,
@@ -74,8 +74,8 @@ export const sidebarLinks: SidebarLink[] = [
 	{
 		name: "finance",
 		path: "/finance",
-		icon: IconContainer(CreditCard),
-		activeIcon: IconContainer(CreditCard, true),
+		icon: IconContainer(Landmark),
+		activeIcon: IconContainer(Landmark, true),
 		relativePaths: [],
 	},
 	{

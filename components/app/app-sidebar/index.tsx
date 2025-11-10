@@ -33,8 +33,13 @@ export default function AppSidebar({ children }: { children: React.ReactNode }) 
 	};
 	return (
 		<SidebarProvider defaultOpen={false} className="">
-			<Sidebar collapsible="icon" className=" bg-primary-800">
-				<SidebarHeader className="pt-10 px-4 xl:px-0 xl:py-8  xl:mx-auto ">
+			{/* Header - Full width on desktop, in flow on mobile */}
+			<div className="hidden xl:block fixed top-0 left-0 right-0 z-50 " >
+				<AppHeader />
+			</div>
+			
+			<Sidebar collapsible="icon" className=" bg-primary-800 xl:mt-14">
+				<SidebarHeader className="pt-10 px-4 xl:px-0 xl:py-8  xl:mx-auto xl:hidden ">
 					<AppLogo scope="logo_white" size={50} className="hidden xl:block" />
 					<AppLogo scope="logo_text_white" size={150} className="block xl:hidden" />
 				</SidebarHeader>
@@ -53,13 +58,47 @@ export default function AppSidebar({ children }: { children: React.ReactNode }) 
 				</SidebarContent>
 			</Sidebar>
 
-			<div className="flex flex-col w-full">
-				<AppHeader />
+			<div className="flex flex-col w-full xl:mt-[64px]">
+				{/* Mobile header (visible only on mobile) */}
+				<div className="lg:hidden">
+					<AppHeader />
+				</div>
 				{children}
 			</div>
 		</SidebarProvider>
 	);
 }
+
+
+
+// return (
+// 	<SidebarProvider defaultOpen={false} className="">
+// 		<Sidebar collapsible="icon" className=" bg-primary-800">
+// 			<SidebarHeader className="pt-10 px-4 xl:px-0 xl:py-8  xl:mx-auto ">
+// 				<AppLogo scope="logo_white" size={50} className="hidden xl:block" />
+// 				<AppLogo scope="logo_text_white" size={150} className="block xl:hidden" />
+// 			</SidebarHeader>
+// 			<SidebarContent className="px-2  justify-start py-5 gap-1 group-data-[collapsible=icon]:px-0">
+// 				<SidebarGroup>
+// 					<SidebarGroupContent>
+// 						<SidebarMenu className="space-y-3">
+// 							{sidebarLinks.map((item) => {
+// 								return <SidebarLink key={item.name} {...item} {...props} />;
+// 							})}
+// 						</SidebarMenu>
+// 						<Separator className="h-px bg-gray-500 my-2" />
+// 						<Logout />
+// 					</SidebarGroupContent>
+// 				</SidebarGroup>
+// 			</SidebarContent>
+// 		</Sidebar>
+
+// 		<div className="flex flex-col w-full">
+// 			<AppHeader />
+// 			{children}
+// 		</div>
+// 	</SidebarProvider>
+// );
 
 
 //EXPANDED SIDEBAR
