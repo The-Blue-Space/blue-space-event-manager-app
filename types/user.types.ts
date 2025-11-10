@@ -1,3 +1,5 @@
+import { RefundPolicyType } from "./event.types";
+import { Country } from "./global.types";
 import { Order } from "./order.types";
 
 export const ACCOUNT_STATUS = [
@@ -31,8 +33,20 @@ export type ManagerProfile = {
 	logo: string | null;
 	display_image: string | null;
 	bio: string | null;
+	phone: string | null;
+	email: string | null;
+	operating_country_id: string;
+	operating_country: Country;
 	user_id: string;
 	user: User;
+	// event settings
+	refund_policy_type?: RefundPolicyType;
+	refund_policy_days?: number | null;
+	automate_refunds: boolean;
+	enable_downloads: boolean;
+	allow_individual_upload: boolean;
+	allow_professional_upload: boolean;
+
 	created_at: string;
 	updated_at: string;
 };
