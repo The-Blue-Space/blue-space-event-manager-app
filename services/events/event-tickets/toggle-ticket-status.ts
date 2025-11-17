@@ -13,7 +13,7 @@ type Response = EventTicket;
 
 export async function production(params: Parameters): Promise<Response> {
 	// Use PATCH endpoint if available, otherwise use PUT with minimal data
-	const response = await axios.patch(`/v1/event-tickets/${params.id}/status`, {
+	const response = await axios.put(`/v1/event-tickets/${params.id}/status`, {
 		is_active: params.is_active,
 	});
 	return response.data;

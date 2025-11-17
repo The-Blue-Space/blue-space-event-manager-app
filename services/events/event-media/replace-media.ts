@@ -17,7 +17,7 @@ export async function production(params: Parameters): Promise<Response> {
 		file: params.file,
 	});
 	const response = await axios.put(
-		`/v1/events/${params.event_Id}/media/${params.media_id}`,
+		`/v1/events/${params.event_Id}/media/${params.media_id}/replace`,
 		formData,
 		{
 			headers: {
