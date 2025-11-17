@@ -9,7 +9,7 @@ type Response = void;
 
 export async function production(data: Parameters): Promise<Response> {
 	const response = await axios.post(`/v1/auth/send-mfa`, data);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

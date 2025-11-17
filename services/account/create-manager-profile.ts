@@ -5,7 +5,7 @@ import { buildFormData } from "@/lib/build-form-data";
 import { ManagerProfile } from "@/types/user.types";
 
 type Parameters = Partial<Omit<ManagerProfile, "logo" | "display_image">> & {
-	id: string;
+	user_id: string;
 	name: string;
 	logo: File | null;
 	display_image: File | null;
@@ -19,7 +19,7 @@ type Response = ManagerProfile;
 
 export async function production(params: Parameters): Promise<Response> {
 	const formData = buildFormData(params, "dot"); // dot notation;
-	const response = await axios.put(`/v1/manager-profiles/${params.id}`, formData, {
+	const response = await axios.post(`/v1/manager-profiles`, formData, {
 		headers: {
 			"Content-Type": "multipart/form-data",
 		},
@@ -36,7 +36,7 @@ export async function development(): Promise<Response> {
 	});
 }
 
-export default async function updateManagerProfile(params: Parameters): Promise<Response> {
+export default async function createManagerProfile(params: Parameters): Promise<Response> {
 	if (variables.SERVICE_ENV === "development") return development();
 	return production(params);
 }

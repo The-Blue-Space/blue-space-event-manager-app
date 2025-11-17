@@ -3,11 +3,14 @@ import AppContainer from "@/components/app/container/container";
 import Welcome from "./welcome";
 import OverviewCards from "./overview-cards";
 import { useQuery } from "@tanstack/react-query";
-import getDashboardData from "@/services/account/get-user-dashboard";
+import getDashboardData from "@/services/account/get-manager-dashboard";
 import Render from "@/components/app/render";
 import { UserDashboardData } from "@/types/user.types";
 import { Activities } from "./activities";
 import RecentOrders from "./recent-orders";
+import useAppSelector from "@/store/hooks";
+import React from "react";
+import SetUpProfile from "./set-up-profile";
 
 export type HomeProps = {
 	isLoading: boolean;
@@ -15,9 +18,13 @@ export type HomeProps = {
 };
 
 export default function Home() {
+	const { managerProfile } = useAppSelector("manager_profile");
+	const hasManagerProfile = React.useMemo(() => managerProfile !== null, [managerProfile]);
+
 	const { data, isFetching, isError, error } = useQuery({
 		queryKey: ["dashboard-data"],
 		queryFn: () => getDashboardData(),
+		enabled: hasManagerProfile,
 	});
 
 	return (
@@ -25,7 +32,8 @@ export default function Home() {
 			{/* Welcome Banner */}
 			<Welcome />
 
-			<Render error={error} isError={isError}>
+			{hasManagerProfile?
+				<Render error={error} isError={isError}>
 				{/* Overview Cards - 4 metrics */}
 				<OverviewCards isLoading={isFetching} data={data} />
 
@@ -34,7 +42,7 @@ export default function Home() {
 
 				{/* Recent Orders - Full width */}
 				<RecentOrders isLoading={isFetching} data={data} />
-			</Render>
+			</Render>: <SetUpProfile/>}
 		</AppContainer>
 	);
 }

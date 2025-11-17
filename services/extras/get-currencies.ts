@@ -5,8 +5,8 @@ import { Currency } from "@/types/global.types";
 type Response = Currency[];
 
 export async function production(): Promise<Response> {
-	const response = await axios.get(`/v1/currencies`);
-	return response.data.data;
+	const response = await axios.get(`/v1/extras/currencies`);
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

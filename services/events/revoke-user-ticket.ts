@@ -14,7 +14,7 @@ type Response = {
 export async function production(params: Parameters): Promise<Response> {
 	const { eventId, ticketId } = params;
 	const response = await axios.post(`/v1/events/${eventId}/tickets/${ticketId}/revoke`);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

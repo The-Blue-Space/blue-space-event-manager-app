@@ -27,7 +27,7 @@ export async function production(params: Parameters): Promise<Response> {
 		automate_refunds: params.automate_refunds,
 		published_at: params.published_at || new Date().toISOString(),
 	});
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

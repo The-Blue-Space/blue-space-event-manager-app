@@ -14,7 +14,7 @@ export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.patch(`/v1/event-addons/${params.id}/status`, {
 		is_active: params.is_active,
 	});
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

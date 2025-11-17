@@ -10,7 +10,7 @@ type Parameters = {
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.get(`/v1/orders/${params.orderId}/details`);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

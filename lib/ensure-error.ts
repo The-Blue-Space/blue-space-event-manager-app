@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
 import { ZodError } from "zod";
+import logger from "./app-logger";
 
 /**
  * Ensures that an error is an instance of Error
@@ -7,6 +8,7 @@ import { ZodError } from "zod";
  * @returns The error if it is an instance of Error, otherwise a new Error with the message "[unable to stringify thrown error]"
  */
 export default function ensureError(err: unknown): Error {
+  logger.log(err);
   if (err instanceof ZodError) {
     const newError = new Error(err.issues[0].message);
     return newError;

@@ -19,7 +19,7 @@ export async function production(params: Parameters): Promise<Response> {
 		account_name: params.account_name,
 		otp: params.otp,
 	});
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

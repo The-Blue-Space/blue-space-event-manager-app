@@ -24,7 +24,7 @@ type Response = {
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.post(`/v1/tickets/fee-breakdown`, params);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

@@ -11,7 +11,7 @@ type Response = Event;
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.patch(`/v1/events/${params.event_id}`);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

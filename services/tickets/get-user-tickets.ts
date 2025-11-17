@@ -13,7 +13,7 @@ type Response = PaginatedResponse<UserTicket>;
 export async function production(params: Parameters): Promise<Response> {
 	const query_string = buildQueryString(params);
 	const response = await axios.get(`/v1/user-tickets?${query_string}`);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

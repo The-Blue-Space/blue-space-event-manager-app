@@ -115,7 +115,7 @@ type Response = ResponseType;
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.get(`/v1/resource/${params.id}`);
-	return response.data.data;
+	return  response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

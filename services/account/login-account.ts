@@ -18,7 +18,7 @@ export async function production(data: Parameters): Promise<Response> {
 		account_type: "manager",
 	});
 
-	return response.data.data;
+	return  response.data;
 }
 
 export async function development(): Promise<Response> {

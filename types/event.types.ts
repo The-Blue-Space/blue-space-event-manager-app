@@ -70,7 +70,11 @@ export type Event = {
 	automate_refunds: boolean;
 	created_at: string;
 	updated_at: string;
-	created_by: ManagerProfile;
+
+	created_by: User;
+	manager_profile_id?: string;
+	manager_profile?: ManagerProfile;
+
 	// metrics
 	ticket_sold?: number | null;
 	total_uploads?: number;
@@ -82,9 +86,9 @@ export type Event = {
 	event_shot_quota?: EventShotQuota;
 	// Overview and Good to Know
 	overview?: string | null;
-	faq?: string | null;
-	event_agenda?: EventAgenda[];
-	event_lineup?: EventLineup[];
+	faq?: EventFaq[] | null; // New table
+	event_agenda?: EventAgenda[]; // New table
+	event_lineup?: EventLineup[]; // New table
 };
 
 export type EventFaq = {
@@ -98,7 +102,6 @@ export const ACTIVITY_TYPES = [
 	"event_update",
 	"comment",
 	"refund",
-	"registration",
 ] as const;
 
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
@@ -120,7 +123,7 @@ export const ACTIVITY_TYPE_LABELS: Record<ActivityType, string> = {
 	event_update: "Event Update",
 	comment: "Comment",
 	refund: "Refund",
-	registration: "Registration",
+	// registration: "Registration",
 };
 
 export type EventMetrics = {

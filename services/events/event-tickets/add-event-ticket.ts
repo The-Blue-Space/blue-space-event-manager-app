@@ -27,7 +27,7 @@ type Response = EventTicket;
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.post(`/v1/events/${params.event_id}/event-tickets`, params);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

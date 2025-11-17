@@ -7,7 +7,7 @@ type Response = Bank[];
 
 export async function production(): Promise<Response> {
 	const response = await axios.get("/v1/banks");
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

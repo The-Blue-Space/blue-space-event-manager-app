@@ -16,7 +16,7 @@ export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.delete(`/v1/events/${eventId}/media`, {
 		data: { mediaIds },
 	});
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

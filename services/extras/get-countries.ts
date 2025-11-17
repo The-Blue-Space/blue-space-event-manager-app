@@ -5,8 +5,8 @@ import { Country } from "@/types/global.types";
 type Response = Country[];
 
 export async function production(): Promise<Response> {
-	const response = await axios.get(`/v1/events/active`);
-	return response.data.data;
+	const response = await axios.get(`/v1/extras/countries`);
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

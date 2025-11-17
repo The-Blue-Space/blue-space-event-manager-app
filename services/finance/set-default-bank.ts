@@ -11,7 +11,7 @@ type Response = BankDetails[];
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.patch(`/v1/banks/${params.bank_id}/set-default`);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

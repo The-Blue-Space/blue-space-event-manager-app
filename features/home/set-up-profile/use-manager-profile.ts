@@ -3,12 +3,16 @@ import { ZodError } from "zod";
 import { toast } from "sonner";
 import { managerProfileSchema, ManagerProfileFormData } from "./schema";
 import ensureError, { formatZodErrors } from "@/lib/ensure-error";
-import updateManagerProfile from "@/services/account/update-manager-profile";
 import invalidateQuery from "@/lib/invalidate-query";
 import useAppSelector from "@/store/hooks";
+import blobReader from "@/lib/blob-reader";
+import useActions from "@/store/actions";
+import createManagerProfile from "@/services/account/create-manager-profile";
 
 export default function useManagerProfile() {
+	const { account } = useAppSelector("account");
 	const { managerProfile } = useAppSelector("manager_profile");
+	const { managerProfile: managerProfileActions } = useActions();
 	const [isLoading, setIsLoading] = React.useState(false);
 	const [errors, setErrors] = React.useState<Record<string, string>>({});
 
@@ -51,24 +55,18 @@ export default function useManagerProfile() {
 	}, [managerProfile]);
 
 	// Handle logo file selection
-	const handleLogoChange = (file: File) => {
+	const handleLogoChange = async (file: File) => {
 		setLogoFile(file);
-		const reader = new FileReader();
-		reader.onloadend = () => {
-			setLogoPreview(reader.result as string);
-		};
-		reader.readAsDataURL(file);
+		const preview = await blobReader(file);
+		setLogoPreview(preview);
 		setErrors((prev) => ({ ...prev, logo: "" }));
 	};
 
 	// Handle display image file selection
-	const handleDisplayImageChange = (file: File) => {
+	const handleDisplayImageChange = async (file: File) => {
 		setDisplayImageFile(file);
-		const reader = new FileReader();
-		reader.onloadend = () => {
-			setDisplayImagePreview(reader.result as string);
-		};
-		reader.readAsDataURL(file);
+		const preview = await blobReader(file);
+		setDisplayImagePreview(preview);
 		setErrors((prev) => ({ ...prev, display_image: "" }));
 	};
 
@@ -92,11 +90,6 @@ export default function useManagerProfile() {
 	};
 
 	const submit = async () => {
-		if (!managerProfile?.id) {
-			toast.error("Manager profile not found");
-			return;
-		}
-
 		setErrors({});
 		setIsLoading(true);
 
@@ -123,8 +116,8 @@ export default function useManagerProfile() {
 				payload.display_image = null;
 			}
 
-			await updateManagerProfile({
-				id: managerProfile.id,
+			const response = await createManagerProfile({
+				user_id: account.id,
 				name: validated.name,
 				logo: logoFile,
 				display_image: displayImageFile,
@@ -133,8 +126,8 @@ export default function useManagerProfile() {
 				email: validated.email,
 				operating_country_id: validated.operating_country_id,
 			});
-
-			toast.success("Manager profile updated successfully");
+			managerProfileActions.changeProfile(response);
+			toast.success("Manager profile created successfully");
 			invalidateQuery(["manager-profile"]);
 
 			// Reset file states after successful update
@@ -145,10 +138,11 @@ export default function useManagerProfile() {
 				const formattedErrors = formatZodErrors(err);
 				setErrors(formattedErrors);
 				toast.error("Please fix the form errors");
-			} else {
-				const errMsg = ensureError(err).message;
-				toast.error(errMsg);
+				throw err;
 			}
+			const errMsg = ensureError(err).message;
+			toast.error(errMsg);
+			throw err;
 		} finally {
 			setIsLoading(false);
 		}

@@ -20,6 +20,7 @@ export default function VerifyMFA() {
 	);
 
 	useEffect(() => {
+	
 		const token = queryParams.get("token");
 		if (!token) {
 			setVerificationState("error");
@@ -31,9 +32,11 @@ export default function VerifyMFA() {
 				if (res) {
 					setVerificationState("success");
 					setCookie(variables.STORAGE_KEYS.session, res.access_token, {
-						expires: res.expires_in,
+						expires: new Date(res.expires_in * 1000),
 					});
-					setCookie(variables.STORAGE_KEYS.manager_profile_id, res.manager_profile.id);
+					if (res.manager_profile?.id) {
+						setCookie(variables.STORAGE_KEYS.manager_profile_id, res.manager_profile.id);
+					}
 
 					navigate("/home", { replace: true });
 				}

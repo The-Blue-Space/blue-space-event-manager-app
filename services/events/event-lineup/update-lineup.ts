@@ -46,7 +46,7 @@ export async function production(params: Parameters): Promise<Response> {
 			"Content-Type": "multipart/form-data",
 		},
 	});
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

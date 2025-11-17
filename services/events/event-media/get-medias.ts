@@ -10,7 +10,7 @@ type Response = EventMedia[];
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.get(`/v1/events/${params.event_Id}/media`);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

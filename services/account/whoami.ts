@@ -6,17 +6,17 @@ import { ManagerProfile, User } from "@/types/user.types";
 
 type Response = {
 	user: User
-	managerProfile: ManagerProfile
+	manager_profile: ManagerProfile
 };
 
 export async function production(): Promise<Response> {
-	const response = await axios.get(`/v1/user`);
-	return response.data.data;
+	const response = await axios.get(`/v1/auth/whoami`);
+	return response.data;
 }
 
 export async function development(): Promise<Response> {
 	return new Promise((resolve) => {
-		setTimeout(() => resolve({ user: users[0], managerProfile: manager_profiles[0] }), 2000);
+		setTimeout(() => resolve({ user: users[0], manager_profile: manager_profiles[0] }), 2000);
 	});
 }
 

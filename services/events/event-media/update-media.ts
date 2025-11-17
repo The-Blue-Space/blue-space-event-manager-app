@@ -19,7 +19,7 @@ export async function production(params: Parameters): Promise<Response> {
 		`/v1/events/${params.event_Id}/media/${params.media_id}`,
 		params
 	);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

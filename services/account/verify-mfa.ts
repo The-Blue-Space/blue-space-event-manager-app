@@ -17,7 +17,7 @@ type Response = {
 
 export async function production(data: Parameters): Promise<Response> {
 	const response = await axios.post(`/v1/auth/verify-mfa`, data);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

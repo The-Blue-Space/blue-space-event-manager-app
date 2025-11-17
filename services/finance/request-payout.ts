@@ -15,7 +15,7 @@ export async function production(params: Parameters): Promise<Response> {
 		event_id: params.event_id,
 		bank_id: params.bank_id,
 	});
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

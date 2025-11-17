@@ -7,11 +7,154 @@ type Parameters = {
 	eventId: string;
 };
 
+
+
+// new task: 
+
+// 1. event metrics: getting metrics for an event. 
+
+// type Parameters = {
+// 	eventId: string;
+// };
+
+// type Response = EventMetrics;
+
+// export async function production(params: Parameters): Promise<Response> {
+// 	const response = await axios.get(`/v1/events/${params.eventId}/metrics`);
+// 	return response.data;
+// }
+
+//  EventMetrics = {
+// 	total_tickets_sold: number;
+// 	total_participants: number;
+// 	total_uploads: number;
+// 	total_refunds: number;
+// 	total_revenue: number;
+// 	total_refund_amount?: number
+// };
+
+// these are all just counts 
+
+
+
+// task 2 event activites: these are the activies done on an event.
+
+
+// type Parameters = {
+// 	eventId: string;
+// };
+
+// type Response = EventActivity[];
+
+// export async function production(params: Parameters): Promise<Response> {
+// 	const response = await axios.get(`/v1/events/${params.eventId}/activities`);
+// 	return response.data;
+// }
+
+
+// export const ACTIVITY_TYPES = [
+// 	"ticket_purchase",
+// 	"check_in",
+// 	"event_update",
+// 	"comment",
+// 	"refund",
+// ] as const;
+
+// export type ActivityType = (typeof ACTIVITY_TYPES)[number];
+
+// export type EventActivity = {
+// 	id: string;
+// 	event_id: string;
+// 	type: ActivityType;
+// 	action: string;
+// 	details: string;
+// 	user: User;
+// 	timestamp: string;
+// 	metadata?: Record<string, any>;
+// };
+
+// here is a tiypcal example: 
+
+// [{
+// 			id: "act_001",
+// 			event_id: params.eventId,
+// 			type: "ticket_purchase",
+// 			action: "Ticket Purchased",
+// 			details: "2 VIP tickets purchased",
+// 			user: {
+// 				...users[0],
+// 				id: "user_001",
+// 				name: "Sarah Johnson",
+// 				avatar_url: "https://i.pravatar.cc/150?img=1",
+// 			},
+// 			timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+// 			metadata: { quantity: 2, ticket_type: "VIP", amount: 500 },
+// 		},
+// 		{
+// 			id: "act_002",
+// 			event_id: params.eventId,
+// 			type: "check_in",
+// 			action: "Checked In",
+// 			details: "Attendee checked in at gate A",
+// 			user: {
+// 				...users[1],
+// 				id: "user_002",
+// 				name: "Michael Chen",
+// 				avatar_url: "https://i.pravatar.cc/150?img=2",
+// 			},
+// 			timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+// 			metadata: { gate: "A" },
+// 		},
+// 		{
+// 			id: "act_003",
+// 			event_id: params.eventId,
+// 			type: "event_update",
+// 			action: "Event Updated",
+// 			details: "Event description and schedule updated",
+// 			user: {
+// 				...users[0],
+// 				id: "admin_001",
+// 				name: "Admin User",
+// 			},
+// 			timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+// 			metadata: { fields_updated: ["description", "schedule"] },
+// 		},{
+// 			id: "act_006",
+// 			event_id: params.eventId,
+// 			type: "comment",
+// 			action: "Comment Posted",
+// 			details: "Looking forward to this event!",
+// 			user: {
+// 				...users[0],
+// 				id: "user_005",
+// 				name: "Lisa Anderson",
+// 				avatar_url: "https://i.pravatar.cc/150?img=5",
+// 			},
+// 			timestamp: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
+// 		},
+// {
+// 			id: "act_008",
+// 			event_id: params.eventId,
+// 			type: "refund",
+// 			action: "Refund Processed",
+// 			details: "Refund issued for 1 ticket",
+// 			user: {
+// 				...users[0],
+// 				id: "user_007",
+// 				name: "Patricia Martinez",
+// 				avatar_url: "https://i.pravatar.cc/150?img=7",
+// 			},
+// 			timestamp: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
+// 			metadata: { quantity: 1, amount: 150 },
+// 		},
+// ]
+
+
 type Response = EventActivity[];
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.get(`/v1/events/${params.eventId}/activities`);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {
@@ -64,7 +207,7 @@ export async function development(params: Parameters): Promise<Response> {
 		{
 			id: "act_004",
 			event_id: params.eventId,
-			type: "registration",
+			type: "check_in",
 			action: "New Registration",
 			details: "Registered for the event",
 			user: {

@@ -17,7 +17,7 @@ export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.get(`/v1/events/${eventId}/tickets`, {
 		params: { page, limit, search },
 	});
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

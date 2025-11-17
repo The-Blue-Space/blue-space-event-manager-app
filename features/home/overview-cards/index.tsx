@@ -7,6 +7,7 @@ import { HomeProps } from "../index";
 import { calculatePercentage } from "@/lib/calculate-percentage";
 import useAppSelector from "@/store/hooks";
 import Render from "@/components/app/render";
+import ErrorBoundary from "@/components/app/error-boundary";
 
 export default function OverviewCards({ isLoading, data }: HomeProps) {
 	const overview = data?.overview;
@@ -56,46 +57,48 @@ export default function OverviewCards({ isLoading, data }: HomeProps) {
 	};
 
 	return (
-		<div className="flex gap-5 py-1 overflow-auto snap-x snap-mandatory hide-scrollbar w-full">
-			<Render isLoading={isLoading} loadingComponent={<LoadingComponent />}>
-				<MetricCard
-					title="Total Events"
-					value={eventsData.total}
-					subtitle={`${eventsData.active} upcoming`}
-					icon={eventsData.icon}
-					color={eventsData.color}
-					bgColor={eventsData.bgColor}
-				/>
-				<MetricCard
-					title="Total Attendees"
-					value={attendeesData.total}
-					subtitle={`${attendeesData.thisMonth.toLocaleString()} this month`}
-					icon={attendeesData.icon}
-					color={attendeesData.color}
-					bgColor={attendeesData.bgColor}
-					trend={attendeesData.trend}
-				/>
-				<MetricCard
-					title="Tickets Sold"
-					value={ticketsData.total}
-					subtitle={`${ticketsData.thisMonth.toLocaleString()} this month`}
-					icon={ticketsData.icon}
-					color={ticketsData.color}
-					bgColor={ticketsData.bgColor}
-					trend={ticketsData.trend}
-				/>
-				<MetricCard
-					title="Total Revenue"
-					value={revenueData.total}
-					subtitle={`$${revenueData.thisMonth.toLocaleString()} this month`}
-					icon={revenueData.icon}
-					color={revenueData.color}
-					bgColor={revenueData.bgColor}
-					trend={revenueData.trend}
-					isRevenue
-				/>
-			</Render>
-		</div>
+		<ErrorBoundary>
+			<div className="flex gap-5 py-1 overflow-auto snap-x snap-mandatory hide-scrollbar w-full">
+				<Render isLoading={isLoading} loadingComponent={<LoadingComponent />}>
+					<MetricCard
+						title="Total Events"
+						value={eventsData.total}
+						subtitle={`${eventsData.active} upcoming`}
+						icon={eventsData.icon}
+						color={eventsData.color}
+						bgColor={eventsData.bgColor}
+					/>
+					<MetricCard
+						title="Total Attendees"
+						value={attendeesData.total}
+						subtitle={`${attendeesData.thisMonth.toLocaleString()} this month`}
+						icon={attendeesData.icon}
+						color={attendeesData.color}
+						bgColor={attendeesData.bgColor}
+						trend={attendeesData.trend}
+					/>
+					<MetricCard
+						title="Tickets Sold"
+						value={ticketsData.total}
+						subtitle={`${ticketsData.thisMonth.toLocaleString()} this month`}
+						icon={ticketsData.icon}
+						color={ticketsData.color}
+						bgColor={ticketsData.bgColor}
+						trend={ticketsData.trend}
+					/>
+					<MetricCard
+						title="Total Revenue"
+						value={revenueData.total}
+						subtitle={`$${revenueData.thisMonth.toLocaleString()} this month`}
+						icon={revenueData.icon}
+						color={revenueData.color}
+						bgColor={revenueData.bgColor}
+						trend={revenueData.trend}
+						isRevenue
+					/>
+				</Render>
+			</div>
+		</ErrorBoundary>
 	);
 }
 
@@ -148,7 +151,7 @@ function MetricCard({
 	return (
 		<Card className="hover:shadow-md transition-shadow  w-full min-w-[280px]  lg:min-w-0 snap-start">
 			<CardContent className="p-6">
-				<div className="flex items-center justify-between mb-4">
+				<div className="flex items-center justify-between">
 					<p className="text-sm font-medium text-primary-500">{title}</p>
 					<div className={`p-2.5 rounded-lg ${bgColor}`}>
 						<Icon className={`h-5 w-5 ${color}`} />

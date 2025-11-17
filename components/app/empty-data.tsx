@@ -3,7 +3,7 @@ import classnames from "classnames";
 import { assets } from "@/constants";
 import Image from "next/image";
 
-type IconType = "default" | "event";
+type IconType = "default" | "event" | "analytics";
 type EmptyDataProps = {
 	title?: string;
 	text?: string;
@@ -23,6 +23,7 @@ export default React.memo(function EmptyData({
 	const icons: Record<IconType, string> = {
 		default: assets.empty_01,
 		event: assets.empty_01,
+		analytics: assets.empty_01,
 	};
 	const container = classnames(
 		"w-full h-full flex col-span-full flex-col items-center justify-center gap-2",

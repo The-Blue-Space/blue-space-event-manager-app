@@ -13,6 +13,7 @@ import EmptyData from "@/components/app/empty-data";
 import ActivitiesView from "./event-activities";
 import Render from "@/components/app/render";
 import ErrorBoundary from "@/components/app/error-boundary";
+import { cn } from "@/lib/utils";
 
 export default function ActiveEvents() {
 	const [currentIndex, setCurrentIndex] = useState(0);
@@ -39,7 +40,9 @@ export default function ActiveEvents() {
 
 	return (
 		<ErrorBoundary>
-			<Card className="h-fit flex flex-col">
+			<Card className={cn("h-fit flex flex-col bg", {
+				"min-h-96": !events?.length,
+			})}>
 				<Render isLoading={eventsLoading} loadingComponent={<LoadingComponent />}>
 					<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
 						{events && events.length > 1 && (
@@ -113,15 +116,14 @@ export default function ActiveEvents() {
 
 export function EmptyComponent() {
 	return (
-		<Card className="h-full">
-			<CardHeader>
-				<CardTitle>Active Events</CardTitle>
-			</CardHeader>
+		<Card className="h-full !border-none shadow-none">
+			<CardHeader>{/* <CardTitle>Active Events</CardTitle> */}</CardHeader>
 			<CardContent>
 				<EmptyData
+					iconType="event"
 					title="No Active Events"
 					text="There are no active events at the moment."
-					className="!justify-start py-8"
+					className="!justify-start py-8 border-none"
 				/>
 			</CardContent>
 		</Card>

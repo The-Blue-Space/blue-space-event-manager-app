@@ -45,8 +45,9 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [isAuthenticated, setIsAuthenticated] = React.useState(false);
 	const { account } = useAppSelector("account");
+	const { managerProfile } = useAppSelector("manager_profile");
 	const interceptor = React.useRef<number | null>(null);
-	const { get: getCookie, delete: deleteCookie } = useCookie();
+	const { get: getCookie, delete: deleteCookie, set: setCookie } = useCookie();
 	const { account: accountActions, managerProfile: managerProfileActions } = useActions();
 	const { navigate } = useCustomNavigation();
 	const query = clientQuery;
@@ -55,7 +56,16 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const businessIdKey = variables.STORAGE_KEYS.manager_profile_id;
 
 	const authToken = React.useMemo(() => getCookie(sessionKey, ""), [getCookie, sessionKey]);
-	const businessId = React.useMemo(() => getCookie(businessIdKey, ""), [getCookie, businessIdKey]);
+	const businessId = React.useMemo(() => {
+		const id = getCookie(businessIdKey, "");
+		if (!id) {
+			if (managerProfile) {
+				return managerProfile.id;
+			}
+			return null;
+		}
+		return id;
+	}, [getCookie, businessIdKey, managerProfile]);
 	// Setup interceptor function
 	const setupInterceptor = React.useCallback(() => {
 		if (interceptor.current !== null) {
@@ -69,7 +79,7 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 					try {
 						config.headers.Authorization = `Bearer ${authToken}`;
 						if (businessId) {
-							config.headers["X-Business-ID"] = businessId;
+							config.headers["X-Manager-ID"] = businessId;
 						}
 						return config;
 					} catch (error) {
@@ -122,7 +132,10 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				queryFn: whoami,
 			});
 			accountActions.changeAccount(response.user);
-			managerProfileActions.changeProfile(response.managerProfile);
+			if (response.manager_profile) {
+				setCookie(businessIdKey, response.manager_profile.id);
+				managerProfileActions.changeProfile(response.manager_profile);
+			}
 			setIsAuthenticated(true);
 		} catch (error) {
 			toast.error("Failed to authenticate user");

@@ -11,7 +11,7 @@ type Response = EventMetrics;
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.get(`/v1/events/${params.eventId}/metrics`);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(): Promise<Response> {

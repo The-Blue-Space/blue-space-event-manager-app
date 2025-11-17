@@ -15,7 +15,7 @@ type Response = {
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.get("/v1/orders/metrics");
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

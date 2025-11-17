@@ -20,6 +20,7 @@ export type RevenueData = {
 	outflow: {
 		current: number;
 		previous: number;
+		percentage_change: number;
 	};
 	net_balance: number;
 	trend: "up" | "down" | "stable";
@@ -28,7 +29,7 @@ export type RevenueData = {
 type Response = RevenueData;
 
 export async function production(params: Parameters): Promise<Response> {
-	const response = await axios.get(`/v1/dashboard/revenue`, {
+	const response = await axios.get(`/v1/dashboard/metrics/revenue`, {
 		params: {
 			period: params.period,
 		},
@@ -86,6 +87,7 @@ export async function development(params: Parameters): Promise<Response> {
 					outflow: {
 						current: currentOutflow,
 						previous: previousOutflow,
+						percentage_change: Math.abs(Math.random() * 100),
 					},
 					net_balance: netBalance,
 					trend,

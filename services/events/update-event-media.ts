@@ -16,7 +16,7 @@ type Response = {
 export async function production(params: Parameters): Promise<Response> {
 	const { eventId, mediaId, ...data } = params;
 	const response = await axios.patch(`/v1/events/${eventId}/media/${mediaId}`, data);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

@@ -1,18 +1,19 @@
 "use client";
 import { variables } from "@/constants";
 import useCountdown from "@/hooks/use-countdown";
-import useStorage from "@/hooks/use-storage";
+	
 import ensureError from "@/lib/ensure-error";
 import sendMFACode from "@/services/account/send-mfa-code";
 import * as React from "react";
 import { toast } from "sonner";
+import useCookie from "@/hooks/use-cookie";
 
 export default React.memo(function ResendOtp({ isVerifyMFA }: { isVerifyMFA?: boolean }) {
 	const [isLoading, setIsLoading] = React.useState(false);
 	const [counter, reset] = useCountdown(60);
-	const { get: getStorage } = useStorage();
+	const { get: getCookie } = useCookie();
 
-	const email = getStorage(variables.STORAGE_KEYS.email, "");
+	const email = getCookie(variables.STORAGE_KEYS.email, "");
 
 	const resendOtp = async () => {
 		setIsLoading(true);

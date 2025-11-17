@@ -11,7 +11,7 @@ type Response = EventTicketAddon[];
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.get(`/v1/events/${params.event_Id}/event-addons`);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

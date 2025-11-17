@@ -10,7 +10,7 @@ type Parameters = {
 type Response = MetricsChartData;
 
 export async function production(params: Parameters): Promise<Response> {
-	const response = await axios.get(`/v1/dashboard/metrics/chart`, {
+	const response = await axios.get(`/v1/dashboard/metrics/growth`, {
 		params: {
 			type: params.type,
 			period: params.period,

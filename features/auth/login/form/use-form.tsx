@@ -1,7 +1,7 @@
 "use client";
 import { variables } from "@/constants";
+import useCookie from "@/hooks/use-cookie";
 import useCustomNavigation from "@/hooks/use-navigation";
-import useStorage from "@/hooks/use-storage";
 import ensureError, { formatZodErrors } from "@/lib/ensure-error";
 import loginAccount from "@/services/account/login-account";
 
@@ -26,7 +26,7 @@ export default function useForm() {
 	const [formData, setFormData] = React.useState<FormData>(initial);
 	const [errors, setErrors] = React.useState({});
 
-	const { set: setStorage } = useStorage();
+	const { set: setCookie, } = useCookie();
 
 	const emailKey = variables.STORAGE_KEYS.email;
 
@@ -53,7 +53,8 @@ export default function useForm() {
 			});
 			// account.changeAccount(response.user);
 
-			setStorage(emailKey, response?.user?.email ?? "");
+			
+			setCookie(emailKey, response?.user?.email ?? "", {expires:1});
 
 			if(variables.IS_DEV){
 				navigate("/verify-mfa?token=123456")

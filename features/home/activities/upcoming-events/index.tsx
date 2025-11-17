@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import useAppSelector from "@/store/hooks";
 import AppButton from "@/components/app/app-button";
 import useActions from "@/store/actions";
+import { cn } from "@/lib/utils";
 
 export default function UpcomingEvents() {
 	const { managerProfile: manager_profile } = useAppSelector("manager_profile");
@@ -46,7 +47,9 @@ export default function UpcomingEvents() {
 
 	return (
 		<ErrorBoundary>
-			<Card className="flex flex-col">
+			<Card className={cn("flex flex-col", {
+				"min-h-96": !userEvents?.length && !otherEvents?.length,
+			})}>
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
 					<CardTitle className="flex items-center gap-2 text-primary-500">
 						Upcoming Events{" "}
@@ -76,7 +79,7 @@ export default function UpcomingEvents() {
 								<EmptyData
 									// title="No Upcoming Events"
 									text="You don't have any upcoming events scheduled yet."
-									className="!justify-start py-8"
+									className="!justify-start py-8 "
 									iconType="event"
 									action={
 										<AppButton

@@ -15,7 +15,7 @@ export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.post(`/v1/payouts/${params.payout_id}/dispute`, {
 		dispute_reason: params.dispute_reason,
 	});
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

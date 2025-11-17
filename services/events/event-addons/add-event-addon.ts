@@ -23,7 +23,7 @@ type Response = EventTicketAddon;
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.post(`/v1/events/${params.event_id}/event-addons`, params);
-	return response.data.data;
+	return response.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {
