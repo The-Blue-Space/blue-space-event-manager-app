@@ -86,6 +86,17 @@ export default function AgendaList({
 		}
 	};
 
+	// const handleSave = async () => {
+	// 	setIsFormLoading(true);
+	// 	try {
+	// 		await formRef.current?.submit();
+	// 	} catch (error) {
+	// 		console.error("Save error:", error);
+	// 	} finally {
+	// 		setIsFormLoading(false);
+	// 	}
+	// };
+
 	const handleModeChange = (newMode: "view" | "edit") => {
 		setMode(newMode);
 		if (newMode === "view") {
@@ -95,7 +106,7 @@ export default function AgendaList({
 		}
 	};
 
-	const handleCancel = () => {
+	const handleReset = () => {
 		setEditingAgenda(null);
 		setIsAddingNew(false);
 	};
@@ -114,7 +125,7 @@ export default function AgendaList({
 			} else {
 				await onAddAgenda(data);
 			}
-			handleCancel();
+			handleReset();
 		} catch (error) {
 			console.error("Save error:", error);
 		} finally {
@@ -195,7 +206,7 @@ export default function AgendaList({
 										ref={formRef}
 										agenda={editingAgenda}
 										onSave={handleSave}
-										onCancel={handleCancel}
+										onCancel={handleReset}
 										isLoading={isFormLoading}
 										isInline={true}
 									/>
@@ -215,7 +226,7 @@ export default function AgendaList({
 					<AgendaItemForm
 						ref={formRef}
 						onSave={handleSave}
-						onCancel={handleCancel}
+						onCancel={handleReset}
 						isLoading={isFormLoading}
 						isInline={true}
 					/>
@@ -240,9 +251,7 @@ export default function AgendaList({
 			title="Event Agenda"
 			icon={<List className="w-5 h-5 text-primary-500" />}
 			description="Organize your event timeline with scheduled activities, speakers, and hosts."
-			onSave={async () => {
-				// Save is handled by individual forms
-			}}
+			showSaveButton={false}
 			isLoading={isFormLoading}
 			mode={mode}
 			onModeChange={handleModeChange}

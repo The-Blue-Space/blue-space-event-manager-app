@@ -90,7 +90,7 @@ const Textarea = React.forwardRef<Ref, TextareaProps>(
 			capitalize: !floatingLabel,
 		});
 
-		const noteCn = classNames("text-neutral-700 body-3", noteStyle, {
+		const noteCn = classNames("text-neutral-500 body-3", noteStyle, {
 			hidden: !note,
 		});
 

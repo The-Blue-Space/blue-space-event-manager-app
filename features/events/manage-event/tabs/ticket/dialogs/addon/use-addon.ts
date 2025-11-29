@@ -12,6 +12,7 @@ import invalidateQuery from "@/lib/invalidate-query";
 import useCustomNavigation from "@/hooks/use-navigation";
 import { useQuery } from "@tanstack/react-query";
 import getEventTickets from "@/services/events/event-tickets/get-event-tickets";
+import { normalizeTimeValue, combineDateAndTimeToIso } from "@/lib/date-time";
 
 export default function useAddon() {
 	const { dialog } = useAppSelector("ui");
@@ -52,9 +53,9 @@ export default function useAddon() {
 					currency_id: addon.currency_id || activeCurrency.id,
 					ticket_ids: addon.ticket_ids || null,
 					sales_start_date: addon.sales_start_date || "",
-					sales_start_time: addon.sales_start_time || null,
+					sales_start_time: normalizeTimeValue(addon.sales_start_time) || null,
 					sales_end_date: addon.sales_end_date || null,
-					sales_end_time: addon.sales_end_time || null,
+					sales_end_time: normalizeTimeValue(addon.sales_end_time) || null,
 					expires_at: addon.expires_at || null,
 					is_active: addon.is_active ?? true,
 				});
@@ -120,6 +121,27 @@ export default function useAddon() {
 
 			const formValues = addonSchema.parse(coerced);
 
+			// Combine date and time into ISO strings
+			const sales_start_iso = combineDateAndTimeToIso(
+				formValues.sales_start_date,
+				formValues.sales_start_time ?? null
+			);
+			const sales_end_iso = combineDateAndTimeToIso(
+				formValues.sales_end_date,
+				formValues.sales_end_time ?? null
+			);
+
+			// Cross-field validation
+			if (sales_start_iso && sales_end_iso) {
+				if (new Date(sales_end_iso).getTime() < new Date(sales_start_iso).getTime()) {
+					setErrors((prev) => ({
+						...prev,
+						sales_end_date: "Sales end cannot be before sales start",
+					}));
+					return;
+				}
+			}
+
 			const payload = {
 				event_id: eventId,
 				type: formValues.type,
@@ -128,10 +150,10 @@ export default function useAddon() {
 				price: formValues.price,
 				currency_id: formValues.currency_id,
 				ticket_ids: formValues.ticket_ids,
-				sales_start_date: formValues.sales_start_date || new Date().toISOString(),
-				sales_start_time: formValues.sales_start_time || "12:00:AM",
-				sales_end_date: formValues.sales_end_date || null,
-				sales_end_time: formValues.sales_end_time || null,
+				sales_start_date: sales_start_iso ?? new Date().toISOString(),
+				sales_start_time: sales_start_iso ?? new Date().toISOString(),
+				sales_end_date: sales_end_iso ?? null,
+				sales_end_time: sales_end_iso ?? null,
 				expires_at: formValues.expires_at,
 				is_active: formValues.is_active,
 			};

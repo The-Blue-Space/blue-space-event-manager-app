@@ -14,7 +14,7 @@ export async function production(params: Parameters): Promise<Response> {
 	return response.data;
 }
 
-export async function development(params: Parameters): Promise<Response> {
+export async function development(): Promise<Response> {
 	return new Promise((resolve) => {
 		// Filter addons by event_id (for now, return all as they're for different events)
 		setTimeout(() => resolve(eventAddons), 800);
@@ -22,6 +22,6 @@ export async function development(params: Parameters): Promise<Response> {
 }
 
 export default async function getEventAddons(params: Parameters): Promise<Response> {
-	if (variables.SERVICE_ENV === "development") return development(params);
+	if (variables.SERVICE_ENV === "development") return development();
 	return production(params);
 }

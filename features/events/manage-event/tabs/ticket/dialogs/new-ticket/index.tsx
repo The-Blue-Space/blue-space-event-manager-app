@@ -80,7 +80,7 @@ export default function NewTicket() {
 				</div>
 			}
 		>
-			<div className="p-4">
+			<div className="p-4 ">
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{ticketTypes.map((item) => (
 						<Card
@@ -106,12 +106,12 @@ export default function NewTicket() {
 					</div>
 				</div>
 
-				<form className="py-4">
-					<div className="space-y-5">
+				<form className="py-4 space-y-8">
+					
 						<div className="border-b border-neutral-200">
 							<h5 className="body-2 font-medium text-neutral-500">{ticketInfo[0].section}</h5>
 						</div>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 							{ticketInfo.map((item) => {
 								const key = item.name as keyof typeof formData;
 
@@ -151,7 +151,7 @@ export default function NewTicket() {
 																	view fee breakdown
 																</button>
 															}
-															side="top"
+															side="left"
 														>
 															<div className="min-w-[220px]">
 																{feeLoading ? (
@@ -335,7 +335,7 @@ export default function NewTicket() {
 						<div className="border-b border-neutral-200">
 							<h5 className="body-2 font-medium text-neutral-500">{advancedSettings[0].section}</h5>
 						</div>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 							{advancedSettings.map((item) => {
 								const key = item.name as keyof typeof formData;
 								if (item.type === "date") {
@@ -377,7 +377,7 @@ export default function NewTicket() {
 								);
 							})}
 						</div>
-					</div>
+					
 				</form>
 			</div>
 		</AppDrawer>

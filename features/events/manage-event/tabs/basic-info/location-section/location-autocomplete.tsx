@@ -5,6 +5,7 @@ import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { Search } from "lucide-react";
 import { useEffect, useRef, useCallback } from "react";
 import { setCachedGeocoding } from "./geocoding-cache";
+import logger from "@/lib/app-logger";
 
 type PlaceResult = {
 	venue_name: string;
@@ -59,14 +60,20 @@ export default function LocationAutocomplete({ onPlaceSelect, isLoading }: Props
 				let country = "";
 				let postal_code = "";
 
+				console.log("place.address_components", place.address_components);
+
 				place.address_components.forEach((component) => {
 					const types = component.types;
 
-					if (types.includes("street_number")) {
-						address = component.long_name;
-					}
+					// if (types.includes("street_number")) {
+					// 	address = component.long_name;
+					// } else {
+					// 	address = place?.address_components?.[0]?.long_name || "";
+					// }
 					if (types.includes("route")) {
-						address = address ? `${address} ${component.long_name}` : component.long_name;
+						console.log("component", component.long_name);
+						address = `${place?.address_components?.[0]?.long_name} ${component.long_name}`;
+						console.log("address", address);
 					}
 					if (types.includes("locality")) {
 						city = component.long_name;
@@ -92,6 +99,7 @@ export default function LocationAutocomplete({ onPlaceSelect, isLoading }: Props
 					latitude: lat,
 					longitude: lng,
 				};
+				logger.log("result", result);
 
 				// Cache the geocoding result
 				setCachedGeocoding(lat, lng, result);

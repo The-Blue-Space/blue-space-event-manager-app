@@ -27,6 +27,7 @@ export default function useInit() {
 
 			if (response) {
 				init.setCurrencies(response);
+				init.setActiveCurrency(response[0]);
 			}
 		} catch (error) {
 			toast.error("Error getting currencies");

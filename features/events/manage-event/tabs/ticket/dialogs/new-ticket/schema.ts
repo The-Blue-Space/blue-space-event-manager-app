@@ -9,7 +9,8 @@ export const newTicketSchema = z.object({
 		.min(5, "Ticket description is required, at least 5 characters")
 		.max(150, "Ticket description must be less than 50 characters"),
 	price: z.number().min(0, "Ticket price is required").nullable(),
-	currency_id: z.string().trim().min(1, "Currency is required"),
+
+	currency_id: z.string().trim().min(1, "Currency is required").nullable(),
 	minimum_quantity: z.number().positive("Minimum quantity is required, must be greater than 0"),
 	maximum_quantity: z
 		.number()
@@ -37,7 +38,7 @@ export const newTicketInitial: NewTicketFormData = {
 	name: "",
 	description: "",
 	price: null,
-	currency_id: "",
+	currency_id: null,
 	minimum_quantity: 1,
 	maximum_quantity: null,
 	total_quantity: 50,

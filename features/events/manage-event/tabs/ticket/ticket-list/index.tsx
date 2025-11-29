@@ -26,7 +26,7 @@ export default function TicketList() {
 	const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
 	const [drawerOpen, setDrawerOpen] = useState(false);
 
-	const { data, isFetching, isError, error } = useQuery({
+	const { data, isLoading, isError, error } = useQuery({
 		queryKey: ["event-tickets", event_id],
 		queryFn: () => getEventTickets({ event_Id: event_id }),
 		enabled: !!event_id,
@@ -92,10 +92,11 @@ export default function TicketList() {
 				is_active: isActive,
 			});
 			toast.success(`Ticket ${isActive ? "activated" : "deactivated"} successfully`);
-			invalidateQuery(["event-tickets"]);
+			// invalidateQuery(["event-tickets"]);
 		} catch (err) {
 			const errMsg = ensureError(err).message;
 			toast.error(errMsg);
+			throw err
 		}
 	};
 
@@ -104,7 +105,7 @@ export default function TicketList() {
 			{data && data?.some((item) => !item.ticket_promo_id) ? (
 				<TicketPromoCallout addPromo={handleAddPromo} />
 			) : null}
-			<Render isLoading={isFetching} isError={isError} error={error}>
+			<Render isLoading={isLoading} isError={isError} error={error}>
 				{data && data.length > 0 ? (
 					<div className="w-full max-h-screen overflow-y-auto rounded-lg border border-neutral-200 ">
 						<TicketsTable

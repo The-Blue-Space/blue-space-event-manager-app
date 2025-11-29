@@ -1,5 +1,4 @@
 import { variables } from "@/constants";
-import { eventAgendas } from "@/constants/data/events/event-agenda";
 import axios from "@/lib/axios";
 import { buildFormData } from "@/lib/build-form-data";
 import { EventAgenda } from "@/types/event-agenda.types";

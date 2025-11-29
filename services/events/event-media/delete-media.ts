@@ -4,6 +4,7 @@ import axios from "@/lib/axios";
 type Parameters = {
 	event_Id: string;
 	media_id: string;
+	user_id: string;
 };
 
 type Response = {

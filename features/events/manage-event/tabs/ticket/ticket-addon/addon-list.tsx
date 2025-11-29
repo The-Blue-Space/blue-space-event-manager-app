@@ -24,7 +24,7 @@ export default function AddonList() {
 
 	const {
 		data: addons = [],
-		isFetching,
+		isLoading,
 		isError,
 		error,
 	} = useQuery({
@@ -79,7 +79,7 @@ export default function AddonList() {
 
 	return (
 		<div>
-			<Render isLoading={isFetching} isError={isError} error={error}>
+			<Render isLoading={isLoading} isError={isError} error={error}>
 				{addons && addons.length > 0 ? (
 					<div className="w-full max-h-screen overflow-y-auto rounded-lg border border-neutral-200">
 						<AddonsTable

@@ -1,6 +1,7 @@
 import { variables } from "@/constants";
 import { eventLineups } from "@/constants/data/events/event-lineup";
 import axios from "@/lib/axios";
+import { buildFormData } from "@/lib/build-form-data";
 import { EventLineup } from "@/types/event-agenda.types";
 
 type Parameters = {
@@ -17,29 +18,15 @@ type Parameters = {
 type Response = EventLineup;
 
 export async function production(params: Parameters): Promise<Response> {
-	const formData = new FormData();
-	formData.append("artist_name", params.artist_name);
-	formData.append("is_headliner", params.is_headliner.toString());
-	
-	if (params.artist_image) {
-		formData.append("artist_image", params.artist_image);
-	}
-	
-	if (params.start_time) {
-		formData.append("start_time", params.start_time);
-	}
-	
-	if (params.end_time) {
-		formData.append("end_time", params.end_time);
-	}
-	
-	if (params.notes) {
-		formData.append("notes", params.notes);
-	}
-	
-	if (params.socials && params.socials.length > 0) {
-		formData.append("socials", JSON.stringify(params.socials));
-	}
+	const formData = buildFormData({
+		artist_name: params.artist_name,
+		artist_image: params.artist_image,
+		start_time: params.start_time,
+		end_time: params.end_time,
+		is_headliner: params.is_headliner,
+		notes: params.notes,
+		socials: params.socials,
+	});
 
 	const response = await axios.post(`/v1/events/${params.eventId}/lineup`, formData, {
 		headers: {

@@ -61,7 +61,7 @@ export default function EventDetailsSection() {
 			const payload = {
 				title: formValues.title,
 				description: formValues.description,
-				tags: formValues.tags,
+				tags: formValues.tags.split(",").map((tag) => tag.trim()),
 			};
 
 			await updateEvent("server", payload);
@@ -78,10 +78,7 @@ export default function EventDetailsSection() {
 	};
 
 	// Parse tags for display
-	const tagsList = event?.tags
-		?.split(",")
-		.map((tag) => tag.trim())
-		.filter(Boolean);
+	const tagsList = event?.tags?.map((tag) => tag.trim());
 
 	return (
 		<SectionWrapper

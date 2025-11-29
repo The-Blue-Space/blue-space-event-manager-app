@@ -3,6 +3,7 @@ import { bankDetails } from "@/constants/data/finance/bank-details";
 import axios from "@/lib/axios";
 import { BankDetails } from "@/types/finance.types";
 
+// set default bank
 type Parameters = {
 	bank_id: string;
 };

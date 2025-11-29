@@ -2,121 +2,159 @@
 
 import { Input, Textarea, SelectBox, DateInput, TimeInput } from "@/components/app/form-input";
 import { DISCOUNT_TYPES } from "@/types/event-ticket.types";
-import React from "react";
+import { PromoFormState } from "./schema";
+
 
 type Props = {
-	initialValues: any | null;
+	formData: PromoFormState;
+	errors: Record<string, string>;
+	updateForm: <K extends keyof PromoFormState>(field: K, value: PromoFormState[K]) => void;
 };
 
-export default function DiscountForm({ initialValues }: Props) {
-	const [form, setForm] = React.useState<any>({
-		name: initialValues?.name || "",
-		description: initialValues?.description || "",
-		note: initialValues?.note || "",
-		discount_type: initialValues?.discount_type || "percentage",
-		discount_percentage: initialValues?.discount_percentage || "",
-		discount_amount: initialValues?.discount_amount || "",
-		min_purchase_quantity: initialValues?.min_purchase_quantity || "",
-		max_purchase_quantity: initialValues?.max_purchase_quantity || "",
-		sales_start_date: initialValues?.sales_start_date
-			? new Date(initialValues.sales_start_date)
-			: undefined,
-		sales_start_time: initialValues?.sales_start_time || "",
-		sales_end_date: initialValues?.sales_end_date
-			? new Date(initialValues.sales_end_date)
-			: undefined,
-		sales_end_time: initialValues?.sales_end_time || "",
-	});
-
-	const onChange = (key: string, value: any) => setForm((p: any) => ({ ...p, [key]: value }));
+export default function DiscountForm({ formData, errors, updateForm }: Props) {
+	const discountTypeOptions = DISCOUNT_TYPES.filter((t) => t !== "none").map((t) => ({
+		value: t,
+		title: t.split("_").join(" "),
+	}));
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-8">
+			<Input
+				label="Promo Name"
+				value={formData.name}
+				floatingLabel
+				placeholder="Enter promo name"
+				onChange={(e) => updateForm("name", e.target.value)}
+				errorMessage={errors.name}
+				required
+			/>
+
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<Input
-					label="Promo Name"
-					value={form.name}
-					placeholder="Enter promo name"
-					onChange={(e) => onChange("name", e.target.value)}
-					required
-				/>
 				<SelectBox
 					label="Discount Type"
-					options={DISCOUNT_TYPES.map((t) => ({ value: t, title: t.split("_").join(" ") }))}
-					value={form.discount_type}
-					onchange={(v) => onChange("discount_type", v)}
+					floatingLabel
+					options={discountTypeOptions}
+					value={formData.discount_type}
+					onchange={(v) => updateForm("discount_type", v as PromoFormState["discount_type"])}
 				/>
+				{formData.discount_type === "percentage" ? (
+					<Input
+						label="Discount Percentage (%)"
+						floatingLabel
+						type="number"
+						value={formData.discount_percentage}
+						placeholder="Enter discount percentage"
+						onChange={(e) => updateForm("discount_percentage", e.target.value)}
+						errorMessage={errors.discount_percentage}
+					/>
+				) : (
+					<Input
+						label="Discount Amount"
+						floatingLabel
+						type="number"
+						value={formData.discount_amount}
+						placeholder="Enter discount amount"
+						onChange={(e) => updateForm("discount_amount", e.target.value)}
+						errorMessage={errors.discount_amount}
+					/>
+				)}
 			</div>
-			{form.discount_type === "percentage" ? (
-				<Input
-					label="Discount Percentage (%)"
-					type="number"
-					value={form.discount_percentage}
-					placeholder="Enter discount percentage"
-					onChange={(e) => onChange("discount_percentage", e.target.value)}
-				/>
-			) : (
-				<Input
-					label="Discount Amount"
-					type="number"
-					value={form.discount_amount}
-					placeholder="Enter discount amount"
-					onChange={(e) => onChange("discount_amount", e.target.value)}
-				/>
-			)}
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+			{/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<Input
 					label="Min Purchase Qty"
+					floatingLabel
 					type="number"
-					value={form.min_purchase_quantity}
+					value={formData.min_purchase_quantity}
 					placeholder="Enter min purchase quantity"
-					onChange={(e) => onChange("min_purchase_quantity", e.target.value)}
+					onChange={(e) => updateForm("min_purchase_quantity", e.target.value)}
+					errorMessage={errors.min_purchase_quantity}
 				/>
 				<Input
 					label="Max Purchase Qty"
+					floatingLabel
 					type="number"
-					value={form.max_purchase_quantity}
+					value={formData.max_purchase_quantity}
 					placeholder="Enter max purchase quantity"
-					onChange={(e) => onChange("max_purchase_quantity", e.target.value)}
+					onChange={(e) => updateForm("max_purchase_quantity", e.target.value)}
+					errorMessage={errors.max_purchase_quantity}
 				/>
-			</div>
-			{/* <Textarea
-				label="Description"
-				value={form.description}
-				placeholder="Enter description"
-				onChange={(e) => onChange("description", e.target.value)}
-				rows={3}
-			/> */}
+			</div> */}
+
 			<Textarea
 				label="Notes"
+				floatingLabel
 				note="Leave notes for the promo."
 				notePlacement="bottom"
-				value={form.note}
+				value={formData.note}
 				placeholder="Enter notes"
-				onChange={(e) => onChange("note", e.target.value)}
+				onChange={(e) => updateForm("note", e.target.value)}
 				rows={3}
+				errorMessage={errors.note}
 			/>
+
+			{/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<DateInput
+					label="Discount Start Date"
+					floatingLabel
+					note={
+						<AppTooltip
+							trigger={
+								<span className="flex items-center gap-1">
+									when the discount will be valid <InfoIcon className="w-4 h-4" />
+								</span>
+							}
+						>
+							<p>
+								Set Dates when this discount ticket would be valid, if used outside the set dates
+								the ticket will be invalid.{" "}
+							</p>
+						</AppTooltip>
+					}
+					value={formData.discount_start_date ? new Date(formData.discount_start_date) : undefined}
+					onChange={(d) => updateForm("discount_start_date", d ? d.toISOString() : null)}
+					errorMessage={errors.discount_start_date}
+				/>
+				<DateInput
+					label="Discount End Date"
+					floatingLabel
+					value={formData.discount_end_date ? new Date(formData.discount_end_date) : undefined}
+					onChange={(d) => updateForm("discount_end_date", d ? d.toISOString() : null)}
+					errorMessage={errors.discount_end_date}
+				/>
+			</div> */}
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<DateInput
 					label="Sales Start Date"
-					value={form.sales_start_date}
-					onChange={(d) => onChange("sales_start_date", d)}
+					floatingLabel
+					value={formData.sales_start_date ? new Date(formData.sales_start_date) : undefined}
+					onChange={(d) => updateForm("sales_start_date", d?.toISOString() ?? "")}
+					errorMessage={errors.sales_start_date}
 				/>
 				<TimeInput
 					label="Sales Start Time"
-					value={form.sales_start_time}
-					onChange={(t) => onChange("sales_start_time", t)}
+					floatingLabel
+					value={formData.sales_start_time ?? ""}
+					onChange={(t) => updateForm("sales_start_time", t || null)}
+					modal
+					errorMessage={errors.sales_start_time}
 				/>
 				<DateInput
 					label="Sales End Date"
-					value={form.sales_end_date}
-					onChange={(d) => onChange("sales_end_date", d)}
+					floatingLabel
+					value={formData.sales_end_date ? new Date(formData.sales_end_date) : undefined}
+					onChange={(d) => updateForm("sales_end_date", d ? d.toISOString() : null)}
+					errorMessage={errors.sales_end_date}
+					required={false}
 				/>
 				<TimeInput
 					label="Sales End Time"
-					value={form.sales_end_time}
-					onChange={(t) => onChange("sales_end_time", t)}
+					floatingLabel
+					modal
+					value={formData.sales_end_time ?? ""}
+					onChange={(t) => updateForm("sales_end_time", t || null)}
+					errorMessage={errors.sales_end_time}
 				/>
 			</div>
 		</div>

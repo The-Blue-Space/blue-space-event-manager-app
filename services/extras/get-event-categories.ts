@@ -6,7 +6,7 @@ import { EventCategory } from "@/types/event-category.types";
 type Response = EventCategory[];
 
 export async function production(): Promise<Response> {
-	const response = await axios.get(`/v1/events/active`);
+	const response = await axios.get(`/v1/categories`);
 	return response.data;
 }
 

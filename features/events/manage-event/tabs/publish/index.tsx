@@ -12,9 +12,19 @@ import RefundPolicySection from "./refund-policy-section";
 import AutomateRefundsSection from "./automate-refunds-section";
 import PublishScheduleSection from "./publish-schedule-section";
 import ValidationWarning from "./validation-warning";
+import { useMemo } from "react";
 
 export default function PublishTab() {
-	const { formData, errors, isLoading, updateForm, submit, validateRequiredFields } = usePublish();
+	const {
+		event,
+		formData,
+		errors,
+		isLoading,
+		updateForm,
+		submit,
+		validateRequiredFields,
+		madeChanges,
+	} = usePublish();
 
 	const validation = validateRequiredFields();
 	const buttonDisabled = !validation.isValid || isLoading;
@@ -22,6 +32,20 @@ export default function PublishTab() {
 	const handlePublish = async () => {
 		await submit();
 	};
+
+	const buttonText = useMemo(() => {
+		if (madeChanges) {
+			return "Publish";
+		}
+
+		return event?.scheduled_publish_enabled
+			? "Scheduled"
+			: event?.published
+			? "Published"
+			: formData.should_schedule
+			? "Schedule"
+			: "Publish";
+	}, [event, formData, madeChanges]);
 
 	return (
 		<TabContainer value="publish" className="!max-w-5xl">
@@ -38,7 +62,7 @@ export default function PublishTab() {
 						disabled={buttonDisabled}
 						isLoading={isLoading}
 					>
-						{formData.should_schedule ? "Schedule" : "Publish"}
+						{buttonText}
 					</AppButton>
 				}
 			>
@@ -83,7 +107,7 @@ export default function PublishTab() {
 								isLoading={isLoading}
 								// className="min-w-[200px]"
 							>
-								{formData.should_schedule ? "Schedule" : "Publish"}
+								{buttonText}
 							</AppButton>
 						</div>
 					</div>

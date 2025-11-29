@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
 	DndContext,
 	closestCenter,
@@ -64,6 +64,9 @@ export default function ActiveMediaGrid({
 	onAddMedia,
 }: ActiveMediaGridProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+	const [clickedPlaceholderIndex, setClickedPlaceholderIndex] = useState<number | null>(null);
+
 	const sensors = useSensors(
 		useSensor(PointerSensor),
 		useSensor(KeyboardSensor, {
@@ -89,8 +92,14 @@ export default function ActiveMediaGrid({
 
 	const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
-		if (file) {
-			await onAddMedia(file);
+		if (file && clickedPlaceholderIndex !== null) {
+			setUploadingIndex(clickedPlaceholderIndex);
+			try {
+				await onAddMedia(file);
+			} finally {
+				setUploadingIndex(null);
+				setClickedPlaceholderIndex(null);
+			}
 		}
 		// Reset input
 		if (fileInputRef.current) {
@@ -98,7 +107,8 @@ export default function ActiveMediaGrid({
 		}
 	};
 
-	const triggerFileInput = () => {
+	const triggerFileInput = (placeholderIndex: number) => {
+		setClickedPlaceholderIndex(placeholderIndex);
 		fileInputRef.current?.click();
 	};
 
@@ -123,7 +133,12 @@ export default function ActiveMediaGrid({
 
 				{/* Placeholder slots */}
 				{placeholders.map((index) => (
-					<MediaCard key={`placeholder-${index}`} isPlaceholder onUploadClick={triggerFileInput} />
+					<MediaCard
+						key={`placeholder-${index}`}
+						isPlaceholder
+						onUploadClick={() => triggerFileInput(index)}
+						isUploading={uploadingIndex === index}
+					/>
 				))}
 			</div>
 

@@ -10,6 +10,7 @@ type Parameters = {
 	file: File;
 	is_active: boolean;
 	order: number;
+	user_id: string;
 };
 type Response = EventMedia;
 
@@ -19,6 +20,7 @@ export async function production(params: Parameters): Promise<Response> {
 		is_active: params.is_active,
 		order: params.order,
 		media_type: params.media_type,
+		user_id: params.user_id,
 	});
 	// /events/:event_id/media
 	const response = await axios.post(`/v1/events/${params.event_Id}/media`, formData, {

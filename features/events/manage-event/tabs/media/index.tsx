@@ -15,8 +15,10 @@ import updateMedia from "@/services/events/event-media/update-media";
 import deleteMedia from "@/services/events/event-media/delete-media";
 import replaceMedia from "@/services/events/event-media/replace-media";
 import ensureError from "@/lib/ensure-error";
+import useAppSelector from "@/store/hooks";
 
 export default function Media() {
+	const {account}= useAppSelector("account")
 	const { event } = useEvent();
 	const queryClient = useQueryClient();
 
@@ -80,6 +82,7 @@ export default function Media() {
 				is_active: true,
 				order,
 				file,
+				user_id:account.id
 			});
 
 			toast.success("Media uploaded successfully");
@@ -110,6 +113,7 @@ export default function Media() {
 				is_active,
 				order,
 				media_type,
+				user_id:account.id
 			});
 
 			toast.success("Media updated successfully");
@@ -132,6 +136,7 @@ export default function Media() {
 			await deleteMedia({
 				event_Id: event.id,
 				media_id,
+				user_id:account.id
 			});
 
 			toast.success("Media deleted successfully");
@@ -164,7 +169,8 @@ export default function Media() {
 				event_Id: event.id,
 				media_id,
 				file,
-			});
+				user_id:account.id
+				});
 
 			toast.success("Media replaced successfully");
 			invalidateMediaQueries();
@@ -215,6 +221,47 @@ export default function Media() {
 		await Promise.all(updates);
 	};
 
+
+	const uploadVideo = async (file: File) => {
+		// Video upload is handled separately in VideoSection
+		if (!event?.id) return;
+
+		try {
+			const existingVideo = allMedia.find((m) => m.media_type === "video");
+			if (existingVideo) {
+				await replaceMedia({
+					event_Id: event.id,
+					media_id: existingVideo.id,
+					file,
+					user_id: account.id,
+				});
+				toast.success("Video replaced successfully");
+			} else {
+				await addMedia({
+					event_Id: event.id,
+					media_type: "video",
+					is_active: true,
+					order: activeMedia.length + 1,
+					file,
+					user_id: account.id,
+				});
+				toast.success("Video uploaded successfully");
+			}
+			invalidateMediaQueries();
+		} catch (error) {
+			const errMsg = ensureError(error).message;
+			toast.error(errMsg || "Failed to upload video");
+		}
+	};
+
+	const replaceVideo = async (videoId: string, file: File) => {
+		await handleReplaceMedia(videoId, file);
+	};
+
+	const deleteVideo = async (videoId: string) => {
+		await handleDeleteMedia(videoId);
+	};
+
 	return (
 		<TabContainer value="medias">
 			<div className="space-y-6">
@@ -232,41 +279,9 @@ export default function Media() {
 				{/* Video Section */}
 				<VideoSection
 					video={videoMedia}
-					onUpload={async (file) => {
-						// Video upload is handled separately in VideoSection
-						if (!event?.id) return;
-
-						try {
-							const existingVideo = allMedia.find((m) => m.media_type === "video");
-							if (existingVideo) {
-								await replaceMedia({
-									event_Id: event.id,
-									media_id: existingVideo.id,
-									file,
-								});
-								toast.success("Video replaced successfully");
-							} else {
-								await addMedia({
-									event_Id: event.id,
-									media_type: "video",
-									is_active: true,
-									order: 0,
-									file,
-								});
-								toast.success("Video uploaded successfully");
-							}
-							invalidateMediaQueries();
-						} catch (error) {
-							const errMsg = ensureError(error).message;
-							toast.error(errMsg || "Failed to upload video");
-						}
-					}}
-					onReplace={async (videoId, file) => {
-						await handleReplaceMedia(videoId, file);
-					}}
-					onDelete={async (videoId) => {
-						await handleDeleteMedia(videoId);
-					}}
+					onUpload={uploadVideo}
+					onReplace={replaceVideo}
+					onDelete={deleteVideo}
 				/>
 			</div>
 		</TabContainer>

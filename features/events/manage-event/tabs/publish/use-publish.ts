@@ -11,6 +11,7 @@ export default function usePublish() {
 	const { event, updateEvent } = useEvent();
 	const [isLoading, setIsLoading] = React.useState(false);
 	const [errors, setErrors] = React.useState<Record<string, string>>({});
+	const [madeChanges, setMadeChanges] = React.useState(false);
 
 	const initialFormData: PublishEventFormData = React.useMemo(
 		() => ({
@@ -46,6 +47,9 @@ export default function usePublish() {
 	const updateForm = (field: keyof PublishEventFormData, value: any) => {
 		setFormData((prev) => ({ ...prev, [field]: value }));
 		setErrors((prev) => ({ ...prev, [field]: "" }));
+		if (!madeChanges) {
+			setMadeChanges(true);
+		}
 	};
 
 	const validateRequiredFields = (): { isValid: boolean; missingFields: string[] } => {
@@ -102,18 +106,11 @@ export default function usePublish() {
 				published_at,
 			};
 
-			await publishEvent(payload);
+			const response = await publishEvent(payload);
 
 			// Update local event state
-			await updateEvent("server", {
-				is_private: validated.is_private,
-				allow_individual_upload: validated.allow_individual_upload,
-				allow_professional_upload: validated.allow_professional_upload,
-				refund_policy_type,
-				refund_policy_days: payload.refund_policy_days,
-				automate_refunds: validated.automate_refunds,
-				published: true,
-				published_at,
+			await updateEvent("local", {
+				...response,
 			});
 
 			toast.success(
@@ -142,6 +139,8 @@ export default function usePublish() {
 		isLoading,
 		updateForm,
 		submit,
+		event,
 		validateRequiredFields,
+		madeChanges,
 	};
 }

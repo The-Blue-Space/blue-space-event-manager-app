@@ -3,6 +3,7 @@ import { pendingPayouts } from "@/constants/data/finance/pending-payouts";
 import axios from "@/lib/axios";
 import { Payout } from "@/types/finance.types";
 
+// request payout
 type Parameters = {
 	event_id: string;
 	bank_id: string;

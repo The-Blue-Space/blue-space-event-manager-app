@@ -81,6 +81,27 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 						if (businessId) {
 							config.headers["X-Manager-ID"] = businessId;
 						}
+
+						// Automatically add user_id to request body for POST, PUT, PATCH
+						const userId = account?.id;
+						if (
+							userId &&
+							config.data &&
+							["post", "put", "patch"].includes(config.method?.toLowerCase() || "")
+						) {
+							// If data is FormData, append user_id
+							if (config.data instanceof FormData) {
+								config.data.append("user_id", userId);
+							}
+							// If data is object, add user_id property
+							else if (typeof config.data === "object") {
+								config.data = {
+									...config.data,
+									user_id: userId,
+								};
+							}
+						}
+
 						return config;
 					} catch (error) {
 						return Promise.reject(error);
@@ -90,7 +111,7 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			);
 			interceptor.current = value;
 		}
-	}, [authToken, businessId]);
+	}, [authToken, businessId, account?.id]);
 
 	const logout = React.useCallback(async () => {
 		try {
@@ -117,13 +138,13 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 		setIsLoading(true);
 
-		if (!authToken) {
-			setIsAuthenticated(false);
-			setIsLoading(false);
-			return;
-		}
-
+		
 		try {
+			if (!authToken) {
+				setIsAuthenticated(false);
+				setIsLoading(false);
+				throw Error("No authentication token found");
+			}
 			// Setup interceptor before making the whoami call
 			setupInterceptor();
 

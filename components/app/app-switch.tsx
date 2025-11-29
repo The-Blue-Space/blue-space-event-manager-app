@@ -8,10 +8,14 @@ type Props = {
 	id?: string;
 	name?: string;
 	disabled?: boolean;
+	variant?: "primary" | "accent";
 };
 
-export default function AppSwitch({ checked, onCheckedChange, className, id, name, disabled }: Props) {
-	const container = cn("data-[state=checked]:bg-primary-500", className);
+export default function AppSwitch({ checked, onCheckedChange, className, id, name, disabled, variant = "primary" }: Props) {
+	const container = cn("data-[state=checked]:bg-primary-500", className, {
+		"data-[state=checked]:bg-primary-500": variant === "primary",
+		"data-[state=checked]:bg-accent-500": variant === "accent",
+	});
 	return (
 		<Switch
 			id={id}

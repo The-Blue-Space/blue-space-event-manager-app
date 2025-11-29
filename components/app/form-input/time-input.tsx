@@ -32,9 +32,11 @@ const timeOptions = generateTimeOptions();
 // Export timeOptions for sorting in other components
 export { timeOptions };
 
+import { normalizeTimeValue } from "@/lib/date-time";
+
 type TimeSelectProps = {
 	name?: string;
-	value: string;
+	value?: string | null;
 	onChange: (value: string) => void;
 	disabled?: boolean;
 	placeholder?: string;
@@ -55,7 +57,7 @@ type TimeSelectProps = {
 
 export default React.memo(function TimeInput({
 	name,
-	value,
+	value = "",
 	onChange,
 	disabled = false,
 	placeholder = "Select time",
@@ -74,7 +76,8 @@ export default React.memo(function TimeInput({
 	modal = false,
 }: TimeSelectProps) {
 	const [open, setOpen] = React.useState(false);
-	const selectedOption = timeOptions.find((option) => option.value === value);
+	const normalizedValue = React.useMemo(() => normalizeTimeValue(value), [value]);
+	const selectedOption = timeOptions.find((option) => option.value === normalizedValue);
 	const displayValue = selectedOption ? selectedOption.label : placeholder;
 
 	const { isInvalid } = React.useMemo(() => {
@@ -87,8 +90,8 @@ export default React.memo(function TimeInput({
 	}, [value, required]);
 
 	const hasValue = React.useMemo(() => {
-		return !!value;
-	}, [value]);
+		return !!normalizedValue;
+	}, [normalizedValue]);
 	const shouldFloat = floatingLabel && (open || hasValue);
 
 	const triggerCn = classNames(

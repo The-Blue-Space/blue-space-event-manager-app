@@ -37,14 +37,14 @@ export default React.memo(function TableActions({
 				<DropdownMenuItem onClick={() => onViewDetails(ticket.id)}>View</DropdownMenuItem>
 			)}
 			{onEdit && <DropdownMenuItem onClick={() => onEdit(ticket)}>Edit</DropdownMenuItem>}
-			{onAddPromo && (
-				<DropdownMenuItem onClick={() => onAddPromo(ticket.id)}>
-					{ticket.ticket_promo_id ? "Edit Promo" : "Add Promo"}
-				</DropdownMenuItem>
-			)}
 			{onToggleStatus && (
 				<DropdownMenuItem onClick={() => onToggleStatus(ticket.id, !ticket.is_active)}>
 					{ticket.is_active ? "Deactivate" : "Activate"}
+				</DropdownMenuItem>
+			)}
+			{ ticket.type === "paid" && onAddPromo && (
+				<DropdownMenuItem onClick={() => onAddPromo(ticket.id)}>
+					{ticket.ticket_promo_id ? "Edit Promo" : "Add Promo"}
 				</DropdownMenuItem>
 			)}
 

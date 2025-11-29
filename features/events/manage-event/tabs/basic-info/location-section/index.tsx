@@ -307,7 +307,7 @@ export default function LocationSection() {
 								</div>
 
 								{/* Address Search */}
-								<div>
+								<div className="space-y-1">
 									<Label htmlFor="address-search">Search Address or Venue</Label>
 									<p className="body-3 text-neutral-500 mt-1">
 										Search for a venue or address to auto-fill the form

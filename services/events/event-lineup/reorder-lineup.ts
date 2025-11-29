@@ -15,7 +15,7 @@ export async function production(params: Parameters): Promise<Response> {
 	return response.data;
 }
 
-export async function development(params: Parameters): Promise<Response> {
+export async function development(): Promise<Response> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
 			resolve({ success: true });
@@ -24,6 +24,6 @@ export async function development(params: Parameters): Promise<Response> {
 }
 
 export default async function reorderLineup(params: Parameters): Promise<Response> {
-	if (variables.SERVICE_ENV === "development") return development(params);
+	if (variables.SERVICE_ENV === "development") return development();
 	return production(params);
 }

@@ -10,6 +10,7 @@ type Parameters = {
 	is_active: boolean;
 	order: number;
 	media_type?: EventMediaType;
+	user_id: string;
 };
 
 type Response = EventMedia;

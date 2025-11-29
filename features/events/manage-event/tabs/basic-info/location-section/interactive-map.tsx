@@ -2,6 +2,7 @@
 import { Map, Marker, MapMouseEvent, useMap } from "@vis.gl/react-google-maps";
 import { Loader2, MapPin } from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
+import { getApproximateCoordinates } from "./get-approximate-location";
 
 type Props = {
 	latitude: string;
@@ -24,16 +25,18 @@ export default function InteractiveMap({
 	const map = useMap(); // Get map instance for manual control
 	const [markerPosition, setMarkerPosition] = useState<{ lat: number; lng: number } | null>(null);
 
-	// Parse coordinates
-	const lat = parseFloat(latitude);
-	const lng = parseFloat(longitude);
-
-	// Initialize marker position
+	// Parse coordinates with fallback to approximate location
 	useEffect(() => {
-		if (!isNaN(lat) && !isNaN(lng)) {
-			setMarkerPosition({ lat, lng });
-		}
-	}, [lat, lng]);
+		const getApproximateCoords = async () => {
+			const approximateCoords = await getApproximateCoordinates();
+			const lat = parseFloat(latitude) || approximateCoords.lat;
+			const lng = parseFloat(longitude) || approximateCoords.lng;
+			if (!isNaN(lat) && !isNaN(lng)) {
+				setMarkerPosition({ lat, lng });
+			}
+		};
+		getApproximateCoords();
+	}, [latitude, longitude]);
 
 	// Pan map to marker position when it changes (smooth animation)
 	useEffect(() => {

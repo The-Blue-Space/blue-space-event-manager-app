@@ -9,6 +9,7 @@ import { sanitizeNumInput } from "@/lib/sanitize-num-input";
 import addEventTicket from "@/services/events/event-tickets/add-event-ticket";
 import invalidateQuery from "@/lib/invalidate-query";
 import useCustomNavigation from "@/hooks/use-navigation";
+import { combineDateAndTimeToIso } from "@/lib/date-time";
 
 export default function useNewTicket() {
 	const { dialog } = useAppSelector("ui");
@@ -81,23 +82,6 @@ export default function useNewTicket() {
 		ui.resetDialog();
 	};
 
-	function combineDateTimeToIso(dateStr?: string | null, timeStr?: string | null) {
-		if (!dateStr) return null;
-		try {
-			const date = new Date(dateStr);
-			if (timeStr) {
-				const [h, m] = timeStr.split(":");
-				date.setHours(Number(h));
-				date.setMinutes(Number(m));
-				date.setSeconds(0);
-				date.setMilliseconds(0);
-			}
-			return date.toISOString();
-		} catch {
-			return null;
-		}
-	}
-
 	const submit = async () => {
 		setErrors({});
 		setIsLoading(true);
@@ -111,6 +95,7 @@ export default function useNewTicket() {
 					formData.type === "paid" && formData.price !== null && formData.price !== ("" as any)
 						? Number(formData.price)
 						: null,
+				currency_id: formData.type === "paid" ? formData.currency_id : null,
 				minimum_quantity: Number(formData.minimum_quantity),
 				maximum_quantity:
 					formData.maximum_quantity === null || formData.maximum_quantity === ("" as any)
@@ -126,11 +111,11 @@ export default function useNewTicket() {
 			const formValues = newTicketSchema.parse(coerced);
 
 			// Cross-field guards
-			const sales_start_iso = combineDateTimeToIso(
+			const sales_start_iso = combineDateAndTimeToIso(
 				formValues.sales_start_date,
 				formValues.sales_start_time ?? null
 			);
-			const sales_end_iso = combineDateTimeToIso(
+			const sales_end_iso = combineDateAndTimeToIso(
 				formValues.sales_end_date,
 				formValues.sales_end_time ?? null
 			);
@@ -157,13 +142,14 @@ export default function useNewTicket() {
 					? null
 					: Number(formValues.total_quantity ?? 0),
 				perks: formValues.perks.split(","),
-				sales_start_date: formValues.sales_start_date || new Date().toISOString(),
-				sales_start_time: formValues.sales_start_time || "12:00:AM",
-				sales_end_date: formValues.sales_end_date || null,
-				sales_end_time: formValues.sales_end_time || null,
+				sales_start_date: sales_start_iso ?? new Date().toISOString(),
+				sales_start_time: sales_start_iso ?? new Date().toISOString(),
+				sales_end_date: sales_end_iso ?? null,
+				sales_end_time: sales_end_iso ?? null,
 				expires_at: formValues.expires_at || null,
 				unlimited_quantity: formValues.unlimited_quantity,
 				absolve_fee: formValues.absolve_fee,
+				is_active: false,
 			});
 
 			toast.success("Ticket created successfully");

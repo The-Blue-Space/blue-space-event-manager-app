@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import AppButton from "@/components/app/app-button";
@@ -16,33 +16,44 @@ export default function FaqSection() {
 	const [faqs, setFaqs] = useState<EventFaq[]>([]);
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const [showActions, setShowActions] = useState(false);
+	const [isEditing, setIsEditing] = useState(false);
+
+	const parsedFaqs = useMemo(() => {
+		if (!event?.faq) return [];
+		try {
+			const eventFaq = event.faq;
+			const parsed = typeof eventFaq === "string" ? JSON.parse(eventFaq) : eventFaq;
+			return Array.isArray(parsed) ? parsed : [];
+		} catch {
+			return [];
+		}
+	}, [event?.faq]);
 
 	// Parse FAQ from event
 	useEffect(() => {
-		if (event?.faq) {
-			try {
-				const parsed = JSON.parse(event.faq);
-				setFaqs(Array.isArray(parsed) ? parsed : []);
-			} catch {
-				setFaqs([]);
-			}
-		} else {
-			setFaqs([]);
-		}
-	}, [event?.faq]);
+		setFaqs(parsedFaqs);
+	}, [parsedFaqs]);
 
 	const handleAddFaq = () => {
 		const newFaq = { question: "", answer: "" };
 		setFaqs([...faqs, newFaq]);
 		setEditingIndex(faqs.length);
+		setShowActions(true);
+		setIsEditing(false);
+
 	};
 
-	const handleSaveFaq = async (index: number) => {
-		const faq = faqs[index];
+	const handleSaveFaq = async () => {
+		// if (!faqs.length) {
+		// 	toast.error("Please add at least one question");
+		// 	return;
+		// }
 
-		// Validate
-		if (!faq.question.trim() || !faq.answer.trim()) {
-			toast.error("Please fill in both question and answer");
+		const hasIncompleteFaq = faqs.some((faq) => !faq.question.trim() || !faq.answer.trim());
+
+		if (hasIncompleteFaq) {
+			toast.error("Please fill out all questions and answers");
 			return;
 		}
 
@@ -51,8 +62,11 @@ export default function FaqSection() {
 			// Stringify FAQ array
 			const faqString = JSON.stringify(faqs);
 
-			await updateEvent("server", { faq: faqString });
+			await updateEvent("server", { faq: faqString as any });
 			setEditingIndex(null);
+			toast.success("FAQs updated successfully");
+			setShowActions(false);
+			setIsEditing(false);
 		} catch (error) {
 			toast.error("Failed to update FAQ");
 			console.error(error);
@@ -61,23 +75,23 @@ export default function FaqSection() {
 		}
 	};
 
-	const handleDeleteFaq = async (index: number) => {
-		setIsLoading(true);
-		try {
-			const newFaqs = faqs.filter((_, i) => i !== index);
-			setFaqs(newFaqs);
-
-			await updateEvent("server", { faq: JSON.stringify(newFaqs) });
+	const handleDeleteFaq = (index: number) => {
+		if (!showActions) {
+			setShowActions(true)
+		}
+		setFaqs((prev) => prev.filter((_, i) => i !== index));
+		if (editingIndex === index) {
 			setEditingIndex(null);
-		} catch (error) {
-			toast.error("Failed to delete FAQ");
-			console.error(error);
-		} finally {
-			setIsLoading(false);
+		} else if (editingIndex !== null && index < editingIndex) {
+			setEditingIndex((prev) => (prev !== null ? prev - 1 : prev));
 		}
 	};
 
 	const handleUpdateFaq = (index: number, field: "question" | "answer", value: string) => {
+		if (!showActions) {
+		setShowActions(true);
+			
+		}
 		const newFaqs = [...faqs];
 		newFaqs[index][field] = value;
 		setFaqs(newFaqs);
@@ -91,6 +105,21 @@ export default function FaqSection() {
 			setFaqs(newFaqs);
 		}
 		setEditingIndex(null);
+		setShowActions(false);
+		setIsEditing(false);
+	};
+
+	const handleCancelChanges = () => {
+		setFaqs(parsedFaqs);
+		setEditingIndex(null);
+		setShowActions(false);
+		setIsEditing(false);
+
+	};
+
+	const handleEdit = (index: number) => {
+		setEditingIndex(index);
+		setIsEditing(true);
 	};
 
 	return (
@@ -153,20 +182,15 @@ export default function FaqSection() {
 									>
 										Delete
 									</AppButton>
-									<AppButton
-										variant="outline"
-										onClick={() => handleCancelEdit(index)}
-										disabled={isLoading}
-									>
-										Cancel
-									</AppButton>
-									<AppButton
-										variant="primary"
-										onClick={() => handleSaveFaq(index)}
-										isLoading={isLoading}
-									>
-										Save
-									</AppButton>
+									{isEditing && (
+										<AppButton
+											variant="outline"
+											onClick={() => handleCancelEdit(index)}
+											disabled={isLoading}
+										>
+											Cancel
+										</AppButton>
+									)}
 								</div>
 							</div>
 						) : (
@@ -177,7 +201,7 @@ export default function FaqSection() {
 									onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 										// Allow edit on double-click
 										if (e.detail === 2) {
-											setEditingIndex(index);
+											handleEdit(index);
 										}
 									}}
 								>
@@ -187,7 +211,7 @@ export default function FaqSection() {
 											variant="ghost"
 											onClick={(e) => {
 												e.stopPropagation();
-												setEditingIndex(index);
+												handleEdit(index);
 											}}
 											className="text-xs"
 										>
@@ -207,15 +231,27 @@ export default function FaqSection() {
 				))}
 			</div>
 
-			{/* Add Question Button */}
-			<AppButton
-				variant="ghost"
-				onClick={handleAddFaq}
-				className="text-primary-500 text-sm mt-4 hover:underline"
-				disabled={isLoading}
-			>
-				+ Add question
-			</AppButton>
+			{/* Action Buttons */}
+			<div className="flex justify-between gap-3 mt-4">
+				<AppButton
+					variant="ghost"
+					onClick={handleAddFaq}
+					className="text-primary-500 text-sm hover:underline"
+					disabled={isLoading}
+				>
+					+ Add question
+				</AppButton>
+				{showActions && (
+					<div className="space-x-3">
+						<AppButton variant="outline" onClick={handleCancelChanges} disabled={isLoading}>
+							Cancel
+						</AppButton>
+						<AppButton variant="primary" onClick={handleSaveFaq} isLoading={isLoading}>
+							Save
+						</AppButton>
+					</div>
+				)}
+			</div>
 		</div>
 	);
 }

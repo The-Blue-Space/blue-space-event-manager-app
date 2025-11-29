@@ -13,7 +13,10 @@ type Parameters = {
 	event_category_id: string;
 	tags: string[];
 };
-type Response = Event;
+type Response = {
+	event: Event;
+	message: string;
+};
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.post(`/v1/events`, params);
@@ -22,7 +25,7 @@ export async function production(params: Parameters): Promise<Response> {
 
 export async function development(): Promise<Response> {
 	return new Promise((resolve) => {
-		setTimeout(() => resolve(events[0]), 1500);
+		setTimeout(() => resolve({ event: events[0], message: "Event created successfully" }), 1500);
 	});
 }
 

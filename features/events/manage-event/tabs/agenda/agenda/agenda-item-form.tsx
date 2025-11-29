@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, forwardRef, useImperativeHandle } from "react";
+import { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { X, User, List, UserPlus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -58,14 +58,46 @@ export default forwardRef<AgendaFormRef, AgendaItemFormProps>(function AgendaIte
 	});
 
 	const [hosts, setHosts] = useState<HostInput[]>(
-		agenda?.hosts.map((host) => ({
+		agenda?.hosts?.map((host) => ({
 			name: host.host_name,
 			imageUrl: host.host_image_url,
 		})) || []
 	);
 
 	const [showDescription, setShowDescription] = useState(!!agenda?.description);
-	const [showHosts, setShowHosts] = useState(agenda?.hosts.length ? true : false);
+	const [showHosts, setShowHosts] = useState(agenda?.hosts?.length ? true : false);
+
+	// Reset form state whenever the agenda prop changes (e.g., editing a different item)
+	useEffect(() => {
+		setFormData({
+			title: agenda?.title || "",
+			description: agenda?.description || "",
+			start_time: agenda?.start_time || "",
+			end_time: agenda?.end_time || "",
+		});
+		setHosts(
+			agenda?.hosts?.map((host) => ({
+				name: host.host_name,
+				imageUrl: host.host_image_url,
+			})) || []
+		);
+		setShowDescription(!!agenda?.description);
+		setShowHosts(agenda?.hosts?.length ? true : false);
+		setErrors({ title: "" });
+	}, [agenda]);
+
+	const resetFormState = () => {
+		setFormData({
+			title: "",
+			description: "",
+			start_time: "",
+			end_time: "",
+		});
+		setHosts([]);
+		setShowDescription(false);
+		setShowHosts(false);
+		setErrors({ title: "" });
+	};
 
 	const validate = () => {
 		let isValid = true;
@@ -111,6 +143,9 @@ export default forwardRef<AgendaFormRef, AgendaItemFormProps>(function AgendaIte
 					image: host.image,
 				})),
 		});
+		if (!agenda) {
+			resetFormState();
+		}
 	};
 
 	const handleChange = (field: string, value: string) => {
@@ -291,7 +326,7 @@ export default forwardRef<AgendaFormRef, AgendaItemFormProps>(function AgendaIte
 						onClick={() => setShowDescription(!showDescription)}
 						className="button-ghost flex items-center gap-2 text-sm font-bold text-neutral-600 hover:text-neutral-800 transition-colors py-1"
 					>
-						<List className="w-4 h-4" />
+					<List className="w-4 h-4" />
 						<span>Add description</span>
 					</button>
 					<button
@@ -305,8 +340,8 @@ export default forwardRef<AgendaFormRef, AgendaItemFormProps>(function AgendaIte
 				</div>
 			</div>
 
-			{/* Actions */}
-			<div className="flex justify-end gap-3 pt-4 border-t border-neutral-200">
+		{/* Actions */}
+		<div className="flex justify-end gap-3 pt-4 border-t border-neutral-200">
 				<AppButton
 					type="button"
 					variant="outline"
@@ -316,8 +351,17 @@ export default forwardRef<AgendaFormRef, AgendaItemFormProps>(function AgendaIte
 					className="p-2"
 				>
 					<Trash2 className="w-4 h-4 text-red-500" />
+					</AppButton>
+				
+				<AppButton
+					type="submit"
+					disabled={isLoading}
+					isLoading={isLoading}
+					variant="primary"
+				>
+					Save
 				</AppButton>
-			</div>
+		</div>
 		</form>
 	);
 });

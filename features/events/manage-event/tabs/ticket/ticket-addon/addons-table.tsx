@@ -12,12 +12,13 @@ import classNames from "classnames";
 import EmptyData from "@/components/app/empty-data";
 import { Badge } from "@/components/ui/badge";
 import AddonTableActions from "./addon-table-actions";
-import { EventTicketAddon } from "@/types/event-ticket.types";
+import { EventTicketAddon, EventTicket } from "@/types/event-ticket.types";
 import useAppSelector from "@/store/hooks";
 import { getDateAndTime } from "@/lib/format-date";
 import { amountSeparator } from "@/lib/amount-separator";
-import { EventTicket } from "@/types/event-ticket.types";
 import truncate from "@/lib/truncate";
+import AppSwitch from "@/components/app/app-switch";
+import { useEffect, useState } from "react";
 
 type AddonsTableProps = {
 	data: EventTicketAddon[];
@@ -39,6 +40,26 @@ export default function AddonsTable({
 	onDelete,
 }: AddonsTableProps) {
 	const { activeCurrency, currencies } = useAppSelector("init");
+	const [addonStatus, setAddonStatus] = useState<Record<string, boolean>>({});
+
+	useEffect(() => {
+		setAddonStatus(
+			data.reduce((acc, addon) => {
+				acc[addon.id] = addon.is_active;
+				return acc;
+			}, {} as Record<string, boolean>)
+		);
+	}, [data]);
+
+	const handleToggleStatus = async (addonId: string, isActive: boolean) => {
+		try {
+			await onToggleStatus?.(addonId, isActive);
+			setAddonStatus((prev) => ({ ...prev, [addonId]: isActive }));
+		} catch (error) {
+			console.error(error);
+			setAddonStatus((prev) => ({ ...prev, [addonId]: !isActive }));
+		}
+	};
 
 	if (isEmpty)
 		return (
@@ -121,6 +142,18 @@ export default function AddonsTable({
 								dateOptions: { dateStyle: "medium" },
 						  })
 						: null;
+
+					const salesStartTime = addon.sales_start_time
+						? getDateAndTime(addon.sales_start_time, {
+								timeOptions: { timeStyle: "short", hour12: true },
+						  })
+						: null;
+
+					const salesEndTime = addon.sales_end_time
+						? getDateAndTime(addon.sales_end_time, {
+								timeOptions: { timeStyle: "short", hour12: true },
+						  })
+						: null;
 					const currency = addon.currency_id
 						? currencies.find((c) => c.id === addon.currency_id)?.symbol || activeCurrency.symbol
 						: activeCurrency.symbol;
@@ -162,32 +195,31 @@ export default function AddonsTable({
 									<div className="flex flex-col">
 										<span className="text-xs text-neutral-700">{salesStart.date}</span>
 										<span className="text-xs text-neutral-500">
-											{addon.sales_start_time ?? "---:---"}
+											{salesStartTime?.time ?? "---:---"}
 										</span>
 									</div>
 								)}
 							</TableCell>
 
 							<TableCell>
-								{salesEnd && (
+								{salesEnd ? (
 									<div className="flex flex-col">
 										<span className="text-xs text-neutral-700">{salesEnd.date}</span>
 										<span className="text-xs text-neutral-500">
-											{addon.sales_end_time ?? "---:---"}
+											{salesEndTime?.time ?? "---:---"}
 										</span>
 									</div>
+								) : (
+									<span className="text-xs text-neutral-500">---:--- ---:---</span>
 								)}
 							</TableCell>
 
 							<TableCell>
-								<Badge
-									className={classNames("px-1", {
-										"bg-success-100 text-success-500 border-success-200": addon.is_active,
-										"bg-neutral-100 text-neutral-500 border-neutral-200": !addon.is_active,
-									})}
-								>
-									{addon.is_active ? "Active" : "Inactive"}
-								</Badge>
+								<AppSwitch
+									variant="accent"
+									checked={addonStatus[addon.id]}
+									onCheckedChange={() => handleToggleStatus(addon.id, !addonStatus[addon.id])}
+								/>
 							</TableCell>
 
 							<TableCell onClick={(e) => e.stopPropagation()}>

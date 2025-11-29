@@ -111,7 +111,7 @@ export default function EditTicket() {
 						<div className="border-b border-neutral-200">
 							<h5 className="body-2 font-medium text-neutral-500">{ticketInfo[0].section}</h5>
 						</div>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 							{ticketInfo.map((item) => {
 								const key = item.name as keyof typeof formData;
 
@@ -151,7 +151,7 @@ export default function EditTicket() {
 																	view fee breakdown
 																</button>
 															}
-															side="top"
+															side="left"
 														>
 															<div className="min-w-[220px]">
 																{feeLoading ? (
@@ -336,7 +336,7 @@ export default function EditTicket() {
 						<div className="border-b border-neutral-200">
 							<h5 className="body-2 font-medium text-neutral-500">{advancedSettings[0].section}</h5>
 						</div>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 							{advancedSettings.map((item) => {
 								const key = item.name as keyof typeof formData;
 								if (item.type === "date") {

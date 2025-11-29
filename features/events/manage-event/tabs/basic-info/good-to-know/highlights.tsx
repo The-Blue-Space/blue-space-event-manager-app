@@ -11,11 +11,13 @@ import {
 	AGE_RESTRICTION_TYPES,
 	AGE_RESTRICTIONS,
 	AgeRestriction,
+	AgeRestrictionType,
 	PARKING_TYPES,
 	ParkingType,
 } from "@/types/event.types";
 import capitalize from "@/lib/capitalize";
 import { Badge } from "@/components/ui/badge";
+import logger from "@/lib/app-logger";
 
 const AGE_RESTRICTION_TYPES_OPTIONS = AGE_RESTRICTION_TYPES.map((type) => ({
 	value: type,
@@ -49,31 +51,41 @@ export default function Highlights() {
 		if (event) {
 			// Calculate doors_open_value from doors_open_at
 			if (event.doors_open_at && event.event_start_time) {
-				const [doorsHour, doorsMin] = event.doors_open_at.split(":").map(Number);
-				const [eventHour, eventMin] = event.event_start_time.split(":").map(Number);
+				// Parse full ISO datetime strings as Date objects
+				const doorsOpenDate = new Date(event.doors_open_at);
+				const eventStartDate = new Date(event.event_start_time);
 
-				const doorsInMinutes = doorsHour * 60 + doorsMin;
-				const eventInMinutes = eventHour * 60 + eventMin;
-				const diff = eventInMinutes - doorsInMinutes;
+				// Calculate difference in milliseconds
+				const diffInMs = eventStartDate.getTime() - doorsOpenDate.getTime();
 
-				if (diff >= 60) {
-					setFormData((prev) => ({
-						...prev,
-						age_restriction_type: event.age_restriction_type || "no-age-restriction",
-						age_restriction: event.age_restriction || "",
-						parking_option: event.parking_type || "no-parking",
-						doors_open_value: Math.floor(diff / 60),
-						doors_open_unit: "hours",
-					}));
-				} else {
-					setFormData((prev) => ({
-						...prev,
-						age_restriction_type: event.age_restriction_type || "no-age-restriction",
-						age_restriction: event.age_restriction || "",
-						parking_option: event.parking_type || "no-parking",
-						doors_open_value: diff,
-						doors_open_unit: "minutes",
-					}));
+				// Convert to minutes
+				const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+
+				logger.log("doorsOpenDate", doorsOpenDate);
+				logger.log("eventStartDate", eventStartDate);
+				logger.log("diffInMinutes", diffInMinutes);
+
+				// Only proceed if doors open BEFORE event (positive difference)
+				if (diffInMinutes > 0) {
+					if (diffInMinutes >= 60) {
+						setFormData((prev) => ({
+							...prev,
+							age_restriction_type: event.age_restriction_type || "no-age-restriction",
+							age_restriction: event.age_restriction || "",
+							parking_option: event.parking_type || "no-parking",
+							doors_open_value: Math.floor(diffInMinutes / 60),
+							doors_open_unit: "hours",
+						}));
+					} else {
+						setFormData((prev) => ({
+							...prev,
+							age_restriction_type: event.age_restriction_type || "no-age-restriction",
+							age_restriction: event.age_restriction || "",
+							parking_option: event.parking_type || "no-parking",
+							doors_open_value: diffInMinutes,
+							doors_open_unit: "minutes",
+						}));
+					}
 				}
 			}
 
@@ -101,23 +113,22 @@ export default function Highlights() {
 
 	// Calculate doors_open_at time
 	const calculateDoorsOpenTime = () => {
-		const eventStartTime = event?.event_start_time || new Date().toTimeString().slice(0, 5);
-		const eventStartDate = event?.event_start_date || new Date().toISOString();
+		if (!formData.doors_open_value) return event?.event_start_time;
 
-		// Parse time
-		const [hours, minutes] = eventStartTime.split(":").map(Number);
-		const eventDateTime = new Date(eventStartDate);
-		eventDateTime.setHours(hours, minutes);
+		const eventStartTimeISO = event?.event_start_time || new Date().toISOString();
 
-		// Subtract time
+		// Parse the full ISO datetime string
+		const eventDateTime = new Date(eventStartTimeISO);
+
+		// Subtract time based on unit
 		if (formData.doors_open_unit === "hours") {
 			eventDateTime.setHours(eventDateTime.getHours() - formData.doors_open_value);
 		} else {
 			eventDateTime.setMinutes(eventDateTime.getMinutes() - formData.doors_open_value);
 		}
 
-		// Return formatted time (HH:mm)
-		return eventDateTime.toTimeString().slice(0, 5);
+		// Return full ISO string
+		return eventDateTime.toISOString();
 	};
 
 	const handleSave = async () => {
@@ -127,7 +138,8 @@ export default function Highlights() {
 
 			await updateEvent("server", {
 				doors_open_at,
-				age_restriction: formData.age_restriction_type as AgeRestriction | null,
+				age_restriction: (formData.age_restriction as AgeRestriction) || null,
+				age_restriction_type: formData.age_restriction_type as AgeRestrictionType | null,
 				parking_type: formData.parking_option as ParkingType | null,
 			});
 
@@ -143,9 +155,7 @@ export default function Highlights() {
 
 	const formatDoorsOpenTime = () => {
 		if (!event?.doors_open_at) return "Not set";
-		const [hours, minutes] = event.doors_open_at.split(":").map(Number);
-		const time = new Date();
-		time.setHours(hours, minutes);
+		const time = new Date(event.doors_open_at);
 		return time.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
 	};
 

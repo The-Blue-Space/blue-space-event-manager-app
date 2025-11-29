@@ -9,6 +9,56 @@ import z from "zod";
 import { formatZodErrors } from "@/lib/ensure-error";
 import { DateInput } from "@/components/app/form-input";
 
+/**
+ * Combines a date ISO string with a time string to create a full ISO datetime string
+ * @param dateISO - ISO date string (e.g., "2025-12-02T00:00:00+01:00")
+ * @param timeString - Time string (e.g., "14:30:00")
+ * @returns ISO datetime string preserving original timezone (e.g., "2025-12-02T14:30:00+01:00")
+ */
+const combineDateTime = (dateISO: string, timeString: string): string => {
+	if (!dateISO || !timeString) return "";
+	
+	try {
+		// Extract date part (YYYY-MM-DD) from ISO string
+		const datePart = dateISO.split("T")[0];
+		
+		// Extract timezone from original date (e.g., "+01:00", "Z", etc.)
+		const timezoneMatch = dateISO.match(/([+-]\d{2}:\d{2}|Z)$/);
+		const timezone = timezoneMatch ? timezoneMatch[0] : "Z";
+		
+		// Combine date, time, and preserve original timezone
+		return `${datePart}T${timeString}${timezone}`;
+	} catch (error) {
+		console.error("Error combining date and time:", error);
+		return "";
+	}
+};
+
+/**
+ * Extracts time portion from an ISO string or returns the string as-is if it's already a time
+ * @param isoString - ISO datetime string or plain time string
+ * @returns Time string in "HH:MM:SS" format
+ */
+const extractTimeFromISO = (isoString?: string | null): string => {
+	if (!isoString) return "";
+	
+	try {
+		// If it contains 'T', it's an ISO datetime string
+		if (isoString.includes("T")) {
+			// Extract time part after 'T' and before 'Z' or timezone offset
+			const timePart = isoString.split("T")[1];
+			// Remove timezone info (Z, +XX:XX, etc.)
+			return timePart.split(/[Z+-]/)[0];
+		}
+		
+		// If it's already a time string, return as-is
+		return isoString;
+	} catch (error) {
+		console.error("Error extracting time from ISO:", error);
+		return isoString || "";
+	}
+};
+
 const validate = z
 	.object({
 		start_date: z.string().min(1, { message: "Start date is required" }),
@@ -41,9 +91,9 @@ export default function ScheduleSection() {
 	const initialFormData = useMemo(
 		() => ({
 			start_date: event?.event_start_date || new Date().toISOString(),
-			start_time: event?.event_start_time || "00:00:00",
+			start_time: extractTimeFromISO(event?.event_start_time || "00:00:00"),
 			end_date: event?.event_end_date || "",
-			end_time: event?.event_end_time || "",
+			end_time: extractTimeFromISO(event?.event_end_time || ""),
 		}),
 		[event]
 	);
@@ -88,9 +138,12 @@ export default function ScheduleSection() {
 
 			const payload = {
 				event_start_date: formValues.start_date,
-				event_start_time: formValues.start_time,
+				event_start_time: combineDateTime(formValues.start_date, formValues.start_time),
 				event_end_date: formValues.end_date || null,
-				event_end_time: formValues.end_time || null,
+				event_end_time:
+					formValues.end_date && formValues.end_time
+						? combineDateTime(formValues.end_date, formValues.end_time)
+						: null,
 			};
 
 			await updateEvent("server", payload);
@@ -122,7 +175,9 @@ export default function ScheduleSection() {
 	const formatDisplayTime = (time?: string | null) => {
 		if (!time) return "—";
 		try {
-			const [hours, minutes] = time.split(":");
+			// Extract time from ISO string or use as-is if plain time
+			const timeString = extractTimeFromISO(time);
+			const [hours, minutes] = timeString.split(":");
 			const hour = parseInt(hours);
 			const ampm = hour >= 12 ? "PM" : "AM";
 			const displayHour = hour % 12 || 12;

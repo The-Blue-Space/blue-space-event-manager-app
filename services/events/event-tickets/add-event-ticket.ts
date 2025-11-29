@@ -21,6 +21,7 @@ type Parameters = {
 	expires_at?: string | null;
 	unlimited_quantity: boolean;
 	absolve_fee: boolean;
+	is_active?: boolean;
 };
 
 type Response = EventTicket;

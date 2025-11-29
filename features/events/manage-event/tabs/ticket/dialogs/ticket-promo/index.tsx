@@ -18,14 +18,16 @@ export default function TicketPromo() {
 		tickets,
 		selectedTicketId,
 		setSelectedTicketId,
-		isActive,
-		setIsActive,
-		promoType,
-		setPromoType,
-		initialValues,
+		formData,
+		errors,
+		updateForm,
+		handlePromoTypeChange,
 		saving,
 		handleSave,
 	} = useTicketPromo();
+
+	const isActive = formData.is_active;
+	const promoType = formData.promo_type;
 
 	const ticketOptions = tickets.map((t) => ({ value: t.id, title: t.name }));
 	const promoTypeOptions = PROMO_TYPES.map((t) => ({ value: t, title: t.split("_").join(" ") }));
@@ -46,7 +48,7 @@ export default function TicketPromo() {
 						onClick={handleSave}
 						isLoading={saving}
 						variant="primary"
-						disabled={!isActive || !selectedTicketId}
+						disabled={ !selectedTicketId}
 					>
 						Save Promo
 					</AppButton>
@@ -74,24 +76,24 @@ export default function TicketPromo() {
 						<AppSwitch
 							disabled={!selectedTicketId}
 							checked={isActive}
-							onCheckedChange={setIsActive}
+							onCheckedChange={(val) => updateForm("is_active", val)}
 						/>
 					</div>
 
-					{isActive && selectedTicketId ? (
+					{selectedTicketId ? (
 						<>
 							<SelectBox
 								label="Promo Type"
 								placeholder="Choose promo type"
 								options={promoTypeOptions}
 								value={promoType}
-								onchange={(val) => setPromoType(val as any)}
+								onchange={(val) => handlePromoTypeChange(val as any)}
 								required
 							/>
 							{promoType === "discount" ? (
-								<DiscountForm initialValues={initialValues} />
+								<DiscountForm formData={formData} errors={errors} updateForm={updateForm} />
 							) : (
-								<FreebieForm initialValues={initialValues} />
+								<FreebieForm formData={formData} errors={errors} updateForm={updateForm} />
 							)}
 						</>
 					) : null}

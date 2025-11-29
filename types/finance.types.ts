@@ -5,6 +5,7 @@ export type BankDetails = {
 	id: string;
 	event_manager_id: string;
 	bank_name: string;
+	bank_code?: string;
 	account_number: string;
 	account_name: string;
 	is_default: boolean;
@@ -27,6 +28,8 @@ export type Payout = {
 	event_name: string;
 	event_manager_id: string;
 	event_manager_name: string;
+	bank_id: string;
+	bank_name: string;
 	amount: number;
 	currency_id: string;
 	currency_name: string;

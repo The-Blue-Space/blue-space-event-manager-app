@@ -112,7 +112,7 @@ export default function VideoSection({
 							<VideoIcon className="w-12 h-12 text-neutral-400 mb-2" />
 							<p className="text-sm font-medium text-neutral-700 mb-1">No video uploaded</p>
 							<p className="text-xs text-neutral-500">Click to upload video (MP4, WebM, MOV)</p>
-							<p className="text-xs text-neutral-400 mt-1">Maximum file size: 50MB</p>
+							<p className="text-xs text-neutral-400 mt-1">Maximum file size: 10MB</p>
 						</>
 					)}
 				</div>

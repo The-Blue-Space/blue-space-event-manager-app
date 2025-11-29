@@ -31,7 +31,7 @@ type DatePickerProps = {
 	icon?: React.ReactNode;
 	floatingLabel?: boolean;
 	notePlacement?: "top" | "bottom";
-	note?: string;
+	note?: string | React.ReactNode;
 	noteStyle?: string;
 };
 
@@ -98,7 +98,7 @@ export default function DateInput({
 		hidden: !props.errorMessage,
 	});
 
-	const noteCn = classNames("text-neutral-700 body-3", noteStyle);
+	const noteCn = classNames("text-neutral-500 body-3", noteStyle);
 
 	const handleOpenChange = (open: boolean) => {
 		setOpen(open);

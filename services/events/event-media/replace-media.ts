@@ -8,6 +8,7 @@ type Parameters = {
 	event_Id: string;
 	media_id: string;
 	file: File;
+	user_id: string;
 };
 type Response = EventMedia;
 

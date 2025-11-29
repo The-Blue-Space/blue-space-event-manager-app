@@ -16,12 +16,7 @@ type InitState = {
 };
 
 const initialState: InitState = {
-	activeCurrency: {
-		id: "1",
-		name: "Naira",
-		code: "NGN",
-		symbol: "₦",
-	},
+	activeCurrency: {} as Currency,
 	accountBalance: {
 		available_balance: "0.00",
 	},

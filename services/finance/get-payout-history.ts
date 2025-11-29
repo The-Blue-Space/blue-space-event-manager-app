@@ -5,6 +5,7 @@ import { generatePaginateResponse } from "@/lib/paginate";
 import { Payout } from "@/types/finance.types";
 import { PaginatedResponse, PaginationQuery } from "@/types/global.types";
 
+// get payout history
 type Parameters = PaginationQuery & {
 	status: string;
 };

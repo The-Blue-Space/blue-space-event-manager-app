@@ -39,7 +39,9 @@ export type Event = {
 	longitude?: string | null;
 	latitude?: string | null;
 	event_category_id?: string | null;
-	tags?: string | null;
+	tags?: string[];
+	scheduled_publish_at?: string | null;
+	scheduled_publish_enabled?: boolean;
 	event_start_date?: string | null;
 	event_end_date?: string | null;
 	event_start_time?: string | null;

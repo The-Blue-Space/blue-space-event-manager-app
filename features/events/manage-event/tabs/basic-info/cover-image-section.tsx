@@ -6,17 +6,30 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import AppButton from "@/components/app/app-button";
+import deleteMedia from "@/services/events/event-media/delete-media";
+import { useQuery } from "@tanstack/react-query";
+import getMedias from "@/services/events/event-media/get-medias";
+import ensureError from "@/lib/ensure-error";
+import useAppSelector from "@/store/hooks";
 
 export default function CoverImageSection() {
+	const {account}= useAppSelector("account")
 	const { event, uploadImages } = useEvent();
 	const [isLoading, setIsLoading] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
 	const [previewImage, setPreviewImage] = useState<string | null>(null);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
+	const { data: eventMedia, refetch } = useQuery({
+		queryKey: ["event-medias-cover", event?.id],
+		queryFn: () => getMedias({ event_Id: event?.id ?? "" }),
+		enabled: !!event?.id,
+	});
+
 	const currentCoverImage = useMemo(
-		() => event?.event_media?.find((media) => media.media_type === "cover"),
-		[event]
+		() => eventMedia?.find((media) => media.media_type === "cover"),
+		[eventMedia]
 	);
 
 	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,11 +60,23 @@ export default function CoverImageSection() {
 		fileInputRef.current?.click();
 	};
 
-	const handleDeleteClick = () => {
+	const handleDeleteClick = async () => {
 		setPreviewImage(null);
 		setSelectedFile(null);
-		// TODO: Call API to delete cover image from server
-		toast.success("Cover image removed");
+		if (currentCoverImage?.id) {
+			try {
+				setIsDeleting(true);
+				await deleteMedia({ event_Id: event?.id ?? "", media_id: currentCoverImage.id, user_id:account.id });
+				refetch();
+				toast.success("Cover image removed");
+			} catch (error) {
+				const errMsg = ensureError(error).message;
+				toast.error(errMsg || "Failed to delete cover image");
+				throw error;
+			} finally {
+				setIsDeleting(false);
+			}
+		}
 	};
 
 	const handleCancel = () => {
@@ -69,8 +94,9 @@ export default function CoverImageSection() {
 		try {
 			await uploadImages([{ file: selectedFile, type: "cover" }]);
 			toast.success("Cover image updated successfully");
-			setPreviewImage(null);
-			setSelectedFile(null);
+			// setPreviewImage(null);
+			// setSelectedFile(null);
+			refetch();
 		} catch (error) {
 			toast.error("Failed to update cover image");
 			throw error;
@@ -86,6 +112,7 @@ export default function CoverImageSection() {
 			title="Cover Image"
 			icon={<ImageIcon className="w-5 h-5 text-primary-500" />}
 			onSave={handleSave}
+			showSaveButton={!!selectedFile}
 			onCancel={handleCancel}
 			isLoading={isLoading}
 		>
@@ -154,7 +181,8 @@ export default function CoverImageSection() {
 										<AppButton
 											variant="destructive"
 											onClick={handleDeleteClick}
-											disabled={isLoading}
+											disabled={isDeleting}
+											isLoading={isDeleting}
 											className="size-10"
 											type="button"
 											leftIcon={<Trash2 className="w-4 h-4 text-white" />}

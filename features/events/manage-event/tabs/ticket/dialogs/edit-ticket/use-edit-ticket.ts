@@ -9,6 +9,7 @@ import { sanitizeNumInput } from "@/lib/sanitize-num-input";
 import invalidateQuery from "@/lib/invalidate-query";
 import { EventTicket } from "@/types/event-ticket.types";
 import updateEventTicket from "@/services/events/event-tickets/update-event-ticket";
+import { combineDateAndTimeToIso, normalizeTimeValue } from "@/lib/date-time";
 
 export default function useEditTicket() {
 	const { dialog } = useAppSelector("ui");
@@ -39,9 +40,9 @@ export default function useEditTicket() {
 				total_quantity: data.total_quantity ?? null,
 				perks: data.perks.join(", ") ?? "",
 				sales_start_date: data.sales_start_date ?? new Date().toISOString(),
-				sales_start_time: data.sales_start_time ?? "12:00:AM",
+				sales_start_time: normalizeTimeValue(data.sales_start_time) || null,
 				sales_end_date: data.sales_end_date ?? null,
-				sales_end_time: data.sales_end_time ?? null,
+				sales_end_time: normalizeTimeValue(data.sales_end_time) || null,
 				expires_at: data.expires_at ?? null,
 				unlimited_quantity: data.unlimited_quantity ?? false,
 				absolve_fee: data.absolve_fee ?? true,
@@ -102,23 +103,6 @@ export default function useEditTicket() {
 		ui.resetDialog();
 	};
 
-	function combineDateTimeToIso(dateStr?: string | null, timeStr?: string | null) {
-		if (!dateStr) return null;
-		try {
-			const date = new Date(dateStr);
-			if (timeStr) {
-				const [h, m] = timeStr.split(":");
-				date.setHours(Number(h));
-				date.setMinutes(Number(m));
-				date.setSeconds(0);
-				date.setMilliseconds(0);
-			}
-			return date.toISOString();
-		} catch {
-			return null;
-		}
-	}
-
 	const submit = async () => {
 		setErrors({});
 		setIsLoading(true);
@@ -146,11 +130,11 @@ export default function useEditTicket() {
 			const formValues = editTicketSchema.parse(coerced);
 
 			// Cross-field guards
-			const sales_start_iso = combineDateTimeToIso(
+			const sales_start_iso = combineDateAndTimeToIso(
 				formValues.sales_start_date,
 				formValues.sales_start_time ?? null
 			);
-			const sales_end_iso = combineDateTimeToIso(
+			const sales_end_iso = combineDateAndTimeToIso(
 				formValues.sales_end_date,
 				formValues.sales_end_time ?? null
 			);
@@ -177,10 +161,10 @@ export default function useEditTicket() {
 					? null
 					: Number(formValues.total_quantity ?? 0),
 				perks: formValues.perks.split(","),
-				sales_start_date: formValues.sales_start_date || new Date().toISOString(),
-				sales_start_time: formValues.sales_start_time || "12:00:AM",
-				sales_end_date: formValues.sales_end_date || null,
-				sales_end_time: formValues.sales_end_time || null,
+				sales_start_date: sales_start_iso ?? new Date().toISOString(),
+				sales_start_time: sales_start_iso ?? new Date().toISOString(),
+				sales_end_date: sales_end_iso ?? null,
+				sales_end_time: sales_end_iso ?? null,
 				expires_at: formValues.expires_at || null,
 				unlimited_quantity: formValues.unlimited_quantity,
 				absolve_fee: formValues.absolve_fee,

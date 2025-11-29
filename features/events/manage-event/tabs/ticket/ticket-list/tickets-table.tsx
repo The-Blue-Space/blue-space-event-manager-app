@@ -16,6 +16,8 @@ import { EventTicket } from "@/types/event-ticket.types";
 import useAppSelector from "@/store/hooks";
 import { getDateAndTime } from "@/lib/format-date";
 import { amountSeparator } from "@/lib/amount-separator";
+import AppSwitch from "@/components/app/app-switch";
+import { useState } from "react";
 
 type TicketsTableProps = {
 	data: EventTicket[];
@@ -37,6 +39,22 @@ export default function TicketsTable({
 	onDelete,
 }: TicketsTableProps) {
 	const { activeCurrency } = useAppSelector("init");
+	const [ticketStatus, setTicketStatus] = useState<Record<string, boolean>>(
+		data.reduce((acc, ticket) => {
+			acc[ticket.id] = ticket.is_active;
+			return acc;
+		}, {} as Record<string, boolean>)
+	);
+
+	const handleToggleStatus = async (ticketId: string, isActive: boolean) => {
+		try {
+			await onToggleStatus?.(ticketId, isActive);
+			setTicketStatus((prev) => ({ ...prev, [ticketId]: isActive }));
+		} catch (err) {
+			setTicketStatus((prev) => ({ ...prev, [ticketId]: !isActive }));
+			console.error(err);
+		}
+	};
 
 	if (isEmpty)
 		return (
@@ -82,6 +100,19 @@ export default function TicketsTable({
 								dateOptions: { dateStyle: "medium" },
 						  })
 						: null;
+
+					const salesStartTime = ticket.sales_start_time
+						? getDateAndTime(ticket.sales_start_time, {
+								timeOptions: { timeStyle: "short", hour12: true },
+						  })
+						: null;
+
+					const salesEndTime = ticket.sales_end_time
+						? getDateAndTime(ticket.sales_end_time, {
+								timeOptions: { timeStyle: "short", hour12: true },
+						  })
+						: null;
+
 					const currency = ticket.currency?.symbol || activeCurrency.symbol;
 
 					return (
@@ -124,12 +155,12 @@ export default function TicketsTable({
 										<span className="body-3 font-medium">
 											{currency} {amountSeparator(ticket.price || 0)}
 										</span>
-										{ticket.event_ticket_promo && (
+										{ticket.event_ticket_promo && ticket?.event_ticket_promo?.is_active && (
 											<span className="body-3 font-medium">
 												Promo:
 												<span className="text-neutral-400 capitalize">
 													{" "}
-													{ticket.event_ticket_promo?.promo_type}
+													{ticket.event_ticket_promo?.promo_type.split("_").join(" ")}
 												</span>
 											</span>
 										)}
@@ -146,32 +177,39 @@ export default function TicketsTable({
 									<div className="flex flex-col">
 										<span className="text-xs text-neutral-700">{salesStart.date}</span>
 										<span className="text-xs text-neutral-500">
-											{ticket.sales_start_time ?? "---:---"}
+											{salesStartTime?.time ?? "---:---"}
 										</span>
 									</div>
 								)}
 							</TableCell>
 
 							<TableCell>
-								{salesEnd && (
+								{salesEnd ? (
 									<div className="flex flex-col">
 										<span className="text-xs text-neutral-700">{salesEnd.date}</span>
 										<span className="text-xs text-neutral-500">
-											{ticket.sales_end_time ?? "---:---"}
+											{salesEndTime?.time ?? "---:---"}
 										</span>
 									</div>
+								) : (
+									<span className="text-xs text-neutral-500">---:--- ---:---</span>
 								)}
 							</TableCell>
 
 							<TableCell>
-								<Badge
+								<AppSwitch
+									checked={ticketStatus[ticket.id]}
+									onCheckedChange={() => handleToggleStatus(ticket.id, !ticketStatus[ticket.id])}
+									variant="accent"
+								/>
+								{/* <Badge
 									className={classNames("px-1", {
 										"bg-success-100 text-success-500 border-success-200": ticket.is_active,
 										"bg-neutral-100 text-neutral-500 border-neutral-200": !ticket.is_active,
 									})}
 								>
 									{ticket.is_active ? "Active" : "Inactive"}
-								</Badge>
+								</Badge> */}
 							</TableCell>
 
 							<TableCell onClick={(e) => e.stopPropagation()}>

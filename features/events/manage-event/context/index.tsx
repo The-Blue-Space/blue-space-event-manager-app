@@ -8,6 +8,8 @@ import { AccessType, Event } from "@/types/event.types";
 import getEventDetails from "@/services/events/get-event-details";
 import updateEventDetails from "@/services/events/update-event";
 import { EventMediaType } from "@/types/event-media.types";
+import addMedia from "@/services/events/event-media/add-media";
+import useAppSelector from "@/store/hooks";
 
 interface EventContextType {
 	open: boolean;
@@ -50,6 +52,7 @@ interface EventProviderProps {
 }
 
 export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
+	const {account}= useAppSelector("account")
 	const [event, setEvent] = useState<Event | null>(null);
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -124,8 +127,15 @@ export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
 		setIsLoading(true);
 		try {
 			// TODO: Implement image upload
-			// const response = await uploadImagesToEvent({ event_id, images });
-			console.log("Upload images:", images);
+			await addMedia({
+				event_Id: event_id,
+				file: images[0].file,
+				media_type: images[0].type,
+				is_active: true,
+				order: 1,
+				user_id: account.id,
+			});
+			
 		} catch (err) {
 			toast.error("Failed to upload images");
 			throw err;

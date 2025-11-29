@@ -76,7 +76,7 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 		}
 	);
 
-	const contentContainer = classnames("overflow-auto max-h-96", props.contentContainerStyle);
+	const contentContainer = classnames("overflow-auto max-h-80", props.contentContainerStyle);
 	const errorCn = classnames("text-red-500 text-xs", props.errorStyle, {
 		hidden: !props.errorMessage,
 	});

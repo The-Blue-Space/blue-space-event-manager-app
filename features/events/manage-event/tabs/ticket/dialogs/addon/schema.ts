@@ -14,7 +14,7 @@ export const addonSchema = z
 		sales_end_date: z.string().trim().nullable(),
 		sales_end_time: z.string().trim().nullable(),
 		expires_at: z.string().trim().nullable(),
-		is_active: z.boolean().default(true),
+		is_active: z.boolean().default(false),
 	})
 	.refine(
 		(data) => {
@@ -70,5 +70,5 @@ export const addonInitial: AddonFormData = {
 	sales_end_date: null,
 	sales_end_time: null,
 	expires_at: null,
-	is_active: true,
+	is_active: false,
 };

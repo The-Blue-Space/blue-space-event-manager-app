@@ -107,7 +107,7 @@ const Input = React.forwardRef<Ref, InputProps>((props: InputProps, ref) => {
 		hidden: !errorMessage,
 	});
 
-	const noteCn = classNames("text-neutral-700 body-3", noteStyle);
+	const noteCn = classNames("text-neutral-500 body-3", noteStyle);
 	const floatingComponentCn = classNames(
 		`absolute right-0 top-1/2 -translate-y-1/2 flex items-center  justify-center 
 		bg-neutral-200 h-full px-2 rounded-r-lg border-2 border-l-0 border-transparent
@@ -144,6 +144,7 @@ const Input = React.forwardRef<Ref, InputProps>((props: InputProps, ref) => {
 					name={name}
 					placeholder={floatingLabel ? (!shouldFloat ? "" : placeholder) : placeholder}
 					disabled={disabled}
+					min={rest.min?? 1}
 					onFocus={handleFocus}
 					onBlur={handleBlur}
 					{...rest}

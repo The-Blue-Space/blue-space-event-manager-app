@@ -1,5 +1,4 @@
 import { variables } from "@/constants";
-import { eventAddons } from "@/constants/data/events/event-addons";
 import axios from "@/lib/axios";
 import { EventTicketAddon } from "@/types/event-ticket.types";
 

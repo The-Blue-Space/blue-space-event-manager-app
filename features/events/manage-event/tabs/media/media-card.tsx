@@ -16,6 +16,7 @@ type MediaCardProps = {
 	onAction?: (action: MediaAction, media?: EventMedia, file?: File) => void | Promise<void>;
 	onUploadClick?: () => void;
 	isDraggable?: boolean;
+	isUploading?: boolean;
 	className?: string;
 };
 
@@ -25,6 +26,7 @@ export default function MediaCard({
 	onAction,
 	onUploadClick,
 	isDraggable = false,
+	isUploading = false,
 	className,
 }: MediaCardProps) {
 	const [isLoading, setIsLoading] = useState(false);
@@ -34,8 +36,10 @@ export default function MediaCard({
 		if (!media || !onAction) return;
 
 		if (action === "replace") {
-			// Open file input for replace
-			fileInputRef.current?.click();
+			// Delay file input click to allow dropdown to close first
+			setTimeout(() => {
+				fileInputRef.current?.click();
+			}, 100);
 			return;
 		}
 
@@ -71,13 +75,22 @@ export default function MediaCard({
 	if (isPlaceholder || !media) {
 		return (
 			<div
-				onClick={onUploadClick}
+				onClick={isUploading ? undefined : onUploadClick}
 				className={cn(
-					"relative aspect-square border-2 border-dashed border-neutral-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-neutral-400 hover:bg-neutral-50 transition-colors",
+					"relative aspect-square border-2 border-dashed border-neutral-300 rounded-lg flex flex-col items-center justify-center transition-colors",
+					!isUploading && "cursor-pointer hover:border-neutral-400 hover:bg-neutral-50",
+					isUploading && "cursor-not-allowed opacity-75",
 					className
 				)}
 			>
-				<ImageUpIcon className="w-12 h-12 text-neutral-200" />
+				{isUploading ? (
+					<>
+						<Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
+						<p className="text-xs text-neutral-500 mt-2">Uploading...</p>
+					</>
+				) : (
+					<ImageUpIcon className="w-12 h-12 text-neutral-200" />
+				)}
 			</div>
 		);
 	}
@@ -127,7 +140,11 @@ export default function MediaCard({
 
 			{/* Actions Dropdown */}
 			{!isLoading && (
-				<div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+				<div
+					className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+					onPointerDown={(e) => e.stopPropagation()}
+					onClick={(e) => e.stopPropagation()}
+				>
 					<AppDropdown
 						trigger={
 							<button className="p-1.5 bg-white rounded shadow hover:bg-neutral-50">

@@ -47,7 +47,7 @@ export default function useCreateEvent() {
 	};
 
 	const submit = async () => {
-		if (!managerProfile.id) {
+		if (!managerProfile?.id) {
 			toast.error("Manager Profile not found, try refreshing the page");
 			return;
 		}
@@ -68,7 +68,7 @@ export default function useCreateEvent() {
 					description: "You can now proceed to setup your event",
 				});
 				invalidateQuery(["events"]);
-				navigate(`/events/${response.id}/manage`);
+				navigate(`/events/${response.event.id}/manage`);
 			}
 		} catch (err) {
 			if (err instanceof ZodError) {
