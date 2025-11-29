@@ -26,6 +26,7 @@ import { getRevenueData } from "@/services/metrics";
 import { MetricPeriod } from "@/types/metrics.types";
 import { cn } from "@/lib/utils";
 import ErrorBoundary from "@/components/app/error-boundary";
+import EmptyData from "@/components/app/empty-data";
 
 const inflowColor = "#6866bd";
 const outflowColor = "#FFB703";
@@ -110,13 +111,13 @@ export default function ChartPieDonutActive() {
 		);
 	}
 
-	
-
 	return (
 		<ErrorBoundary>
-			<Card className={cn("flex flex-col pt-0", {
-				// "min-h-96": data?.hasNoData,
-			})}>
+			<Card
+				className={cn("flex flex-col pt-0", {
+					// "min-h-96": data?.hasNoData,
+				})}
+			>
 				<CardHeader className="flex flex-row justify-between gap-3 pb-0 items-start w-full">
 					<div className="w-full">
 						<CardTitle className="text-primary-500">Revenue Flow</CardTitle>
@@ -137,9 +138,11 @@ export default function ChartPieDonutActive() {
 							<Skeleton className="w-full h-full rounded-full" />
 						</div>
 					) : data?.hasNoData ? (
-						<div className="flex items-center justify-center h-[250px]">
-							<p className="text-neutral-500 text-sm">No data yet</p>
-						</div>
+						<EmptyData
+							iconType="analytics"
+							title="No data yet"
+							className="flex items-center justify-center"
+						/>
 					) : (
 						<>
 							<ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[250px]">
