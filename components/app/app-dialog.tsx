@@ -22,6 +22,7 @@ type Props = {
 	descriptionClassName?: string;
 	titleClassName?: string;
 	showCloseButton?: boolean;
+	preventCloseOnClickOutside?: boolean;
 };
 
 export default function AppDialog(props: Props) {
@@ -38,6 +39,7 @@ export default function AppDialog(props: Props) {
 		descriptionClassName,
 		titleClassName,
 		showCloseButton = true,
+		preventCloseOnClickOutside = false,
 	} = props;
 
 	const containerClx = classNames("max-h-[90%] overflow-y-auto", containerClassName);
@@ -48,7 +50,11 @@ export default function AppDialog(props: Props) {
 
 	return (
 		<Dialog open={open} onOpenChange={onClose}>
-			<DialogContent className={containerClx} showCloseButton={showCloseButton}>
+			<DialogContent
+				className={containerClx}
+				showCloseButton={showCloseButton}
+				onPointerDownOutside={(e) => preventCloseOnClickOutside && e.preventDefault()}
+			>
 				{title ? (
 					<DialogHeader className={headerContainerClx}>
 						<DialogTitle className={titleClx}>{title}</DialogTitle>

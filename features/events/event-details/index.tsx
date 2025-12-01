@@ -8,9 +8,11 @@ import EventDetailsTab from "./event-details-tab";
 import TicketsTab from "./tickets-tab";
 import ActivitiesTab from "./activities-tab";
 import AlbumManager from "./album-manager";
+import ParticipantsTab from "./participants-tab";
+import InviteDialog from "./invite-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppButton from "@/components/app/app-button";
-import { Images } from "lucide-react";
+import { Images, UserPlus } from "lucide-react";
 import Render from "@/components/app/render";
 import { Skeleton } from "@/components/ui/skeleton";
 import useCustomNavigation from "@/hooks/use-navigation";
@@ -18,10 +20,12 @@ import AppContainer from "@/components/app/container/container";
 import Link from "next/link";
 import Maximum from "@/components/app/container/maximum";
 import Minimum from "@/components/app/container/minimum";
+import { useState } from "react";
 
 export default function EventDetails() {
 	const { queryParams, params } = useCustomNavigation();
 	const albumTab = queryParams.has("tab", "album");
+	const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
 	const eventId = params.event_id as string;
 	// Fetch event details
@@ -78,8 +82,16 @@ export default function EventDetails() {
 										<TabsList>
 											<TabsTrigger value="details">Event Details</TabsTrigger>
 											<TabsTrigger value="tickets">Tickets</TabsTrigger>
+											<TabsTrigger value="participants">Participants</TabsTrigger>
 										</TabsList>
 										<div className="flex items-center gap-2">
+											<AppButton
+												variant="outline"
+												onClick={() => setInviteDialogOpen(true)}
+												leftIcon={<UserPlus className="w-4 h-4" />}
+											>
+												Invite
+											</AppButton>
 											<AppButton
 												variant="outline"
 												onClick={handleOpenAlbum}
@@ -98,6 +110,10 @@ export default function EventDetails() {
 										<TicketsTab event={event} />
 									</TabsContent>
 
+									<TabsContent value="participants" className="mt-6">
+										<ParticipantsTab eventId={eventId} />
+									</TabsContent>
+
 									<TabsContent value="activities" className="mt-6"></TabsContent>
 								</Tabs>
 							</Maximum>
@@ -109,6 +125,7 @@ export default function EventDetails() {
 					</div>
 				)}
 				<AlbumManager eventId={eventId} open={albumTab} />
+				<InviteDialog open={inviteDialogOpen} onClose={setInviteDialogOpen} eventId={eventId} />
 			</Render>
 		</AppContainer>
 	);

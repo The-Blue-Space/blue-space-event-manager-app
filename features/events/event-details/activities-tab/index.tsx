@@ -79,7 +79,7 @@ export default function ActivitiesTab({ eventId }: ActivitiesTabProps) {
 					{filteredActivities && filteredActivities.length === 0 ? (
 						<EmptyData
 							showIcon={false}
-							text="No activities match the selected filters."
+							text="No activities feed yet."
 							className="!justify-start py-8"
 						/>
 					) : (
@@ -126,8 +126,6 @@ function ActivityItem({ activity }: ActivityItemProps) {
 				return <MapPin className="w-4 h-4 text-neutral-500" />;
 			case "refund":
 				return <Ticket className="w-4 h-4 text-error-500" />;
-			case "registration":
-				return <Users className="w-4 h-4 text-primary-500" />;
 		}
 	};
 

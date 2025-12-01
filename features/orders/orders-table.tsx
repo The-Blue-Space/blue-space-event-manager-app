@@ -34,7 +34,7 @@ export default function OrdersTable(props: TableProps) {
 			<EmptyData
 				title="No Orders yet"
 				text="Orders made will be seen here. Check back later."
-				className="!justify-start pt-10"
+				className="!justify-start py-10"
 			/>
 		);
 

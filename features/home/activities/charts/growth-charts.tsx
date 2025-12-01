@@ -152,9 +152,10 @@ export default function GrowthCharts() {
 							</div>
 						) : data?.hasNoData ? (
 							<EmptyData
-								iconType="analytics"
-								title="No data yet"
-								className="flex items-center justify-center"
+									iconType="analytics"
+									showIcon={false}
+								text="No metrics available yet, check back later"
+								className="flex items-center justify-center pt-20"
 							/>
 						) : (
 							<ChartContainer config={chartConfig}>

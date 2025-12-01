@@ -140,8 +140,9 @@ export default function ChartPieDonutActive() {
 					) : data?.hasNoData ? (
 						<EmptyData
 							iconType="analytics"
-							title="No data yet"
-							className="flex items-center justify-center"
+							showIcon={false}
+							text="No metrics available yet, check back later"
+							className="flex items-center justify-center py-20"
 						/>
 					) : (
 						<>

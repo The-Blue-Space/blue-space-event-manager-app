@@ -13,6 +13,8 @@ import logo_with_text_white from "@/public/logos/logo_with_text_white.png";
 // prompts
 import empty_01 from "@/public/icons/empty_01.svg";
 import underConstruction from "@/public/icons/under-construction.svg";
+import no_analytics from "@/public/icons/no-analytics.svg";
+import no_events from "@/public/icons/no-events.svg";
 
 //temp
 import temp_image_01 from "@/public/icons/temp-image_01.svg";
@@ -32,7 +34,8 @@ export {
 	//prompts
 	empty_01,
 	underConstruction,
-
+	no_analytics,
+	no_events,
 	//temp
 	temp_image_01,
 };

@@ -22,7 +22,7 @@ export default React.memo(function EmptyData({
 }: EmptyDataProps) {
 	const icons: Record<IconType, string> = {
 		default: assets.empty_01,
-		event: assets.empty_01,
+		event: assets.no_events,
 		analytics: assets.empty_01,
 	};
 	const container = classnames(
@@ -38,10 +38,10 @@ export default React.memo(function EmptyData({
 						alt="empty state illustration"
 						width={96}
 						height={96}
-						className="size-24"
+						className="size-16"
 					/>
 				))}
-			{props.title && <h1 className="heading-7 text-neutral-900">{props.title}</h1>}
+			{props.title && <h1 className="body-1 text-neutral-900">{props.title}</h1>}
 			<p className="text-center body-2 text-neutral-500 max-w-96">
 				{props.text ?? "No Data available"}
 			</p>

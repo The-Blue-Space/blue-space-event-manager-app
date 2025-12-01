@@ -85,7 +85,7 @@ export default function EventDetailsTab({ event }: EventDetailsTabProps) {
 						<div className="flex-1">
 							<p className="font-medium text-neutral-900 mb-2">Tags</p>
 							<div className="flex flex-wrap gap-2">
-								{event.tags.split(",").map((tag, index) => (
+								{event.tags.map((tag, index) => (
 									<Badge key={index} variant="secondary" className="text-xs">
 										{tag.trim()}
 									</Badge>
