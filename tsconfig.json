@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "features/events/manage-event/tabs/ticket/data.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "features/events/manage-event/tabs/ticket/data.tsx", "services/participants/get-participants-details.ts"],
   "exclude": ["node_modules"]
 }

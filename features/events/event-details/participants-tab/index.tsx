@@ -25,6 +25,7 @@ import { getDateAndTime } from "@/lib/format-date";
 import { toast } from "sonner";
 import ensureError from "@/lib/ensure-error";
 import Image from "next/image";
+import Pagination from "@/components/app/pagination";
 
 type ParticipantsTabProps = {
 	eventId: string;
@@ -116,16 +117,71 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 		const isActionLoading = loadingAction === participantId;
 
 		if (isBlocked) {
-			return (
-				<span className="text-sm text-neutral-400">No actions available</span>
-			);
+			return <span className="text-sm text-neutral-400">No actions available</span>;
 		}
 
 		return (
 			<div className="flex gap-2">
 				{status === "pending" && (
 					<>
-						<AppTooltip trigger={
+						<AppTooltip
+							trigger={
+								<AppButton
+									variant="outline"
+									buttonType="icon"
+									onClick={() => handleApprove(participantId)}
+									isLoading={isActionLoading}
+									disabled={isActionLoading}
+									className="h-8 w-8 p-0 text-success-600 hover:bg-success-50"
+								>
+									<Check className="w-4 h-4" />
+								</AppButton>
+							}
+						>
+							Approve
+						</AppTooltip>
+
+						<AppTooltip
+							trigger={
+								<AppButton
+									variant="outline"
+									buttonType="icon"
+									onClick={() => handleReject(participantId)}
+									isLoading={isActionLoading}
+									disabled={isActionLoading}
+									className="h-8 w-8 p-0 text-error-600 hover:bg-error-50"
+								>
+									<X className="w-4 h-4" />
+								</AppButton>
+							}
+						>
+							Reject
+						</AppTooltip>
+					</>
+				)}
+
+				{status === "invited" && (
+					<AppTooltip
+						trigger={
+							<AppButton
+								variant="outline"
+								buttonType="icon"
+								onClick={() => handleBlock(participantId)}
+								isLoading={isActionLoading}
+								disabled={isActionLoading}
+								className="h-8 w-8 p-0 text-error-600 hover:bg-error-50"
+							>
+								<Ban className="w-4 h-4" />
+							</AppButton>
+						}
+					>
+						Block User
+					</AppTooltip>
+				)}
+
+				{status === "rejected" && (
+					<AppTooltip
+						trigger={
 							<AppButton
 								variant="outline"
 								buttonType="icon"
@@ -136,64 +192,13 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 							>
 								<Check className="w-4 h-4" />
 							</AppButton>
-						}>
-							Approve
-						</AppTooltip>
-
-						<AppTooltip trigger={
-							<AppButton
-								variant="outline"
-								buttonType="icon"
-								onClick={() => handleReject(participantId)}
-								isLoading={isActionLoading}
-								disabled={isActionLoading}
-								className="h-8 w-8 p-0 text-error-600 hover:bg-error-50"
-							>
-								<X className="w-4 h-4" />
-							</AppButton>
-						}>
-							Reject
-						</AppTooltip>
-					</>
-				)}
-
-				{status === "invited" && (
-					<AppTooltip trigger={
-						<AppButton
-							variant="outline"
-							buttonType="icon"
-							onClick={() => handleBlock(participantId)}
-							isLoading={isActionLoading}
-							disabled={isActionLoading}
-							className="h-8 w-8 p-0 text-error-600 hover:bg-error-50"
-						>
-							<Ban className="w-4 h-4" />
-						</AppButton>
-					}>
-						Block User
-					</AppTooltip>
-				)}
-
-				{status === "rejected" && (
-					<AppTooltip trigger={
-						<AppButton
-							variant="outline"
-							buttonType="icon"
-							onClick={() => handleApprove(participantId)}
-							isLoading={isActionLoading}
-							disabled={isActionLoading}
-							className="h-8 w-8 p-0 text-success-600 hover:bg-success-50"
-						>
-							<Check className="w-4 h-4" />
-						</AppButton>
-					}>
+						}
+					>
 						Approve
 					</AppTooltip>
 				)}
 
-				{status === "joined" && (
-					<span className="text-sm text-neutral-400">No actions</span>
-				)}
+				{status === "joined" && <span className="text-sm text-neutral-400">No actions</span>}
 			</div>
 		);
 	};
@@ -220,7 +225,7 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 
 			{/* Participants Table */}
 			<Render isLoading={isLoading} isError={isError} error={error}>
-				{data && data.length > 0 ? (
+				{data && data.docs.length > 0 ? (
 					<div className="w-full overflow-x-auto rounded-lg border border-neutral-200">
 						<Table>
 							<TableHeader>
@@ -233,7 +238,7 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{data.map((participant) => {
+								{data.docs.map((participant) => {
 									const joinedDate = participant.joined_at
 										? getDateAndTime(participant.joined_at)
 										: null;
@@ -252,9 +257,7 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 														/>
 													)}
 													<div>
-														<p className="font-medium text-neutral-900">
-															{participant.user.name}
-														</p>
+														<p className="font-medium text-neutral-900">{participant.user.name}</p>
 														{participant.user.username && (
 															<p className="text-sm text-neutral-500">
 																@{participant.user.username}
@@ -273,12 +276,8 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 											<TableCell>
 												{joinedDate ? (
 													<div className="flex flex-col">
-														<span className="text-sm text-neutral-700">
-															{joinedDate.date}
-														</span>
-														<span className="text-xs text-neutral-500">
-															{joinedDate.time}
-														</span>
+														<span className="text-sm text-neutral-700">{joinedDate.date}</span>
+														<span className="text-xs text-neutral-500">{joinedDate.time}</span>
 													</div>
 												) : (
 													<span className="text-sm text-neutral-400">-</span>
@@ -290,11 +289,7 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 											</TableCell>
 
 											<TableCell onClick={(e) => e.stopPropagation()}>
-												{renderActions(
-													participant.id,
-													participant.status,
-													participant.is_blocked
-												)}
+												{renderActions(participant.id, participant.status, participant.is_blocked)}
 											</TableCell>
 										</TableRow>
 									);
@@ -313,6 +308,8 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 						}
 					/>
 				)}
+
+				{ data && data.totalPages  > 1 && <Pagination {...data} />}
 			</Render>
 		</div>
 	);

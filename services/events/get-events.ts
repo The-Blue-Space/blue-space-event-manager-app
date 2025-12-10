@@ -25,7 +25,7 @@ export async function development(params: Parameters): Promise<Response> {
 		filteredEvents = filteredEvents.filter(
 			(event) =>
 				event.title.toLowerCase().includes(searchLower) ||
-				event.tags?.toLowerCase().includes(searchLower)
+				event.tags?.some((tag) => tag.toLowerCase().includes(searchLower))
 		);
 	}
 

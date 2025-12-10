@@ -1,12 +1,12 @@
 "use client";
 
-import { EventMedia } from "@/types/event-media.types";
+import { EventUpload } from "@/types/event-upload.types";
 import { Star } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 
 type HighlightsSectionProps = {
-	highlights: EventMedia[];
+	highlights: EventUpload[];
 	onClickHighlight: (index: number) => void;
 };
 
@@ -15,7 +15,7 @@ export default function HighlightsSection({
 	onClickHighlight,
 }: HighlightsSectionProps) {
 	// Sort highlights by order
-	const sortedHighlights = [...highlights].sort((a, b) => a.order - b.order);
+	const sortedHighlights = [...highlights].sort((a, b) => (a.order || 0) - (b.order || 0));
 
 	// Fill empty slots up to 10
 	const emptySlots = Math.max(0, 10 - sortedHighlights.length);
@@ -33,7 +33,7 @@ export default function HighlightsSection({
 						onClick={() => onClickHighlight(index)}
 					>
 						<Image
-							src={media.url}
+							src={media.file_url}
 							alt={media.file_name}
 							fill
 							className="object-cover"

@@ -1,8 +1,8 @@
 "use client";
 
 import InfiniteScroll from "@/components/app/container/infinite-scroll";
-import getEventMedia from "@/services/events/get-event-media";
-import { EventMedia } from "@/types/event-media.types";
+import { getEventUploads } from "@/services/events/event-uploads";
+import { EventUpload } from "@/types/event-upload.types";
 import EmptyData from "@/components/app/empty-data";
 import { Skeleton } from "@/components/ui/skeleton";
 import MediaCard from "./media-card";
@@ -11,7 +11,7 @@ type MediaGridProps = {
 	eventId: string;
 	selectedMediaIds: string[];
 	onToggleSelection: (mediaId: string) => void;
-	onClickMedia: (media: EventMedia) => void;
+	onClickMedia: (media: EventUpload) => void;
 	onSetHighlight: (mediaId: string, currentOrder: number) => void;
 	onToggleVisibility: (mediaId: string, isActive: boolean) => void;
 	onDelete: (mediaId: string) => void;
@@ -29,17 +29,17 @@ export default function MediaGrid({
 	showCheckbox,
 }: MediaGridProps) {
 	return (
-		<InfiniteScroll<EventMedia>
-			queryKey={["event-media", eventId]}
-			fetchData={(page) => getEventMedia({ eventId, page, limit: 20 })}
+		<InfiniteScroll<EventUpload>
+			queryKey={["event-uploads", eventId]}
+			fetchData={(page) => getEventUploads({ eventId, page, limit: 20 })}
 			renderItem={(media) => (
 				<MediaCard
 					media={media}
 					isSelected={selectedMediaIds.includes(media.id)}
 					onSelect={() => onToggleSelection(media.id)}
 					onClick={onClickMedia}
-					onSetHighlight={() => onSetHighlight(media.id, media.order)}
-					onToggleVisibility={() => onToggleVisibility(media.id, media.is_active)}
+					onSetHighlight={() => onSetHighlight(media.id, media.order || 0)}
+					onToggleVisibility={() => onToggleVisibility(media.id, media.is_active || false)}
 					onDelete={() => onDelete(media.id)}
 					showCheckbox={showCheckbox}
 				/>

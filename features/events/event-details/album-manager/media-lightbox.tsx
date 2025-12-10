@@ -1,13 +1,13 @@
 "use client";
 
-import { EventMedia } from "@/types/event-media.types";
+import { EventUpload } from "@/types/event-upload.types";
 import { X, ChevronLeft, ChevronRight, Star, EyeOff, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useCallback } from "react";
 import AppButton from "@/components/app/app-button";
 
 type MediaLightboxProps = {
-	mediaList: EventMedia[];
+	mediaList: EventUpload[];
 	currentIndex: number;
 	open: boolean;
 	onClose: () => void;
@@ -62,7 +62,8 @@ export default function MediaLightbox({
 	if (!open || !currentMedia) return null;
 
 	const isVideo = currentMedia.media_type === "video";
-	const isHighlight = currentMedia.order > 0;
+	const isHighlight = (currentMedia.order || 0) > 0;
+	const isActive = currentMedia.is_active !== undefined ? currentMedia.is_active : true;
 
 	return (
 		<div
@@ -121,7 +122,7 @@ export default function MediaLightbox({
 			<div className="w-full h-full flex items-center justify-center p-20">
 				{isVideo ? (
 					<video
-						src={currentMedia.url}
+						src={currentMedia.file_url}
 						controls
 						autoPlay
 						className="max-w-full max-h-full rounded-lg"
@@ -129,7 +130,7 @@ export default function MediaLightbox({
 				) : (
 					<div className="relative w-full h-full">
 						<Image
-							src={currentMedia.url}
+							src={currentMedia.file_url}
 							alt={currentMedia.file_name}
 							fill
 							className="object-contain"
@@ -149,7 +150,7 @@ export default function MediaLightbox({
 					variant={"outline"}
 					onClick={(e) => {
 						e.stopPropagation();
-						onSetHighlight(currentMedia.id, currentMedia.order);
+						onSetHighlight(currentMedia.id, currentMedia.order || 0);
 					}}
 					leftIcon={<Star className="w-4 h-4 text-accent-500" />}
 					className="text-white"
@@ -162,11 +163,11 @@ export default function MediaLightbox({
 					className="text-white"
 					onClick={(e) => {
 						e.stopPropagation();
-						onToggleVisibility(currentMedia.id, currentMedia.is_active);
+						onToggleVisibility(currentMedia.id, isActive);
 					}}
 					leftIcon={<EyeOff className="w-4 h-4" />}
 				>
-					{currentMedia.is_active ? "Hide" : "Show"}
+					{isActive ? "Hide" : "Show"}
 				</AppButton>
 
 				<AppButton

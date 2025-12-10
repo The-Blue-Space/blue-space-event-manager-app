@@ -8,12 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Search, UserPlus, X } from "lucide-react";
 import searchUsers from "@/services/participants/search-users";
 import sendInvites from "@/services/participants/send-invites";
+
 import { User } from "@/types/user.types";
 import { toast } from "sonner";
 import ensureError from "@/lib/ensure-error";
 import Image from "next/image";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import AppCheckbox from "@/components/app/app-checkbox";
+import getEventParticipants from "@/services/participants/get-event-participants";
 
 type InviteDialogProps = {
 	open: boolean;
@@ -30,6 +32,12 @@ export default function InviteDialog({ open, onClose, eventId }: InviteDialogPro
 	const [isSending, setIsSending] = useState(false);
 	const queryClient = useQueryClient();
 
+
+	const { data: existingParticipants } = useQuery({
+		queryKey: ["existing-participants", eventId, searchResults[0]?.id, searchResults.length],
+		queryFn: () => getEventParticipants({ event_id: eventId, user_id: searchResults[0]?.id, }),
+		enabled: searchResults.length > 0,
+	});
 	const handleSearch = async () => {
 		if (!searchQuery.trim()) {
 			toast.error("Please enter a search query");
@@ -47,6 +55,7 @@ export default function InviteDialog({ open, onClose, eventId }: InviteDialogPro
 			});
 
 			const resultArray = Array.isArray(results) ? results : [results];
+			
 
 			setSearchResults(resultArray);
 
@@ -94,21 +103,48 @@ export default function InviteDialog({ open, onClose, eventId }: InviteDialogPro
 		}
 
 		setIsSending(true);
+
+		// Filter selected users and map to the required format
+		const users = allSearchedUsers
+			.filter((user) => selectedUsers.has(user.id))
+			.map((user) => ({
+				id: user.id,
+				email: user.email,
+			}));
+
 		try {
 			const response = await sendInvites({
 				event_id: eventId,
-				user_ids: Array.from(selectedUsers),
+				users,
 			});
 
-			toast.success(response.message, {
-				description: `${response.invited_count} user(s) invited successfully`,
-			});
+			// Process results to count successes and failures
+			const successResults = response.results.filter((result) => !result.error);
+			const failedResults = response.results.filter((result) => result.error);
+
+			// Show success message if any succeeded
+			if (successResults.length > 0) {
+				toast.success("Invitations sent", {
+					description: `${successResults.length} user(s) invited successfully`,
+				});
+			}
+
+			// Show error messages for failed invites
+			if (failedResults.length > 0) {
+				failedResults.forEach((result) => {
+					toast.error(`Failed to invite ${result.email}`, {
+						description: result.error,
+					});
+				});
+			}
 
 			// Invalidate participants query to refresh the list
 			queryClient.invalidateQueries({ queryKey: ["event-participants", eventId] });
 
-			// Reset and close
-			handleClose();
+			// Reset and close only if at least one succeeded
+			if (successResults.length > 0) {
+				handleClose();
+			}
 		} catch (error) {
 			const errMsg = ensureError(error).message;
 			toast.error(errMsg);
@@ -183,16 +219,27 @@ export default function InviteDialog({ open, onClose, eventId }: InviteDialogPro
 					{searchResults.length > 0 ? (
 						<>
 							<p className="text-sm text-neutral-600">{searchResults.length} user(s) found</p>
-							{searchResults.map((user) => (
-								<div
+							{searchResults.map((user) => {
+								const isAlreadyInvited = existingParticipants?.docs.some((participant) => participant.user_id === user.id);
+								return<div
 									key={user.id}
 									className="flex items-center gap-3 p-2 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer"
-									onClick={() => toggleUserSelection(user.id)}
+									
+									onClick={() => {
+										if (!isAlreadyInvited) {
+											toggleUserSelection(user.id);
+										}
+									}}
 								>
 									<AppCheckbox
 										id={user.id}
 										checked={selectedUsers.has(user.id)}
-										onCheckedChange={() => toggleUserSelection(user.id)}
+										onCheckedChange={() => {
+											if (!isAlreadyInvited) {
+												toggleUserSelection(user.id);
+											}
+										}}
+										disabled={isAlreadyInvited}
 									/>
 									{user.avatar_url && (
 										<Image
@@ -207,13 +254,13 @@ export default function InviteDialog({ open, onClose, eventId }: InviteDialogPro
 										<p className="body-2 font-medium text-neutral-900">{user.name}</p>
 										<p className="body-3 text-neutral-600">{user.email}</p>
 									</div>
-									{user.is_verified && (
+									{isAlreadyInvited && (
 										<Badge variant="secondary" className="text-xs">
-											Verified
+											Already Invited
 										</Badge>
 									)}
 								</div>
-							))}
+							})}
 						</>
 					) : (
 						<div className="text-center py-8 text-neutral-500">
@@ -244,7 +291,7 @@ export default function InviteDialog({ open, onClose, eventId }: InviteDialogPro
 								const user = allSearchedUsers.find((u) => u.id === userId);
 								if (!user) return null;
 								return (
-									<Badge key={userId} variant="secondary" className="gap-1">
+									<Badge key={userId} variant="secondary" className="gap-1 capitalize">
 										{user.name}
 										<X
 											className="w-3 h-3 cursor-pointer hover:text-destructive-500"

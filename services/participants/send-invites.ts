@@ -1,16 +1,21 @@
 import { variables } from "@/constants";
-import { participants } from "@/constants/data/participants";
 import axios from "@/lib/axios";
 
 type Parameters = {
 	event_id: string;
-	user_ids: string[];
+	users: { id: string; email: string }[];
+};
+
+type InviteResult = {
+	user_id: string;
+	email: string;
+	error?: string;
+	participant_id?: string;
+	status?: string;
 };
 
 type Response = {
-	success: boolean;
-	message: string;
-	invited_count: number;
+	results: InviteResult[];
 };
 
 export async function production(params: Parameters): Promise<Response> {
@@ -19,28 +24,28 @@ export async function production(params: Parameters): Promise<Response> {
 }
 
 export async function development(params: Parameters): Promise<Response> {
-	const { event_id, user_ids } = params;
-
-	// Simulate adding invitations to mock data
-	user_ids.forEach((user_id) => {
-		const existingParticipant = participants.find(
-			(p) => p.event_id === event_id && p.user_id === user_id
-		);
-
-		if (!existingParticipant) {
-			// In real implementation, this would be added to the mock array
-			console.log(`Mock: Invited user ${user_id} to event ${event_id}`);
-		}
-	});
-
 	return new Promise((resolve) => {
 		setTimeout(
-			() =>
-				resolve({
-					success: true,
-					message: "Invitations sent successfully",
-					invited_count: user_ids.length,
-				}),
+			() => {
+				const results = params.users.map((user) => {
+					// Simulate some failures randomly
+					const hasError = Math.random() > 0.7;
+					if (hasError) {
+						return {
+							user_id: user.id,
+							email: user.email,
+							error: "failed to create participant: ERROR: insert or update on table \"participants\" violates foreign key constraint \"fk_participants_user\" (SQLSTATE 23503)",
+						};
+					}
+					return {
+						user_id: user.id,
+						email: user.email,
+						participant_id: `${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}`,
+						status: "joined",
+					};
+				});
+				resolve({ results });
+			},
 			1000
 		);
 	});

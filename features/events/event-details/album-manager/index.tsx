@@ -5,7 +5,7 @@ import { useRef } from "react";
 import AppDrawer from "@/components/app/app-drawer";
 import AppButton from "@/components/app/app-button";
 import { Upload, CheckSquare, X } from "lucide-react";
-import getEventMedia from "@/services/events/get-event-media";
+import { getEventUploads } from "@/services/events/event-uploads";
 import HighlightsSection from "./highlights-section";
 import MediaGrid from "./media-grid";
 import MediaLightbox from "./media-lightbox";
@@ -42,13 +42,13 @@ export default function AlbumManager({ eventId, open }: AlbumManagerProps) {
 
 	// Fetch all media for lightbox (will use infinite scroll data)
 	const { data: mediaData } = useQuery({
-		queryKey: ["event-media-all", eventId],
-		queryFn: () => getEventMedia({ eventId, page: 1, limit: 100 }),
+		queryKey: ["event-uploads-all", eventId],
+		queryFn: () => getEventUploads({ eventId, page: 1, limit: 100 }),
 		enabled: open,
 	});
 
 	const allMedia = mediaData?.docs || [];
-	const highlights = allMedia.filter((m) => m.order > 0);
+	const highlights = allMedia.filter((m) => m.is_highlight);
 
 	const handleClose = () => {
 		// Remove ?tab=album query param

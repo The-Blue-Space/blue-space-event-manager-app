@@ -1,6 +1,6 @@
 "use client";
 
-import { EventMedia } from "@/types/event-media.types";
+import { EventUpload } from "@/types/event-upload.types";
 import { Badge } from "@/components/ui/badge";
 import AppCheckbox from "@/components/app/app-checkbox";
 import AppDropdown from "@/components/app/app-dropdown";
@@ -9,10 +9,10 @@ import { Star, EyeOff, Trash2, MoreVertical, Play } from "lucide-react";
 import Image from "next/image";
 
 type MediaCardProps = {
-	media: EventMedia;
+	media: EventUpload;
 	isSelected: boolean;
 	onSelect: () => void;
-	onClick: (media: EventMedia) => void;
+	onClick: (media: EventUpload) => void;
 	onSetHighlight: () => void;
 	onToggleVisibility: () => void;
 	onDelete: () => void;
@@ -29,8 +29,9 @@ export default function MediaCard({
 	onDelete,
 	showCheckbox,
 }: MediaCardProps) {
-	const isHighlight = media.order > 0;
+	const isHighlight = (media.order || 0) > 0;
 	const isVideo = media.media_type === "video";
+	const isActive = media.is_active !== undefined ? media.is_active : true;
 
 	return (
 		<div className="relative group rounded-lg overflow-hidden border border-neutral-200 hover:border-neutral-300 transition-colors cursor-pointer">
@@ -66,7 +67,7 @@ export default function MediaCard({
 					</DropdownMenuItem>
 					<DropdownMenuItem onClick={onToggleVisibility}>
 						<EyeOff className="w-4 h-4 mr-2" />
-						{media.is_active ? "Hide" : "Show"}
+						{isActive ? "Hide" : "Show"}
 					</DropdownMenuItem>
 					<DropdownMenuItem onClick={onDelete} className="text-error-500">
 						<Trash2 className="w-4 h-4 mr-2" />
@@ -79,7 +80,7 @@ export default function MediaCard({
 			<div className="relative aspect-square bg-neutral-100" onClick={() => onClick(media)}>
 				{isVideo ? (
 					<>
-						<video src={media.url} className="w-full h-full object-cover" />
+						<video src={media.file_url} className="w-full h-full object-cover" />
 						<div className="absolute inset-0 flex items-center justify-center bg-black/20">
 							<div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
 								<Play className="w-6 h-6 text-neutral-900" />
@@ -88,7 +89,7 @@ export default function MediaCard({
 					</>
 				) : (
 					<Image
-						src={media.url}
+						src={media.file_url}
 						alt={media.file_name}
 						fill
 						className="object-cover"
@@ -105,7 +106,7 @@ export default function MediaCard({
 						Highlight
 					</Badge>
 				)}
-				{!media.is_active && (
+				{!isActive && (
 					<Badge variant="secondary" className="bg-neutral-800 text-white border-none text-xs">
 						<EyeOff className="w-3 h-3 mr-1" />
 						Hidden
