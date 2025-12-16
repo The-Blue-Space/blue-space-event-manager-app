@@ -6,7 +6,7 @@ export const PARTICIPANT_ROLES = ["attendee", "photographer"] as const;
 
 export type ParticipantRole = (typeof PARTICIPANT_ROLES)[number];
 
-export const PARTICIPANT_STATUSES = ["pending", "invited", "joined", "rejected"] as const;
+export const PARTICIPANT_STATUSES = ["pending", "invited", "joined", "rejected", "retracted"] as const;
 export type ParticipantStatus = (typeof PARTICIPANT_STATUSES)[number];
 
 export type Participant = {

@@ -8,6 +8,7 @@ import {
 import * as React from "react";
 import classnames from "classnames";
 import Input from "./input";
+import { cn } from "@/lib/utils";
 
 type SelectItem = {
 	value: string;
@@ -63,11 +64,11 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 
 	const shouldFloat = floatingLabel && (isOpen || hasValue);
 
-	const container = classnames("input-container !outline-0", props.containerStyle, {
+	const container = cn("input-container !outline-0", props.containerStyle, {
 		"floating-label-container": floatingLabel,
 	});
 
-	const selectContainer = classnames(
+	const selectContainer = cn(
 		"shadow-none  w-full !outline-0 text-b-2 px-2 !h-auto text-neutral-500 capitalize overflow-hidden",
 		props.className,
 		{
@@ -76,12 +77,12 @@ export default React.memo(function SelectBox(props: SelectBoxProps) {
 		}
 	);
 
-	const contentContainer = classnames("overflow-auto max-h-80", props.contentContainerStyle);
-	const errorCn = classnames("text-red-500 text-xs", props.errorStyle, {
+	const contentContainer = cn("overflow-auto max-h-80", props.contentContainerStyle);
+	const errorCn = cn("text-red-500 text-xs", props.errorStyle, {
 		hidden: !props.errorMessage,
 	});
 
-	const labelCn = classnames({
+	const labelCn = cn({
 		"floating-label": floatingLabel,
 		floated: shouldFloat,
 		"has-error": isInvalid || props.errorMessage,

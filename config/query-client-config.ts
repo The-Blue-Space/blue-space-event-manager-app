@@ -4,7 +4,8 @@ export const queryClientConfig: QueryClientConfig = {
 	defaultOptions: {
 		queries: {
 			// refetchOnWindowFocus: variables.SERVICE_ENV !== "development",
-			refetchOnWindowFocus:false
+			refetchOnWindowFocus:false,
+			retry:false
 		},
 	},
 };

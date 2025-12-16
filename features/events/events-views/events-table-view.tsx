@@ -100,8 +100,8 @@ export default React.memo(function EventsTableView({ filters }: EventsTableViewP
 														<p className="line-clamp-1">{event.title}</p>
 														{event.event_category && (
 															<Badge
-																variant="outline"
-																className="mt-1 bg-accent-50 text-accent-700 border-accent-200 text-xs"
+																variant="secondary"
+																className="mt-1 border border-neutral-200"
 															>
 																{event.event_category.name}
 															</Badge>

@@ -7,6 +7,7 @@ import DeleteDialog from "./delete-dialog";
 import InfoDialog from "./info-dialog";
 import Init from '@/components/app/init';
 import CreateEventDialog from './create-event';
+import DuplicateEventDialog from '@/features/events/duplicate-event-dialog';
 
 export default function Dialogs() {
 	const { ui } = useActions();
@@ -24,6 +25,7 @@ export default function Dialogs() {
 			<SuccessDialog />
 			<InfoDialog />
 			<CreateEventDialog />
+			<DuplicateEventDialog />
 		</React.Fragment>
 	);
 }

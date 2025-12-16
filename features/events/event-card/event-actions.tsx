@@ -5,7 +5,7 @@ import useActions from "@/store/actions";
 import { Copy, Eye, MoreVertical, Settings, Trash2 } from "lucide-react";
 import * as React from "react";
 import useCustomNavigation from "@/hooks/use-navigation";
-import { deleteEvent, duplicateEvent } from "@/services/events";
+import { deleteEvent } from "@/services/events";
 import invalidateQuery from "@/lib/invalidate-query";
 import { toast } from "sonner";
 import ensureError from "@/lib/ensure-error";
@@ -38,16 +38,13 @@ export default React.memo(function EventActions({
 		navigate(`/events/${eventId}`);
 	};
 
-	const handleDuplicate = async (e: React.MouseEvent) => {
+	const handleDuplicate = (e: React.MouseEvent) => {
 		e.stopPropagation();
-		try {
-			const duplicated = await duplicateEvent({ eventId: eventId });
-			toast.success("Event duplicated successfully!");
-			navigate(`/events/${duplicated.id}`);
-		} catch (error) {
-			const errMsg = ensureError(error).message;
-			toast.error(errMsg || "Failed to duplicate event");
-		}
+		ui.changeDialog({
+			show: true,
+			type: "duplicate_event",
+			data: { eventId, eventTitle },
+		});
 	};
 
 	const handleDelete = (e: React.MouseEvent) => {

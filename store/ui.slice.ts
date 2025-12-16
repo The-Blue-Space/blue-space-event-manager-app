@@ -12,7 +12,8 @@ type DialogType =
 	| "success"
 	| "delete_dialog"
 	| "info_dialog"
-	| "logout";
+	| "logout"
+	| "duplicate_event";
 type ButtonVariant = "primary" | "muted" | "black" | "destructive" | "outline";
 export type DialogPayload = {
 	id?: string;

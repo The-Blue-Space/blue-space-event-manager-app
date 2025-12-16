@@ -111,7 +111,7 @@ export default React.memo(function EventCard({ event }: EventCardProps) {
 							{event.access_type.replace("-", " ")}
 						</Badge>
 						{event.event_category && (
-							<Badge variant="outline" className="bg-accent-50 text-accent-700 border-accent-200">
+							<Badge variant="secondary" className="border border-neutral-200">
 								{event.event_category.name}
 							</Badge>
 						)}

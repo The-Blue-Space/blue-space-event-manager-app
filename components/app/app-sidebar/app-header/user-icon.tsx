@@ -34,7 +34,7 @@ export default function UserIcon() {
 				</div>
 
 				<Separator />
-				<LogOut />
+				<LogOut scope="header" />
 			</div>
 		</AppDropdown>
 	);

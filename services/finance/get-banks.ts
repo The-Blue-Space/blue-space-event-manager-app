@@ -6,7 +6,7 @@ import { Bank } from "@/types/bank.types";
 type Response = Bank[];
 
 export async function production(): Promise<Response> {
-	const response = await axios.get("/v1/banks");
+	const response = await axios.get("/v1/paystack/banks");
 	return response.data;
 }
 

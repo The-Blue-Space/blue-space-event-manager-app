@@ -101,8 +101,8 @@ export default React.memo(function EventListItemHybridC({ event }: EventListItem
 							<div className="flex items-center gap-2 mt-0.5 flex-wrap">
 								{event.event_category && (
 									<Badge
-										variant="outline"
-										className="bg-accent-50 text-accent-700 border-accent-200 text-xs h-5"
+										variant="secondary"
+										className="border border-neutral-200"
 									>
 										{event.event_category.name}
 									</Badge>

@@ -5,6 +5,7 @@ import { BankDetails } from "@/types/finance.types";
 
 // add bank account
 type Parameters = {
+	bank_name: string;
 	bank_code: string;
 	account_number: string;
 	account_name: string;
@@ -15,6 +16,7 @@ type Response = BankDetails;
 
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.post("/v1/banks", {
+		bank_name: params.bank_name,
 		bank_code: params.bank_code,
 		account_number: params.account_number,
 		account_name: params.account_name,

@@ -3,14 +3,27 @@ import { events } from "@/constants/data/events/events";
 import axios from "@/lib/axios";
 import { Event } from "@/types/event.types";
 
-type Parameters = {
-	eventId: string;
+export type DuplicateEventOptions = {
+	include_tickets?: boolean;
+	include_addons?: boolean;
+	include_promos?: boolean;
+	reinvite_attendees?: boolean;
+	attendee_ids?: string[];
 };
 
-type Response = Event;
+type Parameters = {
+	eventId: string;
+	options?: DuplicateEventOptions;
+};
+
+type Response = {
+	message: string;
+	event: Event;
+	invited_count?: number;
+};
 
 export async function production(params: Parameters): Promise<Response> {
-	const response = await axios.post(`/v1/events/${params.eventId}/duplicate`);
+	const response = await axios.post(`/v1/events/${params.eventId}/duplicate`, params.options || {});
 	return response.data;
 }
 
@@ -41,8 +54,14 @@ export async function development(params: Parameters): Promise<Response> {
 		total_refunds: null,
 	};
 
+	const invitedCount = params.options?.reinvite_attendees ? (params.options?.attendee_ids?.length || 0) : 0;
+
 	return new Promise((resolve) => {
-		setTimeout(() => resolve(duplicatedEvent), 1000);
+		setTimeout(() => resolve({
+			message: "Event duplicated successfully",
+			event: duplicatedEvent,
+			invited_count: invitedCount,
+		}), 1000);
 	});
 }
 

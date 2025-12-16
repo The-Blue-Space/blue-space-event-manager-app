@@ -35,7 +35,7 @@ export default function BankAccounts({
 					<h2 className="body-1 font-semibold text-neutral-900">Bank Accounts</h2>
 				</div>
 				<div className="flex gap-4 py-1 overflow-auto snap-x snap-mandatory hide-scrollbar w-full">
-					{[1, 2].map((i) => (
+					{[1, 2,3].map((i) => (
 						<div
 							key={i}
 							className="bg-neutral-200 rounded-lg p-4 h-20 animate-pulse w-full min-w-[320px] lg:min-w-0 snap-start"
@@ -57,9 +57,9 @@ export default function BankAccounts({
 
 			{bankList.length === 0 ? (
 				<EmptyData
-					title="No banks added"
-					text="Add a bank account to start receiving payouts"
-					className="!justify-start py-8 border border-dashed border-neutral-300 rounded-lg"
+					showIcon={false}
+					text="No bank accounts added. Add a bank account to start receiving payouts"
+					className="!justify-start py-8"
 				/>
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-1 overflow-auto snap-x snap-mandatory hide-scrollbar w-full">

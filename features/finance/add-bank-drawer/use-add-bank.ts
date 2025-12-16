@@ -107,7 +107,7 @@ export default function useAddBank({ open, onClose }: UseAddBankProps) {
 		setIsRequestingOTP(true);
 		try {
 			await requestBankOTP({
-				bank_code: formData.bank_name,
+				bank_code: formData.bank_code,
 				account_number: formData.account_number,
 				account_name: formData.account_name,
 			});
@@ -140,6 +140,7 @@ export default function useAddBank({ open, onClose }: UseAddBankProps) {
 
 			await addBankAccount({
 				bank_name: formValues.bank_name,
+				bank_code: formValues.bank_code,
 				account_number: formValues.account_number,
 				account_name: formValues.account_name,
 				otp: formValues.otp,

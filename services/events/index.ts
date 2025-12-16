@@ -7,3 +7,4 @@ export { default as getEvents } from "./get-events";
 export { default as getEventsOverview } from "./get-events-overview";
 export { default as duplicateEvent } from "./duplicate-event";
 export { default as deleteEvent } from "./delete-event";
+export { default as getEventDuplicationPreview } from "./get-event-duplication-preview";

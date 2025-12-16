@@ -15,11 +15,13 @@ import AppButton from "@/components/app/app-button";
 import AppTooltip from "@/components/app/app-tooltip";
 import EmptyData from "@/components/app/empty-data";
 import Render from "@/components/app/render";
-import { Check, X, Ban } from "lucide-react";
+import { Check, X, Ban, Undo2, MailPlus } from "lucide-react";
 import getEventParticipants from "@/services/participants/get-event-participants";
 import approveParticipant from "@/services/participants/approve-participant";
 import rejectParticipant from "@/services/participants/reject-participant";
 import blockParticipant from "@/services/participants/block-participant";
+import retractParticipant from "@/services/participants/retract-participant";
+import reinviteParticipant from "@/services/participants/reinvite-participant";
 import { ParticipantStatus } from "@/types/participant.types";
 import { getDateAndTime } from "@/lib/format-date";
 import { toast } from "sonner";
@@ -88,6 +90,34 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 		}
 	};
 
+	const handleRetract = async (participantId: string) => {
+		setLoadingAction(participantId);
+		try {
+			await retractParticipant({ participant_id: participantId });
+			toast.success("Invitation retracted successfully");
+			queryClient.invalidateQueries({ queryKey: ["event-participants", eventId] });
+		} catch (err) {
+			const errMsg = ensureError(err).message;
+			toast.error(errMsg);
+		} finally {
+			setLoadingAction(null);
+		}
+	};
+
+	const handleReinvite = async (participantId: string) => {
+		setLoadingAction(participantId);
+		try {
+			await reinviteParticipant({ participant_id: participantId });
+			toast.success("Participant reinvited successfully");
+			queryClient.invalidateQueries({ queryKey: ["event-participants", eventId] });
+		} catch (err) {
+			const errMsg = ensureError(err).message;
+			toast.error(errMsg);
+		} finally {
+			setLoadingAction(null);
+		}
+	};
+
 	const getStatusBadge = (status: ParticipantStatus, isBlocked: boolean) => {
 		if (isBlocked) {
 			return (
@@ -103,6 +133,7 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 			invited: { label: "Invited", variant: "default" as const },
 			joined: { label: "Joined", variant: "outline" as const },
 			rejected: { label: "Rejected", variant: "destructive" as const },
+			retracted: { label: "Retracted", variant: "secondary" as const },
 		};
 
 		const config = statusConfig[status];
@@ -132,7 +163,7 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 									onClick={() => handleApprove(participantId)}
 									isLoading={isActionLoading}
 									disabled={isActionLoading}
-									className="h-8 w-8 p-0 text-success-600 hover:bg-success-50"
+									className="flex justify-center items-center h-8 w-8 p-0 text-success-600 hover:bg-success-50"
 								>
 									<Check className="w-4 h-4" />
 								</AppButton>
@@ -149,7 +180,7 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 									onClick={() => handleReject(participantId)}
 									isLoading={isActionLoading}
 									disabled={isActionLoading}
-									className="h-8 w-8 p-0 text-error-600 hover:bg-error-50"
+									className="flex justify-center items-center h-8 w-8 p-0 text-error-600 hover:bg-error-50"
 								>
 									<X className="w-4 h-4" />
 								</AppButton>
@@ -166,16 +197,35 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 							<AppButton
 								variant="outline"
 								buttonType="icon"
-								onClick={() => handleBlock(participantId)}
+								onClick={() => handleRetract(participantId)}
 								isLoading={isActionLoading}
 								disabled={isActionLoading}
-								className="h-8 w-8 p-0 text-error-600 hover:bg-error-50"
+								className="flex justify-center items-center h-8 w-8 p-0 text-error-600 hover:bg-error-50"
 							>
-								<Ban className="w-4 h-4" />
+								<Undo2 className="w-4 h-4" />
 							</AppButton>
 						}
 					>
-						Block User
+					Retract Invite
+					</AppTooltip>
+				)}
+
+				{status === "retracted" && (
+					<AppTooltip
+						trigger={
+							<AppButton
+								variant="outline"
+								buttonType="icon"
+								onClick={() => handleReinvite(participantId)}
+								isLoading={isActionLoading}
+								disabled={isActionLoading}
+								className="flex justify-center items-center h-8 w-8 p-0 text-primary-600 hover:bg-primary-50"
+							>
+								<MailPlus className="w-4 h-4" />
+							</AppButton>
+						}
+					>
+					Reinvite
 					</AppTooltip>
 				)}
 
@@ -188,7 +238,7 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 								onClick={() => handleApprove(participantId)}
 								isLoading={isActionLoading}
 								disabled={isActionLoading}
-								className="h-8 w-8 p-0 text-success-600 hover:bg-success-50"
+								className="flex justify-center items-center h-8 w-8 p-0 text-success-600 hover:bg-success-50"
 							>
 								<Check className="w-4 h-4" />
 							</AppButton>
@@ -198,7 +248,24 @@ export default function ParticipantsTab({ eventId }: ParticipantsTabProps) {
 					</AppTooltip>
 				)}
 
-				{status === "joined" && <span className="text-sm text-neutral-400">No actions</span>}
+				{status === "joined" && (
+					<AppTooltip
+						trigger={
+							<AppButton
+								variant="outline"
+								buttonType="icon"
+								onClick={() => handleBlock(participantId)}
+								isLoading={isActionLoading}
+								disabled={isActionLoading}
+								className="flex justify-center items-center h-8 w-8 p-0 text-error-600 hover:bg-error-50"
+							>
+								<Ban className="w-4 h-4" />
+							</AppButton>
+						}
+					>
+						Block User
+					</AppTooltip>
+				)}
 			</div>
 		);
 	};

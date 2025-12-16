@@ -1,26 +1,48 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useRef, useState, useCallback } from "react";
 import AppDrawer from "@/components/app/app-drawer";
 import AppButton from "@/components/app/app-button";
-import { Upload, CheckSquare, X } from "lucide-react";
-import { getEventUploads } from "@/services/events/event-uploads";
+import { Upload, CheckSquare, X, Loader2, Trash2, Image, Video } from "lucide-react";
+import { getEventUploads, uploadAlbumMedia } from "@/services/events/event-uploads";
 import HighlightsSection from "./highlights-section";
 import MediaGrid from "./media-grid";
 import MediaLightbox from "./media-lightbox";
 import useAlbumManager from "./use-album-manager";
 import useCustomNavigation from "@/hooks/use-navigation";
 import { toast } from "sonner";
+import useAppSelector from "@/store/hooks";
+import invalidateQuery from "@/lib/invalidate-query";
+import { MediaType } from "@/types/event-upload.types";
 
 type AlbumManagerProps = {
 	eventId: string;
 	open: boolean;
 };
 
+type FilePreview = {
+	file: File;
+	preview: string;
+	type: MediaType;
+};
+
+function formatFileSize(bytes: number): string {
+	if (bytes === 0) return "0 Bytes";
+	const k = 1024;
+	const sizes = ["Bytes", "KB", "MB", "GB"];
+	const i = Math.floor(Math.log(bytes) / Math.log(k));
+	return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+}
+
 export default function AlbumManager({ eventId, open }: AlbumManagerProps) {
 	const { queryParams } = useCustomNavigation();
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [isUploading, setIsUploading] = useState(false);
+	const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+	const [filesToUpload, setFilesToUpload] = useState<FilePreview[]>([]);
+	const [showPreview, setShowPreview] = useState(false);
+	const { account } = useAppSelector("account");
 
 	const {
 		selectedMediaIds,
@@ -54,6 +76,8 @@ export default function AlbumManager({ eventId, open }: AlbumManagerProps) {
 		// Remove ?tab=album query param
 		queryParams.deleteQueries(["tab"]);
 		clearSelection();
+		// Clear preview state
+		clearFilePreviews();
 	};
 
 	const handleClickHighlight = (index: number) => {
@@ -63,16 +87,97 @@ export default function AlbumManager({ eventId, open }: AlbumManagerProps) {
 		openLightbox(indexInAll);
 	};
 
+	const getMediaType = (file: File): MediaType => {
+		if (file.type.startsWith("video/")) return "video";
+		return "image";
+	};
+
+	const clearFilePreviews = useCallback(() => {
+		// Revoke object URLs to prevent memory leaks
+		filesToUpload.forEach((fp) => URL.revokeObjectURL(fp.preview));
+		setFilesToUpload([]);
+		setShowPreview(false);
+	}, [filesToUpload]);
+
 	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const files = e.target.files;
 		if (!files || files.length === 0) return;
 
-		// TODO: Implement actual upload logic with service
-		toast.info(`Selected ${files.length} file(s). Upload functionality coming soon.`);
+		const fileArray = Array.from(files);
+		const previews: FilePreview[] = fileArray.map((file) => ({
+			file,
+			preview: URL.createObjectURL(file),
+			type: getMediaType(file),
+		}));
+
+		setFilesToUpload(previews);
+		setShowPreview(true);
 
 		// Reset input
 		if (fileInputRef.current) {
 			fileInputRef.current.value = "";
+		}
+	};
+
+	const removeFileFromPreview = (index: number) => {
+		const fileToRemove = filesToUpload[index];
+		URL.revokeObjectURL(fileToRemove.preview);
+		setFilesToUpload((prev) => prev.filter((_, i) => i !== index));
+
+		// If no files left, close preview
+		if (filesToUpload.length <= 1) {
+			setShowPreview(false);
+		}
+	};
+
+	const handleConfirmUpload = async () => {
+		if (!account?.id) {
+			toast.error("You must be logged in to upload media");
+			return;
+		}
+
+		if (filesToUpload.length === 0) return;
+
+		setIsUploading(true);
+		setUploadProgress({ current: 0, total: filesToUpload.length });
+
+		let successCount = 0;
+		let failCount = 0;
+
+		for (let i = 0; i < filesToUpload.length; i++) {
+			const { file, type } = filesToUpload[i];
+			setUploadProgress({ current: i + 1, total: filesToUpload.length });
+
+			try {
+				await uploadAlbumMedia({
+					eventId,
+					file,
+					mediaType: type,
+					uploadedById: account.id,
+				});
+				successCount++;
+			} catch (error: any) {
+				failCount++;
+				console.error(`Failed to upload ${file.name}:`, error);
+			}
+		}
+
+		setIsUploading(false);
+		setUploadProgress({ current: 0, total: 0 });
+
+		// Clear previews
+		clearFilePreviews();
+
+		// Invalidate queries to refresh the media list
+		invalidateQuery(["event-uploads-all", eventId]);
+		invalidateQuery(["event-uploads", eventId]);
+
+		if (successCount > 0 && failCount === 0) {
+			toast.success(`Successfully uploaded ${successCount} file(s)`);
+		} else if (successCount > 0 && failCount > 0) {
+			toast.warning(`Uploaded ${successCount} file(s), ${failCount} failed`);
+		} else {
+			toast.error("Failed to upload files");
 		}
 	};
 
@@ -137,13 +242,16 @@ export default function AlbumManager({ eventId, open }: AlbumManagerProps) {
 							)}
 						</div>
 
-						<AppButton
-							variant="primary"
-							leftIcon={<Upload className="w-4 h-4" />}
-							onClick={() => fileInputRef.current?.click()}
-						>
-							Upload Media
-						</AppButton>
+						{!showPreview && (
+							<AppButton
+								variant="primary"
+								leftIcon={<Upload className="w-4 h-4" />}
+								onClick={() => fileInputRef.current?.click()}
+								disabled={isUploading}
+							>
+								Upload Media
+							</AppButton>
+						)}
 					</div>
 
 					{/* Hidden File Input */}
@@ -155,6 +263,104 @@ export default function AlbumManager({ eventId, open }: AlbumManagerProps) {
 						className="hidden"
 						onChange={handleFileSelect}
 					/>
+
+					{/* Upload Preview Section */}
+					{showPreview && filesToUpload.length > 0 && (
+						<div className="border border-neutral-200 rounded-lg p-4 space-y-4 bg-neutral-50">
+							<div className="flex items-center justify-between">
+								<h3 className="font-semibold text-neutral-900">
+									Preview ({filesToUpload.length} file{filesToUpload.length > 1 ? "s" : ""})
+								</h3>
+								<div className="flex items-center gap-2">
+									<AppButton
+										variant="outline"
+										size="sm"
+										onClick={clearFilePreviews}
+										disabled={isUploading}
+									>
+										Cancel
+									</AppButton>
+									<AppButton
+										variant="primary"
+										size="sm"
+										onClick={handleConfirmUpload}
+										disabled={isUploading}
+										leftIcon={
+											isUploading ? (
+												<Loader2 className="w-4 h-4 animate-spin" />
+											) : (
+												<Upload className="w-4 h-4" />
+											)
+										}
+									>
+										{isUploading
+											? `Uploading ${uploadProgress.current}/${uploadProgress.total}...`
+											: "Confirm Upload"}
+									</AppButton>
+								</div>
+							</div>
+
+							{/* Preview Grid */}
+							<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+								{filesToUpload.map((filePreview, index) => (
+									<div
+										key={index}
+										className="relative group bg-white rounded-lg overflow-hidden border border-neutral-200"
+									>
+										{/* Preview Image/Video */}
+										<div className="aspect-square relative">
+											{filePreview.type === "video" ? (
+												<div className="w-full h-full bg-neutral-900 flex items-center justify-center">
+													<video
+														src={filePreview.preview}
+														className="w-full h-full object-cover"
+													/>
+													<div className="absolute inset-0 flex items-center justify-center bg-black/30">
+														<Video className="w-8 h-8 text-white" />
+													</div>
+												</div>
+											) : (
+												<img
+													src={filePreview.preview}
+													alt={filePreview.file.name}
+													className="w-full h-full object-cover"
+												/>
+											)}
+
+											{/* Remove Button */}
+											<button
+												onClick={() => removeFileFromPreview(index)}
+												disabled={isUploading}
+												className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+											>
+												<X className="w-3 h-3" />
+											</button>
+
+											{/* Type Badge */}
+											<div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/60 text-white text-xs rounded flex items-center gap-1">
+												{filePreview.type === "video" ? (
+													<Video className="w-3 h-3" />
+												) : (
+													<Image className="w-3 h-3" />
+												)}
+												{filePreview.type}
+											</div>
+										</div>
+
+										{/* File Info */}
+										<div className="p-2">
+											<p className="text-xs text-neutral-700 truncate" title={filePreview.file.name}>
+												{filePreview.file.name}
+											</p>
+											<p className="text-xs text-neutral-500">
+												{formatFileSize(filePreview.file.size)}
+											</p>
+										</div>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
 
 					{/* Highlights Section */}
 					{highlights.length > 0 && (

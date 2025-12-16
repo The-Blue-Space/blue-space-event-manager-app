@@ -30,7 +30,7 @@ export default function PayoutHistoryTab({ onDispute }: PayoutHistoryTabProps) {
 	const { activeCurrency, currencies } = useAppSelector("init");
 	const [statusFilter, setStatusFilter] = React.useState<string>("all");
 	const [page, setPage] = React.useState(1);
-	const limit = 10;
+	
 
 	const { data, isLoading } = useQuery({
 		queryKey: ["payout-history", statusFilter, page],
@@ -38,7 +38,6 @@ export default function PayoutHistoryTab({ onDispute }: PayoutHistoryTabProps) {
 			getPayoutHistory({
 				status: statusFilter,
 				page,
-				limit,
 			}),
 	});
 
@@ -109,7 +108,7 @@ export default function PayoutHistoryTab({ onDispute }: PayoutHistoryTabProps) {
 							setStatusFilter(value);
 							setPage(1);
 						}}
-						containerStyle="w-40"
+						containerStyle="!w-fit"
 						options={[
 							{ value: "all", title: "All Status" },
 							...PAYOUT_STATUS.map((status: string) => ({
@@ -131,7 +130,7 @@ export default function PayoutHistoryTab({ onDispute }: PayoutHistoryTabProps) {
 	return (
 		<div className="space-y-4">
 			{/* Filter */}
-			{/* <div className="flex justify-end w-fit">
+			<div className="flex justify-end">
 				<SelectBox
 					name="status_filter"
 					value={statusFilter}
@@ -139,7 +138,7 @@ export default function PayoutHistoryTab({ onDispute }: PayoutHistoryTabProps) {
 						setStatusFilter(value);
 						setPage(1);
 					}}
-					// containerStyle="w-40"
+					containerStyle="!w-fit"
 					options={[
 						{ value: "all", title: "All Status" },
 						...PAYOUT_STATUS.map((status: string) => ({
@@ -148,7 +147,7 @@ export default function PayoutHistoryTab({ onDispute }: PayoutHistoryTabProps) {
 						})),
 					]}
 				/>
-			</div> */}
+			</div>
 
 			{/* Table */}
 			<div className="overflow-x-auto border rounded-lg">

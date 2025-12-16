@@ -6,7 +6,11 @@ import { cn } from "@/lib/utils";
 import { linkStyle } from "../../sidebar-link";
 import { useState } from "react";
 
-export default function Logout() {
+type Props = {
+	scope?:"header" |"sidebar"
+}
+
+export default function Logout(props:Props) {
 	const { ui } = useActions();
 	const [isActive, setIsActive] = useState(false);
 
@@ -25,10 +29,10 @@ export default function Logout() {
 		>
 			<SidebarMenuButton
 				asChild
-				className={cn(linkStyle, "group-data-[collapsible=icon]:justify-center", {
-					"font-semibold text-primary-800": isActive,
-					"font-normal text-[#CCE9FE]": !isActive,
-				})}
+				className={cn(
+					linkStyle,
+					"group-data-[collapsible=icon]:justify-center font-semibold text-primary-800 "
+				)}
 				tooltip={{
 					asChild: true,
 					children: (
@@ -38,7 +42,8 @@ export default function Logout() {
 			>
 				<button onClick={click} className="p-0">
 					<Image
-						src={isActive ? icons.logoutIcon02 : icons.logoutIcon}
+						// src={isActive ? icons.logoutIcon02 : icons.logoutIcon}
+						src={props.scope === "header" ? icons.logoutIcon02 : icons.logoutIcon}
 						alt="sign out"
 						className="size-4 object-contain"
 						style={{ width: "auto", height: "auto" }}
