@@ -30,6 +30,7 @@ export default function Finance() {
 	const {
 		data: dashboardData,
 		isLoading,
+		isFetching,
 		error,
 	} = useQuery({
 		queryKey: ["finance-dashboard"],
@@ -97,7 +98,7 @@ export default function Finance() {
 					{/* Bank Accounts */}
 					<BankAccounts
 						data={dashboardData}
-						isLoading={isLoading}
+						isLoading={isFetching}
 						onAddBank={() => setAddBankDrawerOpen(true)}
 						onSetDefault={handleSetDefault}
 						onDelete={handleDeleteClick}

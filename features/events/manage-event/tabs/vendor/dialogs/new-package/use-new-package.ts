@@ -1,0 +1,166 @@
+import useActions from "@/store/actions";
+import useAppSelector from "@/store/hooks";
+import React from "react";
+import { newPackageInitial, newPackageSchema, emptyFormField } from "./schema";
+import { ZodError } from "zod";
+import ensureError, { formatZodErrors } from "@/lib/ensure-error";
+import { toast } from "sonner";
+import { sanitizeNumInput } from "@/lib/sanitize-num-input";
+import addVendorPackage from "@/services/events/vendor-packages/add-vendor-package";
+import invalidateQuery from "@/lib/invalidate-query";
+import useCustomNavigation from "@/hooks/use-navigation";
+import { FormSchemaField } from "@/types/vendor.types";
+
+export default function useNewPackage() {
+	const { dialog } = useAppSelector("ui");
+	const { activeCurrency, currencies } = useAppSelector("init");
+	const [formData, setFormData] = React.useState(newPackageInitial);
+	const [errors, setErrors] = React.useState<Record<string, string>>({});
+	const [isLoading, setIsLoading] = React.useState(false);
+
+	const { params } = useCustomNavigation();
+	const eventId = params.event_id as string;
+
+	const { ui } = useActions();
+
+	const open = React.useMemo(() => {
+		return dialog.show && dialog.type === "add_vendor_package";
+	}, [dialog]);
+
+	React.useEffect(() => {
+		if (open && dialog.data) {
+			const isFree = dialog.data?.packageType === "free";
+			setFormData((prev) => ({
+				...prev,
+				price: isFree ? 0 : prev.price,
+				currency_id: isFree ? null : activeCurrency.id,
+			}));
+		}
+	}, [open, dialog.data, activeCurrency.id]);
+
+	const updateForm = (name: keyof typeof formData, value: string | number | boolean | null) => {
+		setErrors((prev) => ({
+			...prev,
+			[name]: "",
+		}));
+		setFormData((prev) => ({
+			...prev,
+			[name]:
+				name === "price"
+					? sanitizeNumInput(String(value).replace(`${selectedCurrency.symbol}`, ""))
+					: value,
+		}));
+	};
+
+	// Form schema field management
+	const addFormField = () => {
+		setFormData((prev) => ({
+			...prev,
+			form_schema: [...prev.form_schema, { ...emptyFormField }],
+		}));
+	};
+
+	const updateFormField = (index: number, field: Partial<FormSchemaField>) => {
+		setFormData((prev) => ({
+			...prev,
+			form_schema: prev.form_schema.map((f, i) =>
+				i === index ? { ...f, ...field } : f
+			),
+		}));
+	};
+
+	const removeFormField = (index: number) => {
+		setFormData((prev) => ({
+			...prev,
+			form_schema: prev.form_schema.filter((_, i) => i !== index),
+		}));
+	};
+
+	const onOpenChange = () => {
+		setFormData(newPackageInitial);
+		setErrors({});
+		ui.resetDialog();
+	};
+
+	const submit = async () => {
+		setErrors({});
+		setIsLoading(true);
+		try {
+			// Coerce fields to expected types for validation
+			const coerced = {
+				...formData,
+				price: Number(formData.price) || 0,
+				total_quantity: Number(formData.total_quantity),
+				max_per_vendor: Number(formData.max_per_vendor),
+				form_schema: formData.form_schema.map((field) => ({
+					...field,
+					field_name: field.field_name || field.label.toLowerCase().replace(/\s+/g, "_"),
+				})),
+			};
+
+			const formValues = newPackageSchema.parse(coerced);
+
+			// Parse amenities from comma-separated string to object
+			const amenitiesObj: Record<string, boolean> = {};
+			if (formValues.amenities) {
+				formValues.amenities.split(",").forEach((a) => {
+					const trimmed = a.trim();
+					if (trimmed) {
+						amenitiesObj[trimmed] = true;
+					}
+				});
+			}
+
+			await addVendorPackage({
+				event_id: eventId,
+				name: formValues.name,
+				description: formValues.description || undefined,
+				price: formValues.price,
+				currency_id: formValues.price > 0 ? formValues.currency_id : null,
+				total_quantity: formValues.total_quantity,
+				max_per_vendor: formValues.max_per_vendor,
+				requires_approval: formValues.requires_approval,
+				amenities: amenitiesObj,
+				form_schema: formValues.form_schema,
+			});
+
+			toast.success("Vendor package created successfully");
+			invalidateQuery(["vendor-packages"]);
+			onOpenChange();
+		} catch (err) {
+			if (err instanceof ZodError) {
+				const errors = formatZodErrors(err);
+				setErrors(errors);
+				return;
+			}
+			const errMsg = ensureError(err).message;
+			toast.error(errMsg);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const selectedCurrency = React.useMemo(() => {
+		return currencies.find((currency) => currency.id === formData.currency_id) ?? activeCurrency;
+	}, [currencies, formData.currency_id, activeCurrency]);
+
+	const currencyOptions = currencies.map((currency) => ({
+		title: `${currency.code}`,
+		value: currency.id,
+	}));
+
+	return {
+		open,
+		currencyOptions,
+		selectedCurrency,
+		onOpenChange,
+		formData,
+		errors,
+		isLoading,
+		updateForm,
+		addFormField,
+		updateFormField,
+		removeFormField,
+		submit,
+	};
+}

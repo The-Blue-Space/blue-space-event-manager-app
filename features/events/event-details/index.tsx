@@ -3,12 +3,14 @@
 import { useQuery } from "@tanstack/react-query";
 import getEventDetails from "@/services/events/get-event-details";
 import getEventMetrics from "@/services/events/get-event-metrics";
+import getVendorPackages from "@/services/events/vendor-packages/get-vendor-packages";
 import MetricsCards from "./metrics-cards";
 import EventDetailsTab from "./event-details-tab";
 import TicketsTab from "./tickets-tab";
 import ActivitiesTab from "./activities-tab";
 import AlbumManager from "./album-manager";
 import ParticipantsTab from "./participants-tab";
+import VendorApplicationsTab from "./vendor-applications-tab";
 import InviteDialog from "./invite-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppButton from "@/components/app/app-button";
@@ -45,6 +47,15 @@ export default function EventDetails() {
 		queryFn: () => getEventMetrics({ eventId }),
 		enabled: !!eventId,
 	});
+
+	// Fetch vendor packages to check if vendor tab should be shown
+	const { data: vendorPackages } = useQuery({
+		queryKey: ["vendor-packages", eventId],
+		queryFn: () => getVendorPackages({ event_id: eventId }),
+		enabled: !!eventId,
+	});
+
+	const hasVendorPackages = vendorPackages && vendorPackages.length > 0;
 
 	const handleOpenAlbum = () => {
 		queryParams.set("tab", "album");
@@ -83,6 +94,9 @@ export default function EventDetails() {
 											<TabsTrigger value="details">Event Details</TabsTrigger>
 											<TabsTrigger value="tickets">Tickets</TabsTrigger>
 											<TabsTrigger value="participants">Participants</TabsTrigger>
+											{hasVendorPackages && (
+												<TabsTrigger value="vendors">Vendors</TabsTrigger>
+											)}
 										</TabsList>
 										<div className="flex items-center gap-2">
 											<AppButton
@@ -114,12 +128,18 @@ export default function EventDetails() {
 										<ParticipantsTab eventId={eventId} />
 									</TabsContent>
 
-									<TabsContent value="activities" className="mt-6"></TabsContent>
+									{hasVendorPackages && (
+									<TabsContent value="vendors" className="mt-6">
+										<VendorApplicationsTab eventId={eventId} />
+									</TabsContent>
+								)}
+
+								<TabsContent value="activities" className="mt-6"></TabsContent>
 								</Tabs>
 							</Maximum>
-							<Minimum>
-								<ActivitiesTab eventId={eventId} />
-							</Minimum>
+						<Minimum>
+							<ActivitiesTab eventId={eventId} />
+						</Minimum>
 						</div>
 						{/* Album Manager Drawer */}
 					</div>

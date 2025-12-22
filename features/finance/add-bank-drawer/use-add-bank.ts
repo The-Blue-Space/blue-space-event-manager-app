@@ -2,7 +2,7 @@
 
 import React from "react";
 import { addBankSchema, addBankInitial, AddBankFormData } from "./schema";
-import { formatZodErrors } from "@/lib/ensure-error";
+import ensureError, { formatZodErrors } from "@/lib/ensure-error";
 import getBanks from "@/services/finance/get-banks";
 import verifyBankAccount from "@/services/finance/verify-bank-account";
 import requestBankOTP from "@/services/finance/request-bank-otp";
@@ -108,6 +108,7 @@ export default function useAddBank({ open, onClose }: UseAddBankProps) {
 		try {
 			await requestBankOTP({
 				bank_code: formData.bank_code,
+				bank_name: formData.bank_name,
 				account_number: formData.account_number,
 				account_name: formData.account_name,
 			});
@@ -154,7 +155,7 @@ export default function useAddBank({ open, onClose }: UseAddBankProps) {
 				setErrors(formatZodErrors(error));
 				toast.error("Please fix the form errors");
 			} else {
-				const errMsg = (error as any)?.message || "Failed to add bank account";
+				const errMsg =ensureError(error).message
 				toast.error(errMsg);
 			}
 		} finally {

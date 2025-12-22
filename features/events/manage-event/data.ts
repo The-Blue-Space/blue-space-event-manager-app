@@ -1,4 +1,4 @@
-export type SetupValues = "basic-information" | "medias" | "agenda" | "lineup" | "ticket" | "publish";
+export type SetupValues = "basic-information" | "medias" | "agenda" | "lineup" | "ticket" | "vendor" | "publish";
 
 type SetupTabs = {
 	title: string;
@@ -33,6 +33,10 @@ export const eventSetupTabs: SetupTabs[] = [
 	{
 		title: "Ticket",
 		value: "ticket",
+	},
+	{
+		title: "Vendor",
+		value: "vendor",
 	},
 	{
 		title: "Publish",

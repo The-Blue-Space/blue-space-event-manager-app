@@ -4,6 +4,7 @@ import axios from "@/lib/axios";
 // request bank otp
 type Parameters = {
 	bank_code: string;
+	bank_name: string;
 	account_number: string;
 	account_name: string;
 };
@@ -16,6 +17,7 @@ type Response = {
 export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.post("/v1/banks/request-otp", {
 		bank_code: params.bank_code,
+		bank_name: params.bank_name,
 		account_number: params.account_number,
 		account_name: params.account_name,
 	});
