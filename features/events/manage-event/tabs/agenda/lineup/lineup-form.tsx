@@ -12,6 +12,8 @@ import AppSwitch from "@/components/app/app-switch";
 import { EventLineup } from "@/types/event-agenda.types";
 // import TimeSelect from "../agenda/time-select";
 import TimeSelect from "../time-select";
+import { compressImage } from "@/lib/compress-image";
+import { toast } from "sonner";
 
 export type LineupFormRef = {
 	validate: () => boolean;
@@ -128,12 +130,18 @@ export default forwardRef<LineupFormRef, LineupFormProps>(function LineupForm(
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleImageChange = (file: File | null) => {
+	const handleImageChange = async (file: File | null) => {
 		setErrors((prev) => ({ ...prev, artist_image_url: "" }));
-		setArtistImage(file);
 		if (file) {
-			setImagePreview(URL.createObjectURL(file));
+			const compressed = await compressImage(file);
+			if (compressed.size > 5 * 1024 * 1024) {
+				toast.error("Artist image is too large to compress. Please choose a smaller file.");
+				return;
+			}
+			setArtistImage(compressed);
+			setImagePreview(URL.createObjectURL(compressed));
 		} else {
+			setArtistImage(null);
 			setImagePreview(null);
 		}
 	};

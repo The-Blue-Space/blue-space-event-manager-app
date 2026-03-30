@@ -11,6 +11,8 @@ import { Textarea } from "@/components/app/form-input";
 import { EventAgenda } from "@/types/event-agenda.types";
 import TimeSelect from "../time-select";
 import { Badge } from "@/components/ui/badge";
+import { compressImage } from "@/lib/compress-image";
+import { toast } from "sonner";
 
 type HostInput = {
 	name: string;
@@ -174,11 +176,16 @@ export default forwardRef<AgendaFormRef, AgendaItemFormProps>(function AgendaIte
 		setHosts(newHosts);
 	};
 
-	const handleHostImageChange = (index: number, file: File | null) => {
+	const handleHostImageChange = async (index: number, file: File | null) => {
 		const newHosts = [...hosts];
 		if (file) {
-			newHosts[index].image = file;
-			newHosts[index].imageUrl = URL.createObjectURL(file);
+			const compressed = await compressImage(file);
+			if (compressed.size > 5 * 1024 * 1024) {
+				toast.error("Host image is too large to compress. Please choose a smaller file.");
+				return;
+			}
+			newHosts[index].image = compressed;
+			newHosts[index].imageUrl = URL.createObjectURL(compressed);
 		} else {
 			newHosts[index].image = undefined;
 			newHosts[index].imageUrl = undefined;

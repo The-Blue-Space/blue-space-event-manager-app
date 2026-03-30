@@ -11,6 +11,7 @@ import RecentOrders from "./recent-orders";
 import useAppSelector from "@/store/hooks";
 import React from "react";
 import SetUpProfile from "./set-up-profile";
+import EmptyDashboard from "./empty-dashboard";
 
 export type HomeProps = {
 	isLoading: boolean;
@@ -27,22 +28,36 @@ export default function Home() {
 		enabled: hasManagerProfile,
 	});
 
+	const hasNoEvents = React.useMemo(
+		() => !isFetching && (data?.overview?.total_events?.total_events ?? 0) === 0,
+		[isFetching, data]
+	);
+
 	return (
 		<AppContainer className="flex flex-col gap-5 overflow-hidden w-full">
 			{/* Welcome Banner */}
 			<Welcome />
 
-			{hasManagerProfile?
+			{hasManagerProfile ? (
 				<Render error={error} isError={isError}>
-				{/* Overview Cards - 4 metrics */}
-				<OverviewCards isLoading={isFetching} data={data} />
+					{/* Overview Cards - 4 metrics (always visible) */}
+					<OverviewCards isLoading={isFetching} data={data} />
 
-				{/* Main Content - Chart (2 cols) + Active Event (1 col) */}
-				<Activities />
+					{hasNoEvents ? (
+						<EmptyDashboard />
+					) : (
+						<>
+							{/* Main Content - Chart (2 cols) + Active Event (1 col) */}
+							<Activities />
 
-				{/* Recent Orders - Full width */}
-				<RecentOrders isLoading={isFetching} data={data} />
-			</Render>: <SetUpProfile/>}
+							{/* Recent Orders - Full width */}
+							<RecentOrders isLoading={isFetching} data={data} />
+						</>
+					)}
+				</Render>
+			) : (
+				<SetUpProfile />
+			)}
 		</AppContainer>
 	);
 }

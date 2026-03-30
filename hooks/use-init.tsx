@@ -33,7 +33,7 @@ export default function useInit() {
 			toast.error("Error getting currencies");
 			throw error;
 		}
-	}, [currencies.length, init]);
+	}, [currencies.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const getCountryList = React.useCallback(async () => {
 		if (countries.length) return;
@@ -50,7 +50,7 @@ export default function useInit() {
 			toast.error("Error getting countries");
 			throw error;
 		}
-	}, [countries.length, init]);
+	}, [countries.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	// const getBankList = React.useCallback(async () => {
 	// 	if (banks.docs.length) return;

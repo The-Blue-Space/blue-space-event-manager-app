@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "NEXT_PUBLIC_SERVICE_ENV=development next dev --turbopack",
 		"prod": "NEXT_PUBLIC_SERVICE_ENV=production next dev --turbopack",
-		"local": "NEXT_PUBLIC_SERVICE_ENV=local NEXT_PUBLIC_BASE_URL=http://172.20.243.127:8000 next dev --turbopack",
+		"local": "NEXT_PUBLIC_SERVICE_ENV=local NEXT_PUBLIC_BASE_URL=http://$(ipconfig getifaddr en0):8080 next dev --turbopack",
 		"build": "NEXT_PUBLIC_SERVICE_ENV=production next build --turbopack",
 		"start": "next start",
 		"lint": "eslint"

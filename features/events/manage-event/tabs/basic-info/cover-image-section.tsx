@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import getMedias from "@/services/events/event-media/get-medias";
 import ensureError from "@/lib/ensure-error";
 import useAppSelector from "@/store/hooks";
+import { compressImage } from "@/lib/compress-image";
 
 export default function CoverImageSection() {
 	const {account}= useAppSelector("account")
@@ -32,7 +33,7 @@ export default function CoverImageSection() {
 		[eventMedia]
 	);
 
-	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
 
@@ -42,18 +43,17 @@ export default function CoverImageSection() {
 			return;
 		}
 
-		// Validate file size (5MB)
-		if (file.size > 5 * 1024 * 1024) {
-			toast.error("Image size must be less than 5MB");
+		const compressed = await compressImage(file);
+		if (compressed.size > 5 * 1024 * 1024) {
+			toast.error("This image is too large to compress. Please choose a smaller file.");
 			return;
 		}
-
-		setSelectedFile(file);
+		setSelectedFile(compressed);
 		const reader = new FileReader();
 		reader.onloadend = () => {
 			setPreviewImage(reader.result as string);
 		};
-		reader.readAsDataURL(file);
+		reader.readAsDataURL(compressed);
 	};
 
 	const handleEditClick = () => {

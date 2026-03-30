@@ -26,7 +26,7 @@ export default function EventDetailsSection() {
 	const initFormData = {
 		title: event?.title || "",
 		description: event?.description || "",
-		tags: event?.tags || "",
+		tags: event?.tags?.join(", ") || "",
 	};
 	const [formData, setFormData] = useState(initFormData);
 	const [errors, setErrors] = useState<Record<string, string>>({});
@@ -36,7 +36,7 @@ export default function EventDetailsSection() {
 			...prev,
 			title: event?.title || "",
 			description: event?.description || "",
-			tags: event?.tags || "",
+			tags: event?.tags?.join(", ") || "",
 		}));
 	}, [event]);
 

@@ -16,6 +16,7 @@ import deleteMedia from "@/services/events/event-media/delete-media";
 import replaceMedia from "@/services/events/event-media/replace-media";
 import ensureError from "@/lib/ensure-error";
 import useAppSelector from "@/store/hooks";
+import { compressImage } from "@/lib/compress-image";
 
 export default function Media() {
 	const {account}= useAppSelector("account")
@@ -72,6 +73,12 @@ export default function Media() {
 			return;
 		}
 
+		const compressed = await compressImage(file);
+		if (compressed.size > 5 * 1024 * 1024) {
+			toast.error("This image is too large to compress. Please choose a smaller file.");
+			return;
+		}
+
 		try {
 			const media_type: EventMediaType = allMedia.length === 0 ? "cover" : "image";
 			const order = activeMedia.length + 1;
@@ -81,7 +88,7 @@ export default function Media() {
 				media_type,
 				is_active: true,
 				order,
-				file,
+				file: compressed,
 				user_id:account.id
 			});
 
@@ -155,11 +162,18 @@ export default function Media() {
 			return;
 		}
 
-		// Validate image type for image replacements
+		let uploadFile = file;
+
+		// Compress images; leave videos untouched
 		if (file.type.startsWith("image/")) {
 			const validTypes = ["image/jpeg", "image/png", "image/gif"];
 			if (!validTypes.includes(file.type)) {
 				toast.error("Only JPEG, PNG, and GIF images are allowed");
+				return;
+			}
+			uploadFile = await compressImage(file);
+			if (uploadFile.size > 5 * 1024 * 1024) {
+				toast.error("This image is too large to compress. Please choose a smaller file.");
 				return;
 			}
 		}
@@ -168,7 +182,7 @@ export default function Media() {
 			await replaceMedia({
 				event_Id: event.id,
 				media_id,
-				file,
+				file: uploadFile,
 				user_id:account.id
 				});
 
