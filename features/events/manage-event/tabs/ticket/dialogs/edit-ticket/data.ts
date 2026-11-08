@@ -43,7 +43,7 @@ export const formFields: (FORM_FIELDS & {
 		label: "Perks",
 		placeholder: "Enter Perks, separated by a comma",
 		required: true,
-		note: "Separate each perk with a comma",
+		note: "Press Enter or comma to add each perk",
 	},
 
 	{

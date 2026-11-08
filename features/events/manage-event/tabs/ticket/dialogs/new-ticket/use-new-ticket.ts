@@ -60,11 +60,17 @@ export default function useNewTicket() {
 				}));
 				return;
 			}
-			// value == "false" path -> re-enable and require total_quantity
 			setFormData((prev) => ({
 				...prev,
 				unlimited_quantity: false,
 				total_quantity: (prev.total_quantity as any) || ("" as any),
+			}));
+			return;
+		}
+		if (name === "absolve_fee") {
+			setFormData((prev) => ({
+				...prev,
+				absolve_fee: value === "true",
 			}));
 			return;
 		}
@@ -178,6 +184,7 @@ export default function useNewTicket() {
 	}));
 	return {
 		open,
+		eventId,
 		currencyOptions,
 		selectedCurrency,
 		onOpenChange,

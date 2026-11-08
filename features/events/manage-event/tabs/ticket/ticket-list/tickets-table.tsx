@@ -45,14 +45,18 @@ export default function TicketsTable({
 			return acc;
 		}, {} as Record<string, boolean>)
 	);
+	const [loadingIds, setLoadingIds] = useState<Record<string, boolean>>({});
 
 	const handleToggleStatus = async (ticketId: string, isActive: boolean) => {
+		setLoadingIds((prev) => ({ ...prev, [ticketId]: true }));
 		try {
 			await onToggleStatus?.(ticketId, isActive);
 			setTicketStatus((prev) => ({ ...prev, [ticketId]: isActive }));
 		} catch (err) {
 			setTicketStatus((prev) => ({ ...prev, [ticketId]: !isActive }));
 			console.error(err);
+		} finally {
+			setLoadingIds((prev) => ({ ...prev, [ticketId]: false }));
 		}
 	};
 
@@ -201,6 +205,7 @@ export default function TicketsTable({
 									checked={ticketStatus[ticket.id]}
 									onCheckedChange={() => handleToggleStatus(ticket.id, !ticketStatus[ticket.id])}
 									variant="accent"
+									disabled={loadingIds[ticket.id]}
 								/>
 								{/* <Badge
 									className={classNames("px-1", {
@@ -215,9 +220,11 @@ export default function TicketsTable({
 							<TableCell onClick={(e) => e.stopPropagation()}>
 								<TableActions
 									ticket={ticket}
+									isActive={ticketStatus[ticket.id]}
 									onViewDetails={onViewDetails}
 									onEdit={onEdit}
-									onToggleStatus={onToggleStatus}
+									onToggleStatus={handleToggleStatus}
+									isTogglingStatus={loadingIds[ticket.id]}
 									onAddPromo={onAddPromo}
 									onDelete={onDelete}
 								/>

@@ -52,7 +52,7 @@ export default function useTicketPromo() {
 		enabled: !!eventId && open,
 	});
 
-	const { data: existingPromo } = useQuery({
+	const { data: existingPromo, isLoading: isLoadingPromo } = useQuery({
 		queryKey: ["ticket-promo", selectedTicketId],
 		queryFn: () => getTicketPromo({ ticketId: selectedTicketId || "" }),
 		enabled: !!selectedTicketId && open,
@@ -251,6 +251,7 @@ export default function useTicketPromo() {
 		open,
 		onOpenChange,
 		isLoading,
+		isLoadingPromo,
 		tickets,
 		selectedTicketId,
 		setSelectedTicketId,
@@ -260,5 +261,6 @@ export default function useTicketPromo() {
 		handlePromoTypeChange,
 		saving,
 		handleSave,
+		existingPromo,
 	};
 }

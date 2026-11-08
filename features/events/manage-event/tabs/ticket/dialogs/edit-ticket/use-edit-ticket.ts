@@ -10,6 +10,7 @@ import invalidateQuery from "@/lib/invalidate-query";
 import { EventTicket } from "@/types/event-ticket.types";
 import updateEventTicket from "@/services/events/event-tickets/update-event-ticket";
 import { combineDateAndTimeToIso, normalizeTimeValue } from "@/lib/date-time";
+import useCustomNavigation from "@/hooks/use-navigation";
 
 export default function useEditTicket() {
 	const { dialog } = useAppSelector("ui");
@@ -17,9 +18,10 @@ export default function useEditTicket() {
 	const [formData, setFormData] = React.useState(editTicketInitial);
 	const [errors, setErrors] = React.useState<Record<string, string>>({});
 	const [isLoading, setIsLoading] = React.useState(false);
-	const [editingPerk, setEditingPerk] = React.useState<number | null>(null);
 
 	const { ui } = useActions();
+	const { params } = useCustomNavigation();
+	const eventId = params.event_id as string;
 
 	const open = React.useMemo(() => {
 		return dialog.show && dialog.type === "edit_event_ticket";
@@ -55,17 +57,12 @@ export default function useEditTicket() {
 			...prev,
 			[name]: "",
 		}));
-		if (name === "type") {
-			const typesWithNoPrice = ["free", "donation"];
-			setFormData((prev) => ({
-				...prev,
-				type: value as typeof formData.type,
-				price: typesWithNoPrice.includes(value) ? null : prev.price,
-			}));
+		if (name === "absolve_fee") {
+			setFormData((prev) => ({ ...prev, absolve_fee: value === "true" }));
 			return;
 		}
 		if (name === "unlimited_quantity") {
-			if (value == "true") {
+			if (value === "true") {
 				setFormData((prev) => ({
 					...prev,
 					unlimited_quantity: true,
@@ -73,7 +70,6 @@ export default function useEditTicket() {
 				}));
 				return;
 			}
-			// value == "false" path -> re-enable and require total_quantity
 			setFormData((prev) => ({
 				...prev,
 				unlimited_quantity: false,
@@ -90,14 +86,6 @@ export default function useEditTicket() {
 		}));
 	};
 
-	const handleEditPerk = (index: number) => {
-		setEditingPerk(index);
-	};
-
-	const handleCancelEditPerk = () => {
-		setEditingPerk(null);
-	};
-
 	const onOpenChange = () => {
 		setFormData(editTicketInitial);
 		ui.resetDialog();
@@ -107,10 +95,9 @@ export default function useEditTicket() {
 		setErrors({});
 		setIsLoading(true);
 		try {
-			// Coerce fields to expected types for validation
 			const coerced = {
 				...formData,
-				absolve_fee: formData.absolve_fee == true,
+				absolve_fee: formData.absolve_fee === true,
 				price:
 					formData.type === "paid" && formData.price !== null && formData.price !== ("" as any)
 						? Number(formData.price)
@@ -129,7 +116,6 @@ export default function useEditTicket() {
 
 			const formValues = editTicketSchema.parse(coerced);
 
-			// Cross-field guards
 			const sales_start_iso = combineDateAndTimeToIso(
 				formValues.sales_start_date,
 				formValues.sales_start_time ?? null
@@ -177,8 +163,7 @@ export default function useEditTicket() {
 			if (err instanceof ZodError) {
 				const errors = formatZodErrors(err);
 				setErrors(errors);
-
-				throw err
+				throw err;
 			}
 			const errMsg = ensureError(err).message;
 			toast.error(errMsg);
@@ -195,8 +180,10 @@ export default function useEditTicket() {
 		title: `${currency.code}`,
 		value: currency.id,
 	}));
+
 	return {
 		open,
+		eventId,
 		currencyOptions,
 		selectedCurrency,
 		onOpenChange,
@@ -204,9 +191,6 @@ export default function useEditTicket() {
 		errors,
 		isLoading,
 		updateForm,
-		editingPerk,
-		handleEditPerk,
-		handleCancelEditPerk,
 		submit,
 	};
 }

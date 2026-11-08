@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -11,7 +11,7 @@ import logger from "@/lib/app-logger";
 type DatePickerProps = {
 	name?: string;
 	value: Date | undefined;
-	onChange: (value: Date) => void;
+	onChange: (value: Date | undefined) => void;
 	disabled?: boolean;
 	triggerStyle?: string;
 	disableMonthNavigation?: boolean;
@@ -178,13 +178,28 @@ export default function DateInput({
 							) : (
 								<span> {placeholder ?? "Pick a date"}</span>
 							)}
-							{icon_placement === "right" && floatingLabel
-								? shouldFloat
-									? icon ?? <CalendarIcon className="mr-2 w-4 h-4" />
-									: null
-								: icon_placement === "right" && !floatingLabel
-								? icon ?? <CalendarIcon className="mr-2 w-4 h-4" />
-								: null}
+							<span className="flex items-center gap-1 shrink-0">
+								{hasValue && !disabled && (
+									<span
+										role="button"
+										aria-label="Clear date"
+										onClick={(e) => {
+											e.stopPropagation();
+											onChange(undefined);
+										}}
+										className="flex items-center justify-center w-4 h-4 rounded-full hover:bg-neutral-200 transition-colors text-neutral-400 hover:text-neutral-600"
+									>
+										<X className="w-3 h-3" />
+									</span>
+								)}
+								{icon_placement === "right" && floatingLabel
+									? shouldFloat
+										? icon ?? <CalendarIcon className="w-4 h-4" />
+										: null
+									: icon_placement === "right" && !floatingLabel
+									? icon ?? <CalendarIcon className="w-4 h-4" />
+									: null}
+							</span>
 						</Button>
 						{/* </> */}
 					</PopoverTrigger>

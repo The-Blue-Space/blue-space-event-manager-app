@@ -41,6 +41,7 @@ export default function AddonsTable({
 }: AddonsTableProps) {
 	const { activeCurrency, currencies } = useAppSelector("init");
 	const [addonStatus, setAddonStatus] = useState<Record<string, boolean>>({});
+	const [loadingIds, setLoadingIds] = useState<Record<string, boolean>>({});
 
 	useEffect(() => {
 		setAddonStatus(
@@ -52,12 +53,15 @@ export default function AddonsTable({
 	}, [data]);
 
 	const handleToggleStatus = async (addonId: string, isActive: boolean) => {
+		setLoadingIds((prev) => ({ ...prev, [addonId]: true }));
 		try {
 			await onToggleStatus?.(addonId, isActive);
 			setAddonStatus((prev) => ({ ...prev, [addonId]: isActive }));
 		} catch (error) {
 			console.error(error);
 			setAddonStatus((prev) => ({ ...prev, [addonId]: !isActive }));
+		} finally {
+			setLoadingIds((prev) => ({ ...prev, [addonId]: false }));
 		}
 	};
 
@@ -65,7 +69,7 @@ export default function AddonsTable({
 		return (
 			<EmptyData
 				title="No Addons yet"
-				text="Create addons to sell additional items or services for your event. Click Add Addon to get started."
+				text="Create addons to sell additional items or services for your event."
 				className="!justify-start pt-10"
 			/>
 		);
@@ -115,8 +119,8 @@ export default function AddonsTable({
 					<TableHead>Addon Name/Type</TableHead>
 					<TableHead>Price</TableHead>
 					<TableHead>Attached Tickets</TableHead>
-					<TableHead>Sales Start Date</TableHead>
-					<TableHead>Sales End Date</TableHead>
+					<TableHead>Sales Start</TableHead>
+					<TableHead>Sales End</TableHead>
 					<TableHead>Status</TableHead>
 					<TableHead>Action</TableHead>
 				</TableRow>
@@ -126,34 +130,29 @@ export default function AddonsTable({
 					const addonTypeCn = classNames(
 						"body-3 flex items-center gap-1 border capitalize w-fit px-1",
 						{
-							" text-success-700 border-success-200": addon.type === "paid",
-							" text-neutral-700 border-neutral-300": addon.type === "free",
-							" text-error-400 border-error-300": addon.type === "donation",
+							"text-success-700 border-success-200": addon.type === "paid",
+							"text-neutral-700 border-neutral-300": addon.type === "free",
+							"text-error-400 border-error-300": addon.type === "donation",
 						}
 					);
 
 					const salesStart = addon.sales_start_date
-						? getDateAndTime(addon.sales_start_date, {
-								dateOptions: { dateStyle: "medium" },
-						  })
+						? getDateAndTime(addon.sales_start_date, { dateOptions: { dateStyle: "medium" } })
 						: null;
 					const salesEnd = addon.sales_end_date
-						? getDateAndTime(addon.sales_end_date, {
-								dateOptions: { dateStyle: "medium" },
-						  })
+						? getDateAndTime(addon.sales_end_date, { dateOptions: { dateStyle: "medium" } })
 						: null;
-
 					const salesStartTime = addon.sales_start_time
 						? getDateAndTime(addon.sales_start_time, {
 								timeOptions: { timeStyle: "short", hour12: true },
 						  })
 						: null;
-
 					const salesEndTime = addon.sales_end_time
 						? getDateAndTime(addon.sales_end_time, {
 								timeOptions: { timeStyle: "short", hour12: true },
 						  })
 						: null;
+
 					const currency = addon.currency_id
 						? currencies.find((c) => c.id === addon.currency_id)?.symbol || activeCurrency.symbol
 						: activeCurrency.symbol;
@@ -166,23 +165,20 @@ export default function AddonsTable({
 						>
 							<TableCell>
 								<div className="flex flex-col gap-1">
-									<h6 className="body-3 font-medium text-neutral-900">
-										{truncate(addon.name, 25)}
-									</h6>
+									<h6 className="body-3 font-medium text-neutral-900">{truncate(addon.name, 25)}</h6>
 									<Badge variant="outline" className={addonTypeCn}>
 										{addon.type}
 									</Badge>
 								</div>
 							</TableCell>
+
 							<TableCell>
 								{addon.type === "paid" ? (
-									<div className="flex flex-col">
-										<span className="body-3 font-medium">
-											{currency} {amountSeparator(addon.price || 0)}
-										</span>
-									</div>
+									<span className="body-3 font-medium">
+										{currency} {amountSeparator(addon.price || 0)}
+									</span>
 								) : (
-									<Badge variant="outline" className=" text-neutral-500 body-3 capitalize p-1">
+									<Badge variant="outline" className="text-neutral-500 body-3 capitalize p-1">
 										{addon.type}
 									</Badge>
 								)}
@@ -191,13 +187,15 @@ export default function AddonsTable({
 							<TableCell>{getAttachedTicketsDisplay(addon)}</TableCell>
 
 							<TableCell>
-								{salesStart && (
+								{salesStart ? (
 									<div className="flex flex-col">
 										<span className="text-xs text-neutral-700">{salesStart.date}</span>
 										<span className="text-xs text-neutral-500">
-											{salesStartTime?.time ?? "---:---"}
+											{salesStartTime?.time ?? "—"}
 										</span>
 									</div>
+								) : (
+									<span className="text-xs text-neutral-400">—</span>
 								)}
 							</TableCell>
 
@@ -206,11 +204,11 @@ export default function AddonsTable({
 									<div className="flex flex-col">
 										<span className="text-xs text-neutral-700">{salesEnd.date}</span>
 										<span className="text-xs text-neutral-500">
-											{salesEndTime?.time ?? "---:---"}
+											{salesEndTime?.time ?? "—"}
 										</span>
 									</div>
 								) : (
-									<span className="text-xs text-neutral-500">---:--- ---:---</span>
+									<span className="text-xs text-neutral-400">—</span>
 								)}
 							</TableCell>
 
@@ -218,16 +216,21 @@ export default function AddonsTable({
 								<AppSwitch
 									variant="accent"
 									checked={addonStatus[addon.id]}
-									onCheckedChange={() => handleToggleStatus(addon.id, !addonStatus[addon.id])}
+									onCheckedChange={() =>
+										handleToggleStatus(addon.id, !addonStatus[addon.id])
+									}
+									disabled={loadingIds[addon.id]}
 								/>
 							</TableCell>
 
 							<TableCell onClick={(e) => e.stopPropagation()}>
 								<AddonTableActions
 									addon={addon}
+									isActive={addonStatus[addon.id]}
 									onViewDetails={onViewDetails}
 									onEdit={onEdit}
-									onToggleStatus={onToggleStatus}
+									onToggleStatus={handleToggleStatus}
+									isTogglingStatus={loadingIds[addon.id]}
 									onDelete={onDelete}
 								/>
 							</TableCell>

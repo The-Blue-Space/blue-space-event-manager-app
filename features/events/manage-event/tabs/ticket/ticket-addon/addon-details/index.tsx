@@ -1,7 +1,9 @@
 "use client";
 
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import AppDrawer from "@/components/app/app-drawer";
+import AppButton from "@/components/app/app-button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { XCircle } from "lucide-react";
@@ -11,12 +13,15 @@ import AddonInformation from "./addon-information";
 import PricingDetails from "./pricing-details";
 import SalesDetails from "./sales-details";
 import AttachedTickets from "./attached-tickets";
+import { EventTicketAddon } from "@/types/event-ticket.types";
 
 type AddonDetailsDrawerProps = {
 	addonId: string | null;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	eventId: string;
+	onEdit: (addon: EventTicketAddon) => void;
+	onToggleStatus: (addonId: string, isActive: boolean) => Promise<void>;
 };
 
 export default function AddonDetailsDrawer({
@@ -24,12 +29,12 @@ export default function AddonDetailsDrawer({
 	open,
 	onOpenChange,
 	eventId,
+	onEdit,
+	onToggleStatus,
 }: AddonDetailsDrawerProps) {
-	const {
-		data: addons,
-		isLoading,
-		error,
-	} = useQuery({
+	const [isToggling, setIsToggling] = React.useState(false);
+
+	const { data: addons, isLoading, error } = useQuery({
 		queryKey: ["event-addons", eventId],
 		queryFn: () => getEventAddons({ event_Id: eventId }),
 		enabled: !!eventId && open,
@@ -46,6 +51,16 @@ export default function AddonDetailsDrawer({
 		? tickets.filter((t) => addon.ticket_ids?.includes(t.id))
 		: [];
 
+	const handleToggle = async () => {
+		if (!addon) return;
+		setIsToggling(true);
+		try {
+			await onToggleStatus(addon.id, !addon.is_active);
+		} finally {
+			setIsToggling(false);
+		}
+	};
+
 	return (
 		<AppDrawer
 			title="Addon Details"
@@ -54,13 +69,36 @@ export default function AddonDetailsDrawer({
 			handleChange={onOpenChange}
 			className="hide-scrollbar"
 			showLogo={false}
+			footer={
+				addon ? (
+					<div className="flex items-center justify-between border-t border-neutral-200 pt-2">
+						<AppButton
+							variant="outline"
+							onClick={() => {
+								onOpenChange(false);
+								onEdit(addon);
+							}}
+						>
+							Edit Addon
+						</AppButton>
+						<AppButton
+							variant={addon.is_active ? "outline" : "primary"}
+							isLoading={isToggling}
+							onClick={handleToggle}
+						>
+							{addon.is_active ? "Deactivate" : "Activate"}
+						</AppButton>
+					</div>
+				) : undefined
+			}
 		>
 			{isLoading ? (
 				<div className="space-y-6 p-6">
-					<Skeleton className="h-24 w-full" />
-					<Skeleton className="h-32 w-full" />
-					<Skeleton className="h-32 w-full" />
-					<Skeleton className="h-24 w-full" />
+					<Skeleton className="h-28 w-full rounded-xl" />
+					<Skeleton className="h-10 w-full rounded-lg" />
+					<Skeleton className="h-24 w-full rounded-xl" />
+					<Skeleton className="h-20 w-full rounded-xl" />
+					<Skeleton className="h-24 w-full rounded-xl" />
 				</div>
 			) : error ? (
 				<div className="flex flex-col items-center justify-center py-12 text-center px-6">
@@ -69,19 +107,12 @@ export default function AddonDetailsDrawer({
 				</div>
 			) : addon ? (
 				<div className="space-y-6 p-6">
-					{/* Addon Information */}
 					<AddonInformation addon={addon} />
 					<Separator />
-
-					{/* Pricing Details */}
 					<PricingDetails addon={addon} />
 					<Separator />
-
-					{/* Sales Details */}
 					<SalesDetails addon={addon} />
 					<Separator />
-
-					{/* Attached Tickets */}
 					<AttachedTickets tickets={attachedTickets} />
 				</div>
 			) : null}

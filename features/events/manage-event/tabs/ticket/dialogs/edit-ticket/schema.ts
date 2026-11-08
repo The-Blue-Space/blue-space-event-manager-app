@@ -3,11 +3,10 @@ import { z } from "zod";
 
 export const editTicketSchema = z.object({
 	name: z.string().trim().min(3, "Ticket name is required"),
-	description: z
-		.string()
-		.trim()
-		.min(5, "Ticket description is required, at least 5 characters")
-		.max(150, "Ticket description must be less than 50 characters"),
+	description: z.union([
+		z.literal(""),
+		z.string().trim().min(5, "Note must be at least 5 characters").max(150, "Note must be less than 150 characters"),
+	]).nullable().optional(),
 	price: z.number().min(0, "Ticket price is required").nullable(),
 	currency_id: z.string().trim().min(1, "Currency is required"),
 	minimum_quantity: z.number().positive("Minimum quantity is required, must be greater than 0"),

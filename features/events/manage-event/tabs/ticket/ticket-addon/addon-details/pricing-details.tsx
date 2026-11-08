@@ -10,32 +10,46 @@ type PricingDetailsProps = {
 export default function PricingDetails({ addon }: PricingDetailsProps) {
 	const { currencies, activeCurrency } = useAppSelector("init");
 	const currency = addon.currency_id
-		? currencies.find((c) => c.id === addon.currency_id)|| activeCurrency
+		? currencies.find((c) => c.id === addon.currency_id) || activeCurrency
 		: activeCurrency;
 
-	const info: Record<string, string | undefined> = {
-		price:
-			addon.price !== null && addon.price !== undefined
-				? `${currency.symbol} ${amountSeparator(addon.price)}`
-				: "Free",
-		currency: `${currency.name} (${currency.symbol})` || "N/A",
-	};
+	const isFree = addon.type !== "paid" || addon.price === null || addon.price === undefined;
 
 	return (
 		<div className="space-y-3">
 			<div className="flex items-center gap-2 text-neutral-900">
 				<DollarSign className="h-4 w-4 text-accent-500" />
-				<h3 className="font-semibold text-sm">Pricing Details</h3>
+				<h3 className="font-semibold text-sm">Pricing</h3>
 			</div>
-			<div className="bg-neutral-50 rounded-lg p-4 space-y-3">
-				{Object.entries(info)
-					.filter((item) => item[1] !== undefined && item[1] !== null)
-					.map(([key, value]) => (
-						<div className="flex items-center justify-between" key={key}>
-							<span className="body-3 text-neutral-600 capitalize">{key.split("_").join(" ")}</span>
-							<span className="body-3 font-medium text-neutral-900">{value}</span>
-						</div>
-					))}
+
+			<div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+				<div className="flex items-end justify-between">
+					<div>
+						<p className="body-3 text-neutral-500 mb-0.5">
+							{isFree ? "Admission" : "Addon price"}
+						</p>
+						{isFree ? (
+							<p className="text-2xl font-bold text-blue-600">
+								{addon.type === "donation" ? "Donation" : "Free"}
+							</p>
+						) : (
+							<p className="text-2xl font-bold text-neutral-900">
+								{currency.symbol} {amountSeparator(addon.price!)}
+							</p>
+						)}
+					</div>
+				</div>
+
+				{!isFree && (
+					<div className="mt-3 pt-3 border-t border-neutral-200">
+						<p className="text-[10px] uppercase tracking-wide text-neutral-400 font-medium">
+							Currency
+						</p>
+						<p className="body-3 font-medium text-neutral-700">
+							{currency.name} ({currency.symbol})
+						</p>
+					</div>
+				)}
 			</div>
 		</div>
 	);

@@ -106,6 +106,11 @@ export default function AddonList() {
 				open={drawerOpen}
 				onOpenChange={setDrawerOpen}
 				eventId={event_id}
+				onEdit={(addon) => {
+					setDrawerOpen(false);
+					handleEditAddon(addon);
+				}}
+				onToggleStatus={handleToggleStatus}
 			/>
 		</div>
 	);

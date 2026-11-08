@@ -1,7 +1,5 @@
 import EmptyData from "@/components/app/empty-data";
 import Render from "@/components/app/render";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import useCustomNavigation from "@/hooks/use-navigation";
 import { cn } from "@/lib/utils";
 import getEventTickets from "@/services/events/event-tickets/get-event-tickets";
@@ -123,20 +121,26 @@ export default function TicketList() {
 						showIcon={false}
 						text="Create your first ticket. Select a ticket type to create a new ticket."
 						action={
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-								{ticketTypes.map((item) => (
-									<Card
-										key={item.id}
-										className="p-4 flex items-start gap-3 hover:bg-badge/10 cursor-pointer transition-all duration-300"
-										onClick={() => handleCreateTicket(item.value)}
-									>
-										<Badge className={cn("p-2 rounded-full", item.badgeBg)}>{item.icon}</Badge>
-										<div>
-											<h5 className="body-2 font-medium text-primary-500">{item.name}</h5>
-											<p className="body-2 text-neutral-500">{item.description}</p>
-										</div>
-									</Card>
-								))}
+							<div className="w-full max-w-xl mx-auto px-4">
+								<div className="grid grid-cols-3 gap-3">
+									{ticketTypes.map((item) => (
+										<button
+											key={item.id}
+											type="button"
+											onClick={() => handleCreateTicket(item.value)}
+											className={cn(
+												"flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border-2 border-neutral-200 bg-white text-center transition-all duration-200",
+												"hover:border-primary-500 hover:bg-primary-500/5 hover:shadow-sm"
+											)}
+										>
+											<span className={cn("flex items-center justify-center w-10 h-10 rounded-full", item.badgeBg)}>
+												{item.icon}
+											</span>
+											<span className="body-3 font-semibold text-neutral-700">{item.name}</span>
+											<span className="text-[11px] leading-snug text-neutral-400">{item.description}</span>
+										</button>
+									))}
+								</div>
 							</div>
 						}
 					/>
@@ -149,6 +153,8 @@ export default function TicketList() {
 				open={drawerOpen}
 				onOpenChange={setDrawerOpen}
 				eventId={event_id}
+				onEdit={handleEditTicket}
+				onToggleStatus={handleToggleStatus}
 			/>
 		</div>
 	);
