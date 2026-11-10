@@ -66,6 +66,12 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 		}
 		return id;
 	}, [getCookie, businessIdKey, managerProfile]);
+	// The interceptor reads this when each request is sent, so a profile created during the session
+	// is attached to the very next request instead of waiting for the interceptor to be reinstalled.
+	const businessIdRef = React.useRef(businessId);
+	React.useLayoutEffect(() => {
+		businessIdRef.current = businessId;
+	}, [businessId]);
 	// Setup interceptor function
 	const setupInterceptor = React.useCallback(() => {
 		if (interceptor.current !== null) {
@@ -78,8 +84,8 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				(config) => {
 					try {
 						config.headers.Authorization = `Bearer ${authToken}`;
-						if (businessId) {
-							config.headers["X-Manager-ID"] = businessId;
+						if (businessIdRef.current) {
+							config.headers["X-Manager-ID"] = businessIdRef.current;
 						}
 
 						// Automatically add user_id to request body for POST, PUT, PATCH
@@ -111,7 +117,7 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			);
 			interceptor.current = value;
 		}
-	}, [authToken, businessId, account?.id]);
+	}, [authToken, account?.id]);
 
 	const logout = React.useCallback(async () => {
 		try {
