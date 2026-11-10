@@ -19,12 +19,13 @@ type Response = ManagerProfile;
 
 export async function production(params: Parameters): Promise<Response> {
 	const formData = buildFormData(params, "dot"); // dot notation;
-	const response = await axios.put(`/v1/manager-profiles/${params.id}`, formData, {
+	const url = `/v1/manager-profiles/${params.id}`;
+	const response = await axios.put<{ message: string; profile: ManagerProfile }>(url, formData, {
 		headers: {
 			"Content-Type": "multipart/form-data",
 		},
 	});
-	return response.data;
+	return response.data.profile;
 }
 
 export async function development(): Promise<Response> {

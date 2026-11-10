@@ -1,173 +1,175 @@
-import { Building2, Mail, MapPin } from "lucide-react";
+"use client";
+import * as React from "react";
+import classNames from "classnames";
 import { useQuery } from "@tanstack/react-query";
-import { Input, Textarea } from "@/components/app/form-input";
-import SelectBox from "@/components/app/form-input/select-box";
 import AppButton from "@/components/app/app-button";
-import useManagerProfile from "./use-manager-profile";
+import Field, { controlClass, controlProps } from "@/components/app/field";
+import SelectField from "@/components/app/select-field";
 import getCountries from "@/services/extras/get-countries";
-import ProfileImages from "./profile-images";
-import React from "react";
+import { CoverField, LogoField } from "./image-fields";
+import ProfilePreview from "./profile-preview";
+import { BIO_MAX_LENGTH } from "./schema";
+import useSetUpProfile from "./use-set-up-profile";
+
+export function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
+	const id = React.useId();
+	return (
+		<section aria-labelledby={id} className="grid gap-5 border-b border-auth-line pb-8">
+			<h2 id={id} className="text-[16px] font-bold leading-[1.3] text-auth-ink">
+				{title}
+			</h2>
+			{children}
+		</section>
+	);
+}
 
 export default function SetUpProfile() {
 	const {
-		formData,
+		form,
 		errors,
+		logo,
+		cover,
 		isLoading,
-		updateForm,
+		accountEmail,
+		update,
+		setValue,
+		pickLogo,
+		pickCover,
+		removeLogo,
+		removeCover,
 		submit,
-		logoPreview,
-		displayImagePreview,
-		handleLogoChange,
-		handleDisplayImageChange,
-		handleLogoRemove,
-		handleDisplayImageRemove,
-	} = useManagerProfile();
+	} = useSetUpProfile();
 
-	const { data: countries, isLoading: loadingCountries } = useQuery({
+	const { data: countries = [], isLoading: loadingCountries } = useQuery({
 		queryKey: ["countries"],
 		queryFn: getCountries,
 	});
-
-	const countryOptions = React.useMemo(() => {
-		return (
-			countries?.map((country) => ({
-				value: country.id,
-				title: country.country_name,
-			})) ?? []
-		);
-	}, [countries]);
+	const countryName = countries.find((country) => country.id === form.operating_country_id)?.country_name;
+	const bioTooLong = form.bio.length > BIO_MAX_LENGTH;
+	const emailHint =
+		accountEmail && form.email === accountEmail
+			? "We filled in your account email. You can use a different one."
+			: undefined;
 
 	return (
-		<div className="max-w-2xl mx-auto space-y-6">
-			<div className="space-y-2">
-				<h2 className="text-xl font-semibold text-neutral-900">Setup Organization Profile</h2>
-				<p className="body-3 text-neutral-600">
-					Setup your organization profile information. This information will be displayed on your events
-					and public profile.
-				</p>
-			</div>
-
-			{/* Profile Images Section */}
-			<div className="bg-neutral-50 rounded-lg border border-neutral-200 p-4 space-y-4">
-				<ProfileImages
-					displayImage={displayImagePreview}
-					logo={logoPreview}
-					onDisplayImageChange={handleDisplayImageChange}
-					onLogoChange={handleLogoChange}
-					onDisplayImageRemove={handleDisplayImageRemove}
-					onLogoRemove={handleLogoRemove}
-					disabled={isLoading}
-				/>
-			</div>
-
-			{/* Basic Information Section */}
-			<div className="bg-neutral-50 rounded-lg border border-neutral-200 p-4 space-y-4">
-				<div className="flex items-center gap-2">
-					<Building2 className="w-4 h-4 text-accent-500" />
-					<h3 className="body-2 font-semibold text-neutral-900">Basic Information</h3>
-				</div>
-
-				<div className="space-y-4">
-					{/* Name */}
-					<Input
-						name="name"
-						type="text"
-						label="Organization Name"
-						placeholder="e.g., Blue Space Events"
-						value={formData.name}
-						onChange={(e) => updateForm("name", e.target.value)}
-						disabled={isLoading}
-						errorMessage={errors.name}
-						required
-						floatingLabel={true}
-					/>
-
-					{/* Bio */}
-					<Textarea
-						name="bio"
-						label="Bio"
-						placeholder="Tell us about your organization..."
-						value={formData.bio ?? ""}
-						onChange={(e) => updateForm("bio", e.target.value)}
-						disabled={isLoading}
-						errorMessage={errors.bio}
-						floatingLabel={true}
-						rows={4}
-					/>
-				</div>
-			</div>
-
-			{/* Contact Information Section */}
-			<div className="bg-neutral-50 rounded-lg border border-neutral-200 p-4 space-y-4">
-				<div className="flex items-center gap-2">
-					<Mail className="w-4 h-4 text-accent-500" />
-					<h3 className="body-2 font-semibold text-neutral-900">Contact Information</h3>
-				</div>
-
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					{/* Email */}
-					<Input
-						name="email"
-						type="email"
-						label="Email"
-						placeholder="contact@example.com"
-						value={formData.email}
-						onChange={(e) => updateForm("email", e.target.value)}
-						disabled={isLoading}
-						errorMessage={errors.email}
-						required
-						floatingLabel={true}
-					/>
-
-					{/* Phone */}
-					<Input
-						name="phone"
-						type="tel"
-						label="Phone"
-						placeholder="+1234567890"
-						value={formData.phone ?? ""}
-						onChange={(e) => updateForm("phone", e.target.value)}
-						disabled={isLoading}
-						errorMessage={errors.phone}
-						floatingLabel={true}
-					/>
-				</div>
-			</div>
-
-			{/* Location Section */}
-			<div className="bg-neutral-50 rounded-lg border border-neutral-200 p-4 space-y-4">
-				<div className="flex items-center gap-2">
-					<MapPin className="w-4 h-4 text-accent-500" />
-					<h3 className="body-2 font-semibold text-neutral-900">Operating Location</h3>
-				</div>
-
-				<SelectBox
-					name="operating_country_id"
-					label="Operating Country"
-					placeholder="Select Country"
-					value={formData.operating_country_id}
-					onchange={(value) => updateForm("operating_country_id", value)}
-					disabled={isLoading || loadingCountries}
-					options={countryOptions}
-					errorMessage={errors.operating_country_id}
-					required
-					floatingLabel={true}
-					showSearch={true}
-				/>
-			</div>
-
-			{/* Save Button */}
-			<div className="flex justify-end pt-2">
-				<AppButton
-					variant="primary"
-					className="rounded-lg px-8"
-					onClick={submit}
-					isLoading={isLoading}
-					disabled={isLoading}
+		<section aria-labelledby="set-up-profile-title" className="mt-4 text-auth-ink">
+			<header className="mb-8 grid max-w-[600px] gap-2">
+				<h1
+					id="set-up-profile-title"
+					className="text-[26px] font-bold leading-[1.25] tracking-[-0.01em] [text-wrap:balance]"
 				>
-					Create Profile
-				</AppButton>
-			</div>
-		</div>
+					Set up your organizer profile
+				</h1>
+				<p className="text-[15px] leading-[1.55] text-auth-muted">
+					Guests see this on your events and on your public profile.
+				</p>
+			</header>
+
+			<form
+				onSubmit={submit}
+				noValidate
+				className="grid gap-8 lg:grid-cols-[minmax(0,560px)_minmax(0,380px)] lg:gap-x-16"
+			>
+				<fieldset disabled={isLoading} className="contents">
+					<div className="grid gap-8">
+						<FormSection title="Your brand">
+							<Field id="org-name" label="Organizer name" error={errors.name}>
+								<input
+									{...controlProps("org-name", { error: errors.name })}
+									type="text"
+									autoComplete="organization"
+									placeholder="Company, brand or your own name"
+									value={form.name}
+									onChange={update("name")}
+									className={controlClass(Boolean(errors.name), "h-11")}
+								/>
+							</Field>
+
+							<LogoField image={logo} onPick={pickLogo} onRemove={removeLogo} />
+							<CoverField image={cover} onPick={pickCover} onRemove={removeCover} />
+
+							<Field
+								id="org-bio"
+								label="Bio"
+								optional
+								error={errors.bio}
+								aside={
+									<span className={classNames("text-[12px]", bioTooLong ? "text-auth-error" : "text-auth-muted")}>
+										{form.bio.length} / {BIO_MAX_LENGTH}
+									</span>
+								}
+							>
+								<textarea
+									{...controlProps("org-bio", { error: errors.bio })}
+									rows={4}
+									placeholder="What kind of events do you run?"
+									value={form.bio}
+									onChange={update("bio")}
+									className={controlClass(Boolean(errors.bio), "min-h-28 resize-y py-2.5 leading-normal")}
+								/>
+							</Field>
+						</FormSection>
+
+						<FormSection title="Contact and location">
+							<Field id="org-email" label="Email" error={errors.email} hint={emailHint}>
+								<input
+									{...controlProps("org-email", { error: errors.email, hint: emailHint })}
+									type="email"
+									autoComplete="email"
+									placeholder="you@example.com"
+									value={form.email}
+									onChange={update("email")}
+									className={controlClass(Boolean(errors.email), "h-11")}
+								/>
+							</Field>
+
+							<Field id="org-phone" label="Phone number" error={errors.phone}>
+								<input
+									{...controlProps("org-phone", { error: errors.phone })}
+									type="tel"
+									autoComplete="tel"
+									placeholder="+234 800 000 0000"
+									value={form.phone}
+									onChange={update("phone")}
+									className={controlClass(Boolean(errors.phone), "h-11")}
+								/>
+							</Field>
+
+							<Field id="org-country" label="Country you operate in" error={errors.operating_country_id}>
+								<SelectField
+									{...controlProps("org-country", { error: errors.operating_country_id })}
+									value={form.operating_country_id}
+									options={countries.map((country) => ({ value: country.id, label: country.country_name }))}
+									onChange={(value) => setValue("operating_country_id", value)}
+									disabled={loadingCountries}
+									placeholder={loadingCountries ? "Loading countries…" : "Choose a country"}
+								/>
+							</Field>
+						</FormSection>
+					</div>
+
+					<ProfilePreview
+						name={form.name}
+						bio={form.bio}
+						country={countryName}
+						logo={logo?.preview}
+						cover={cover?.preview}
+						className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start"
+					/>
+
+					<div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+						<AppButton
+							type="submit"
+							variant="primary"
+							isLoading={isLoading}
+							className="h-11 w-full px-5 !text-[15px] font-semibold sm:w-auto sm:min-w-[220px]"
+						>
+							Create organizer profile
+						</AppButton>
+						<p className="text-[13px] leading-[1.45] text-auth-muted">You can change any of this later in Settings.</p>
+					</div>
+				</fieldset>
+			</form>
+		</section>
 	);
 }
