@@ -1,141 +1,121 @@
-import useCustomNavigation from "@/hooks/use-navigation";
-import useAppSelector from "@/store/hooks";
-import React, { useMemo } from "react";
-import ensureError, { formatZodErrors } from "@/lib/ensure-error";
-import { toast } from "sonner";
-import { newEventInitial, newEventSchema } from "./schema";
-import useActions from "@/store/actions";
+"use client";
+import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ZodError } from "zod";
-import getEventCategories from "@/services/extras/get-event-categories";
+import { toast } from "sonner";
+import type { ZodError } from "zod";
+import useCustomNavigation from "@/hooks/use-navigation";
+import ensureError from "@/lib/ensure-error";
+import invalidateQuery from "@/lib/invalidate-query";
+import { profileQueryKey } from "@/features/settings/use-save-profile";
+import getManagerProfile from "@/services/account/get-manager-profile";
 import createEvent from "@/services/events/create-event";
 import getCountries from "@/services/extras/get-countries";
-import invalidateQuery from "@/lib/invalidate-query";
+import getEventCategories from "@/services/extras/get-event-categories";
+import useActions from "@/store/actions";
+import useAppSelector from "@/store/hooks";
+import { COMMON_CATEGORIES, newEventInitial, newEventSchema, NewEventForm } from "./schema";
+
+type FieldErrors = Partial<Record<keyof NewEventForm, string>>;
+
+function firstErrors(error: ZodError): FieldErrors {
+	const errors: FieldErrors = {};
+	for (const issue of error.issues) {
+		const field = issue.path[0] as keyof NewEventForm;
+		errors[field] ??= issue.message;
+	}
+	return errors;
+}
 
 export default function useCreateEvent() {
 	const { dialog } = useAppSelector("ui");
 	const { managerProfile } = useAppSelector("manager_profile");
-	const [formData, setFormData] = React.useState(newEventInitial);
-	const [errors, setErrors] = React.useState<Record<string, string>>({});
-	const [isLoading, setIsLoading] = React.useState(false);
-	const { navigate } = useCustomNavigation();
-
 	const { ui } = useActions();
+	const { navigate } = useCustomNavigation();
+	const open = dialog.show && dialog.type === "create_event";
 
-	const open = React.useMemo(() => {
-		return dialog.show && dialog.type === "create_event";
-	}, [dialog.show, dialog.type]);
+	const [form, setForm] = React.useState<NewEventForm>(newEventInitial);
+	const [attempted, setAttempted] = React.useState(false);
+	const [isLoading, setIsLoading] = React.useState(false);
 
-	const { isFetching: fetchingEventCategories, data: eventCategories } = useQuery({
-		queryKey: ["event-categories", open],
+	const { data: categories = [], isLoading: loadingCategories } = useQuery({
+		queryKey: ["event-categories"],
 		queryFn: getEventCategories,
 		enabled: open,
 	});
-
-	const { isFetching: fetchingLocations, data: locations } = useQuery({
-		queryKey: ["locations", open],
-		queryFn: getCountries,
-		enabled: open,
+	const { data: countries = [] } = useQuery({ queryKey: ["countries"], queryFn: getCountries, enabled: open });
+	const profileId = managerProfile?.id ?? "";
+	const { data: profile } = useQuery({
+		queryKey: profileQueryKey(profileId),
+		queryFn: () => getManagerProfile(profileId),
+		enabled: open && Boolean(profileId),
 	});
 
-	const updateForm = (name: keyof typeof formData, value: string | boolean) => {
-		setErrors({});
-		setFormData((prev) => ({
-			...prev,
-			[name]: typeof value === "string" ? value : value,
-		}));
+	// Alphabetical, with the catch-all "Other" at the end.
+	const categoryOptions = React.useMemo(
+		() =>
+			categories
+				.map((category) => ({ value: category.id, label: category.name }))
+				.sort((a, b) => Number(a.label === "Other") - Number(b.label === "Other") || a.label.localeCompare(b.label)),
+		[categories]
+	);
+	const commonCategories = COMMON_CATEGORIES.flatMap((name) =>
+		categoryOptions.filter((option) => option.label === name).map((option) => option.value)
+	);
+
+	// Events take place in the organizer's operating country (the profile cached at login doesn't include it).
+	const locationId = profile?.operating_country_id || countries[0]?.id || "";
+	const countryName = countries.find((country) => country.id === locationId)?.country_name;
+
+	const errors = React.useMemo<FieldErrors>(() => {
+		if (!attempted) return {};
+		const result = newEventSchema.safeParse(form);
+		return result.success ? {} : firstErrors(result.error);
+	}, [attempted, form]);
+
+	const set = <K extends keyof NewEventForm>(field: K, value: NewEventForm[K]) =>
+		setForm((prev) => ({ ...prev, [field]: value }));
+
+	const close = () => {
+		if (isLoading) return;
+		setForm(newEventInitial);
+		setAttempted(false);
+		ui.resetDialog();
 	};
 
-	const submit = async () => {
-		if (!managerProfile?.id) {
-			toast.error("Manager Profile not found, try refreshing the page");
-			return;
-		}
-		setErrors({});
+	const submit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setAttempted(true);
+		const result = newEventSchema.safeParse(form);
+		if (!result.success || !locationId) return;
+
 		setIsLoading(true);
 		try {
-			const formValues = newEventSchema.parse({
-				...formData,
-			});
-			const response = await createEvent({
-				...formValues,
-				tags: formValues.tags.split(","),
-				manager_id: managerProfile.id,
-			});
-
-			if (response) {
-				toast.success("Event created successfully, you can now proceed to setup your event", {
-					description: "You can now proceed to setup your event",
-				});
-				invalidateQuery(["events"]);
-				navigate(`/events/${response.event.id}/manage`);
-			}
-		} catch (err) {
-			if (err instanceof ZodError) {
-				const errors = formatZodErrors(err);
-				setErrors(errors);
-				return;
-			}
-			const errMsg = ensureError(err).message;
-			toast.error(errMsg);
+			const { event } = await createEvent({ ...result.data, location_id: locationId });
+			invalidateQuery(["events"]);
+			invalidateQuery(["home-dashboard"]);
+			toast.success("Draft created");
+			setForm(newEventInitial);
+			setAttempted(false);
+			ui.resetDialog();
+			navigate(`/events/${event.id}`);
+		} catch (error) {
+			toast.error(ensureError(error).message);
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	const showSuccessDialog = (id: string) => {
-		const dismiss = () => {
-			invalidateQuery(["events"]);
-			close();
-		};
-		ui.changeDialog({
-			show: true,
-			type: "success",
-			data: {
-				title: "Event created successfully",
-				text: "You can now proceed to setup your event",
-			},
-			action: () => navigate(`/events/${id}/manage`),
-			dismiss,
-		});
-	};
-
-	const close = () => {
-		if (isLoading) return;
-
-		setFormData(newEventInitial);
-		setErrors({});
-		ui.resetDialog();
-	};
-
-	const eventCategoryOptions = useMemo(() => {
-		if (!eventCategories) return [];
-		return eventCategories?.map((item) => ({
-			value: item.id,
-			title: item.name,
-		}));
-	}, [eventCategories]);
-
-	const locationOptions = useMemo(() => {
-		if (!locations) return [];
-		return locations?.map((item) => ({
-			value: item.id,
-			title: item.country_name,
-		}));
-	}, [locations]);
-
 	return {
-		isLoading,
-		eventCategoryOptions,
-		formData,
-		updateForm,
-		submit,
-		errors,
-		fetchingEventCategories,
-		showSuccessDialog,
 		open,
+		form,
+		errors,
+		isLoading,
+		categoryOptions,
+		commonCategories,
+		loadingCategories,
+		countryName,
+		set,
 		close,
-		locationOptions,
-		fetchingLocations,
+		submit,
 	};
 }

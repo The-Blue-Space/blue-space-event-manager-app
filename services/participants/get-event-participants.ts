@@ -17,7 +17,7 @@ type Response = PaginatedResponse<Participant>;
 
 export async function production({event_id, ...params}: Parameters): Promise<Response> {
 	const queryString = buildQueryString(params);
-	const response = await axios.get(`/v1/events/${event_id}/participants?${queryString}`);
+	const response = await axios.get(`/v1/participants/event/${event_id}?${queryString}`);
 	return response.data;
 }
 

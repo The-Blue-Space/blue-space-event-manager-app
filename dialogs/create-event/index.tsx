@@ -1,203 +1,143 @@
-import AppButton from "@/components/app/app-button";
+"use client";
 import * as React from "react";
+import classNames from "classnames";
+import { X } from "lucide-react";
+import AppButton from "@/components/app/app-button";
+import ChoiceCards from "@/components/app/choice-cards";
+import Field, { controlClass, controlProps } from "@/components/app/field";
+import SearchSelect from "@/components/app/search-select";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { ACCESS_CHOICES, DESCRIPTION_MAX_LENGTH, VISIBILITY_CHOICES } from "./schema";
 import useCreateEvent from "./use-create-event";
-import { ACCESS_TYPE_INFO } from "./data";
-import { Input, Textarea } from "@/components/app/form-input";
-import SelectBox from "@/components/app/form-input/select-box";
-import AppSwitch from "@/components/app/app-switch";
-import AppHoverCard from "@/components/app/app-hover-card";
-import { InfoIcon } from "lucide-react";
-import { ACCESS_TYPES } from "@/types/event.types";
-import AppDrawer from "@/components/app/app-drawer";
 
-export default React.memo(function CreateEventDialog() {
+export default function CreateEventDialog() {
 	const {
-		isLoading,
-		eventCategoryOptions,
-		formData,
-		updateForm,
-		submit,
-		errors,
-		fetchingEventCategories,
 		open,
+		form,
+		errors,
+		isLoading,
+		categoryOptions,
+		commonCategories,
+		loadingCategories,
+		countryName,
+		set,
 		close,
-		locationOptions,
-		fetchingLocations,
+		submit,
 	} = useCreateEvent();
+	const descriptionTooLong = form.description.length > DESCRIPTION_MAX_LENGTH;
 
 	return (
-		<AppDrawer
-			title="Create New Event"
-			open={open}
-			direction="bottom"
-			handleChange={close}
-			className="hide-scrollbar"
-			headerClassName="mb-5 py-2"
-			showLogo={false}
-		>
-			<form className="flex flex-col gap-4 w-full max-w-xl mx-auto p-4 rounded-lg border">
-				<span className="body-2 text-neutral-500">
-					Setup by filling out the basic details below
-				</span>
-				{/* Event Title */}
-				<Input
-					name="title"
-					type="text"
-					label="Event Title"
-					floatingLabel={true}
-					placeholder="e.g., Summer Music Festival 2025"
-					value={formData.title}
-					onChange={(e) => updateForm("title", e.target.value)}
-					disabled={isLoading}
-					errorMessage={errors.title}
-					required
-				/>
-
-				{/* Event Description */}
-				<Textarea
-					name="description"
-					label="Event Description"
-					placeholder="Brief description of your event (5-150 characters)"
-					value={formData.description}
-					onChange={(e) => updateForm("description", e.target.value)}
-					disabled={isLoading}
-					errorMessage={errors.description}
-					floatingLabel={true}
-					required
-				/>
-
-				{/* Category & Location */}
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<SelectBox
-						name="event_category_id"
-						label="Category"
-						placeholder="Select Category"
-						value={formData.event_category_id}
-						onchange={(value) => updateForm("event_category_id", value)}
-						disabled={isLoading || fetchingEventCategories}
-						options={eventCategoryOptions}
-						errorMessage={errors.event_category_id}
-						required
-						floatingLabel={true}
-					/>
-					<SelectBox
-						name="location_id"
-						label="Location"
-						placeholder="Select Location"
-						value={formData.location_id}
-						onchange={(value) => updateForm("location_id", value)}
-						disabled={isLoading || fetchingLocations}
-						options={locationOptions}
-						errorMessage={errors.location_id}
-						required
-						floatingLabel={true}
-					/>
-				</div>
-
-				{/* Tags */}
-				<div>
-					<Input
-						name="tags"
-						type="text"
-						label="Tags"
-						placeholder="e.g., music, festival, outdoor"
-						value={formData.tags}
-						onChange={(e) => updateForm("tags", e.target.value)}
-						disabled={isLoading}
-						errorMessage={errors.tags}
-						required
-						floatingLabel={true}
-					/>
-					<p className="text-xs text-neutral-500 mt-1">Separate multiple tags with commas</p>
-				</div>
-
-				{/* Access Type with Hover Card */}
-				<div className="flex items-star gap-2 w-full">
-					<div className="flex-1">
-						<SelectBox
-							name="access_type"
-							label="Access Type"
-							placeholder="Select Access Type"
-							value={formData.access_type}
-							onchange={(value) => updateForm("access_type", value)}
-							disabled={isLoading}
-							options={ACCESS_TYPES.map((type) => ({
-								title: type.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase()),
-								value: type,
-							}))}
-							errorMessage={errors.access_type}
-							required
-							floatingLabel={true}
-						/>
-					</div>
-					<AppHoverCard
-						trigger={
-							<div className="">
-								<InfoIcon className="w-5 h-5 text-neutral-400 cursor-help hover:text-primary-500 transition-colors" />
-							</div>
-						}
-						contentClassName="w-96 p-0 overflow-hidden"
-						side="right"
-						delay={200}
-					>
-						<div className="space-y-3 p-4">
-							<h4 className="font-semibold text-sm text-neutral-900 mb-3">Access Types</h4>
-							{ACCESS_TYPES.map((type) => {
-								const info = ACCESS_TYPE_INFO[type as keyof typeof ACCESS_TYPE_INFO];
-								return (
-									<div
-										key={type}
-										className="flex items-start gap-3 p-2 rounded-lg bg-neutral-50 border border-neutral-100"
-									>
-										<span className="text-2xl flex-shrink-0">{info?.icon || "📌"}</span>
-										<div className="flex-1 space-y-1">
-											<h5 className="font-semibold text-sm text-neutral-800">{info?.title}</h5>
-											<p className="text-xs text-neutral-600 leading-relaxed">
-												{info?.description}
-											</p>
-										</div>
-									</div>
-								);
-							})}
+		<Dialog open={open} onOpenChange={(next) => !next && close()}>
+			<DialogContent className="flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-[620px] flex-col gap-0 overflow-hidden rounded-2xl border-0 bg-white p-0 font-manrope text-auth-ink shadow-[0_24px_64px_-24px_rgba(25,24,55,0.45)] max-sm:h-dvh max-sm:max-h-dvh max-sm:w-full max-sm:rounded-none">
+				<form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
+					<header className="flex items-start gap-4 px-4 pt-5 sm:px-6 sm:pt-[22px]">
+						<div className="flex-1">
+							<DialogTitle className="text-[20px] font-bold leading-tight">Create an event</DialogTitle>
+							<DialogDescription className="mt-1 text-[14px] leading-normal text-auth-muted">
+								Start with the basics. It stays a draft until you publish it.
+							</DialogDescription>
 						</div>
-					</AppHoverCard>
-				</div>
+						<DialogClose
+							aria-label="Close"
+							className="grid size-10 shrink-0 place-items-center rounded-lg text-auth-muted transition-colors duration-150 hover:bg-auth-info-soft hover:text-auth-ink"
+						>
+							<X aria-hidden="true" className="size-5" />
+						</DialogClose>
+					</header>
 
-				{/* Event Visibility Switch */}
-				<div className="flex items-center justify-between gap-4 p-3 rounded-lg bg-neutral-50 border border-neutral-200">
-					<div className="flex-1">
-						<label className="body-3 text-primary-500 block mb-1">Event Visibility</label>
-						<p className="text-xs text-neutral-600">
-							{formData.is_private
-								? "Private - Hidden from public listings, invite-only"
-								: "Public - Visible to everyone and listed publicly"}
-						</p>
-					</div>
-					<div className="flex items-center gap-2">
-						<span className="body-3 text-primary-500">
-							{formData.is_private ? "Private" : "Public"}
-						</span>
-						<AppSwitch
-							checked={formData.is_private}
-							onCheckedChange={(checked) => updateForm("is_private", checked)}
-							disabled={isLoading}
-						/>
-					</div>
-				</div>
-				<div className="flex gap-3 justify-end items-center w-full pt-2">
-					<AppButton variant="outline" className="rounded-lg" onClick={close} disabled={isLoading}>
-						Cancel
-					</AppButton>
-					<AppButton
-						variant="primary"
-						className="rounded-lg"
-						onClick={submit}
-						isLoading={isLoading}
+					<fieldset
+						disabled={isLoading}
+						className="grid min-h-0 flex-1 content-start gap-[18px] overflow-y-auto px-4 py-5 sm:px-6"
 					>
-						Create Event
-					</AppButton>
-				</div>
-			</form>
-		</AppDrawer>
+						<Field id="event-title" label="Event name" error={errors.title}>
+							<input
+								{...controlProps("event-title", { error: errors.title })}
+								type="text"
+								placeholder="What's it called?"
+								value={form.title}
+								onChange={(e) => set("title", e.target.value)}
+								className={controlClass(Boolean(errors.title), "h-11")}
+							/>
+						</Field>
+
+						<Field
+							id="event-description"
+							label="Short description"
+							error={errors.description}
+							aside={
+								<span className={classNames("text-[12px]", descriptionTooLong ? "text-auth-error" : "text-auth-muted")}>
+									{form.description.length} / {DESCRIPTION_MAX_LENGTH}
+								</span>
+							}
+						>
+							<textarea
+								{...controlProps("event-description", { error: errors.description })}
+								rows={2}
+								placeholder="A line or two guests will see first. You can write more later."
+								value={form.description}
+								onChange={(e) => set("description", e.target.value)}
+								className={controlClass(Boolean(errors.description), "resize-y py-2.5 leading-normal")}
+							/>
+						</Field>
+
+						<Field id="event-category" label="Category" error={errors.event_category_id}>
+							<SearchSelect
+								{...controlProps("event-category", { error: errors.event_category_id })}
+								value={form.event_category_id}
+								options={categoryOptions}
+								common={commonCategories}
+								restLabel="More categories"
+								onChange={(value) => set("event_category_id", value)}
+								disabled={loadingCategories}
+								placeholder={loadingCategories ? "Loading categories…" : "Choose a category"}
+								searchPlaceholder="Search categories"
+								noun="category"
+							/>
+						</Field>
+
+						<ChoiceCards
+							name="access_type"
+							legend="How do guests get in?"
+							hint="You can change this until you publish."
+							value={form.access_type}
+							choices={ACCESS_CHOICES}
+							onChange={(value) => set("access_type", value)}
+							className="sm:grid-cols-2"
+						/>
+
+						<ChoiceCards
+							name="is_private"
+							legend="Who can find it?"
+							value={form.is_private}
+							choices={VISIBILITY_CHOICES}
+							onChange={(value) => set("is_private", value)}
+							className="grid-cols-2"
+						/>
+					</fieldset>
+
+					<footer className="flex flex-wrap items-center gap-3 border-t border-auth-line bg-auth-page px-4 py-4 sm:px-6">
+						<p className="min-w-[200px] flex-1 text-[13px] leading-[1.45] text-auth-muted">
+							Takes place in {countryName ?? "your operating country"}. Next you’ll add the date, venue
+							{form.access_type === "ticket-based" ? " and tickets" : " and a cover image"}.
+						</p>
+						<button
+							type="button"
+							onClick={close}
+							className="h-11 rounded-lg px-4 text-[15px] font-semibold text-auth-muted transition-colors duration-150 hover:bg-auth-info-soft hover:text-auth-ink"
+						>
+							Cancel
+						</button>
+						<AppButton
+							type="submit"
+							variant="primary"
+							isLoading={isLoading}
+							className="h-11 min-w-[140px] px-5 !text-[15px] font-semibold"
+						>
+							Create draft
+						</AppButton>
+					</footer>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
-});
+}

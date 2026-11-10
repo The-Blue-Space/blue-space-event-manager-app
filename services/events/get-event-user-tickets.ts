@@ -14,7 +14,7 @@ type Response = PaginatedResponse<UserTicket>;
 
 export async function production(params: Parameters): Promise<Response> {
 	const { eventId, page = 1, limit = 10, search } = params;
-	const response = await axios.get(`/v1/events/${eventId}/tickets`, {
+	const response = await axios.get(`/v1/events/${eventId}/user-tickets`, {
 		params: { page, limit, search },
 	});
 	return response.data;

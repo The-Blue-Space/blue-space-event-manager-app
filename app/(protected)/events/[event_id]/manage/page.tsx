@@ -1,11 +1,7 @@
-import ManagerEvent from "@/features/events/manage-event";
-import { generateMetadata } from "@/lib/generate-metadata";
+import { redirect } from "next/navigation";
 
-export const metadata = generateMetadata({
-	title: "Manage Event",
-	description: "Setup and manage the details of your event",
-});
-
-export default function ManagerEventPage() {
-	return <ManagerEvent />;
+// The separate Event Manager is now the event page's Details tab.
+export default async function ManageEventRedirect({ params }: { params: Promise<{ event_id: string }> }) {
+	const { event_id } = await params;
+	redirect(`/events/${event_id}?tab=details`);
 }
