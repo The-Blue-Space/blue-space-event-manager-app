@@ -1,63 +1,45 @@
 "use client";
-import AuthContainer from "@/components/app/container/auth-container";
-
-import useStorage from "@/hooks/use-storage";
-import { variables } from "@/constants";
-import { maskInfo } from "@/lib/mask-info";
-import { Badge } from "@/components/ui/badge";
+import * as React from "react";
 import { Mail } from "lucide-react";
-import ResendOtp from "./resend-otp";
+import { variables } from "@/constants";
+import useCookie from "@/hooks/use-cookie";
+import sendMFACode from "@/services/account/send-mfa-code";
+import AuthShell from "../components/auth-shell";
+import ResendButton from "../components/resend-button";
+import { AuthHeading, AuthSwitch, AuthTextLink, StatusTile } from "../components/auth-ui";
+import { SIGN_IN_LINK_MINUTES } from "../constants";
+import { maskEmail } from "../lib/messages";
 
 export default function MFA() {
-	const { get } = useStorage();
-	const email = get(variables.STORAGE_KEYS.email, "") ?? "";
+	const { get: getCookie } = useCookie();
+	// Read after mount: the cookie is only available in the browser.
+	const [email, setEmail] = React.useState<string | null>(null);
 
-	const steps = [
-		{
-			number: 1,
-			description: "Check your email inbox for the verification link",
-		},
+	React.useEffect(() => {
+		setEmail(getCookie<string>(variables.STORAGE_KEYS.email, "") ?? "");
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
-		{
-			number: 2,
-			description: "Click the verification link in the email",
-		},
-
-		{
-			number: 3,
-			description: "You'll be automatically redirected to your dashboard",
-		},
-	];
+	const sentTo = email ? <strong>{maskEmail(email)}</strong> : "your email";
 
 	return (
-		<AuthContainer className="lg:!gap-5">
-			<div className="bg-white rounded-lg shadow border border-neutral-200 p-8 w-full space-y-4">
-				<div className="flex flex-col items-center w-full space-y-1 text-center">
-					<Badge className="  flex items-center justify-center w-12 h-12 rounded-full bg-primary-300/10 p-0">
-						<Mail className="w-8 h-8 text-primary-300" />
-					</Badge>
-
-					<h2 className="heading-7 text-primary-500 mb-2">Verify Session</h2>
-					<p className="body-2 text-gray-600 mb-4">We&apos;ve sent a verification link to</p>
-					<p className="body-1 font-semibold text-primary-1000">{maskInfo(email, 3, 3)}</p>
-				</div>
-				<div className=" border-x border-neutral-200 px-6 py-3 mb-0 bg-neutral-200/25">
-					<h3 className="body-1 font-semibold text-primary-500 mb-4">Verification steps:</h3>
-					<ol className="space-y-3">
-						{steps.map((step) => (
-							<li key={step.number} className="flex items-start gap-3">
-								<span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary-300/10 flex items-center justify-center body-4 font-bold text-primary-500">
-									{step.number}
-								</span>
-								<span className="body-2 text-gray-600">{step.description}</span>
-							</li>
-						))}
-					</ol>
-				</div>
-
-				{/* Resend Email */}
-				<ResendOtp />
+		<AuthShell>
+			<div className="grid gap-6">
+				<StatusTile kind="info" icon={Mail} />
+				<AuthHeading
+					title="Check your email to finish logging in"
+					description={
+						<>
+							We sent a sign-in link to {sentTo}. Open it on this device. It expires in{" "}
+							{SIGN_IN_LINK_MINUTES} minutes.
+						</>
+					}
+				/>
+				{email && <ResendButton label="Resend link" onResend={() => sendMFACode({ email })} />}
+				<AuthSwitch>
+					<AuthTextLink href="/">Log in with a different account</AuthTextLink>
+				</AuthSwitch>
 			</div>
-		</AuthContainer>
+		</AuthShell>
 	);
 }
