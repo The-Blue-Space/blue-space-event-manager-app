@@ -2,10 +2,11 @@
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { Info } from "lucide-react";
 import Field, { controlProps } from "@/components/app/field";
+import RestoreBanner from "@/components/app/restore-banner";
+import SaveStatus from "@/components/app/save-status";
 import SelectField from "@/components/app/select-field";
 import { TabsContent } from "@/components/ui/tabs";
 import { variables } from "@/constants";
-import { useReportUnsavedChanges } from "@/features/events/event-page/unsaved-changes";
 import SaveBar from "@/features/settings/save-bar";
 import BasicsSection from "./basics-section";
 import CoverField from "./cover-field";
@@ -96,17 +97,27 @@ function DetailsTab() {
 	const api = useDetailsForm();
 	const { form, event, published, dirty, isSaving, save, errorCount, attempted, coverUrl, pickCover, removeCover } =
 		api;
-	useReportUnsavedChanges(dirty);
+	const { saving } = api;
 	if (!form || !event) return null;
 
 	return (
 		<div className="flex flex-wrap items-start gap-x-16 gap-y-10 pt-2">
 			<form
 				onSubmit={save}
+				{...saving.formProps}
 				noValidate
 				aria-label="Event details"
 				className="grid min-w-0 max-w-[600px] flex-[999_1_460px] gap-8"
 			>
+				{saving.offer && (
+					<RestoreBanner
+						savedAt={saving.offer.savedAt}
+						files={saving.offer.files}
+						onRestore={saving.restore}
+						onDiscard={saving.discard}
+					/>
+				)}
+
 				{published && (
 					<div role="note" className="flex gap-3 rounded-xl bg-auth-info-soft px-4 py-3.5 text-primary-500">
 						<Info aria-hidden="true" className="mt-0.5 size-[18px] shrink-0" />
@@ -134,12 +145,16 @@ function DetailsTab() {
 				<GoodToKnowSection api={api} />
 
 				<div className="sticky bottom-0 z-10 -mt-2 border-t border-auth-line bg-white pb-6 pt-4">
-					<SaveBar
-						dirty={dirty}
-						isSaving={isSaving}
-						savedAt={event.updated_at}
-						errorCount={attempted ? errorCount : 0}
-					/>
+					{published ? (
+						<SaveBar
+							dirty={dirty}
+							isSaving={isSaving}
+							savedAt={event.updated_at}
+							errorCount={attempted ? errorCount : 0}
+						/>
+					) : (
+						<SaveStatus status={saving.status} onRetry={() => void saving.retry()} />
+					)}
 				</div>
 			</form>
 

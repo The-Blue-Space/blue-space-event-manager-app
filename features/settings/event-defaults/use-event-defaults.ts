@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { z } from "zod";
+import useSavedForm from "@/hooks/use-saved-form";
 import { RefundPolicyType } from "@/types/event.types";
 import { ManagerProfile } from "@/types/user.types";
 import useSaveProfile from "../use-save-profile";
@@ -38,37 +39,42 @@ const toForm = (profile: ManagerProfile): EventDefaultsForm => ({
 	enable_downloads: profile.enable_downloads,
 });
 
+const needsDays = (form: EventDefaultsForm) => form.refund_policy_type !== "no-refund";
+
+/** Guests never see these defaults (only new events start from them), so they save themselves. */
 export default function useEventDefaults(profile: ManagerProfile) {
-	const { save, isSaving } = useSaveProfile(profile);
-	const [saved, setSaved] = React.useState(() => toForm(profile));
-	const [form, setForm] = React.useState(saved);
-	const [attempted, setAttempted] = React.useState(false);
+	const { send } = useSaveProfile(profile);
+	const server = React.useMemo(() => toForm(profile), [profile]);
 
-	const needsDays = form.refund_policy_type !== "no-refund";
+	const saving = useSavedForm<EventDefaultsForm>({
+		server,
+		resetKey: profile.id,
+		mode: "auto",
+		backup: "settings-event-defaults",
+		// A refund policy only makes sense with its window, so the two always save together.
+		groups: [["refund_policy_type", "refund_policy_days"]],
+		invalid: (values) =>
+			needsDays(values) && !refundDaysSchema.safeParse(values.refund_policy_days).success ? ["refund_policy_days"] : [],
+		save: async (next) => {
+			const { refund_policy_days, ...rest } = next;
+			// "No refunds" hides the window, so the saved one is left as it was.
+			await send(needsDays(next) ? { ...rest, refund_policy_days: Number(refund_policy_days) } : rest);
+		},
+		delay: 700,
+	});
+	const form = saving.values ?? server;
+
 	const days = refundDaysSchema.safeParse(form.refund_policy_days);
-	const daysError = attempted && needsDays && !days.success ? days.error.issues[0].message : undefined;
-
-	// The refund window is hidden for "No refunds", so it only counts as a change while it's shown.
-	const dirty = (Object.keys(form) as (keyof EventDefaultsForm)[]).some(
-		(field) => form[field] !== saved[field] && (field !== "refund_policy_days" || needsDays)
-	);
+	const daysError = saving.showErrors && needsDays(form) && !days.success ? days.error.issues[0].message : undefined;
 
 	const set = <Field extends keyof EventDefaultsForm>(field: Field, value: EventDefaultsForm[Field]) =>
-		setForm((prev) => ({ ...prev, [field]: value }));
+		saving.setValues((prev) => ({ ...prev, [field]: value }));
 
-	const submit = async (e: React.FormEvent) => {
+	/** Enter in the days field saves straight away. */
+	const submit = (e: React.FormEvent) => {
 		e.preventDefault();
-		setAttempted(true);
-		if (needsDays && !days.success) return;
-
-		const refund_policy_days = needsDays ? days.data : profile.refund_policy_days;
-		const updated = await save({ ...form, refund_policy_days }, "Event defaults saved");
-		if (!updated) return;
-
-		setSaved(toForm(updated));
-		setForm(toForm(updated));
-		setAttempted(false);
+		void saving.flush();
 	};
 
-	return { form, daysError, needsDays, dirty, isSaving, set, submit };
+	return { form, daysError, needsDays: needsDays(form), saving, set, submit };
 }

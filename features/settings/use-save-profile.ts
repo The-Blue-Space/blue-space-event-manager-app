@@ -32,17 +32,36 @@ function savedValues(profile: ManagerProfile): UpdateParams {
 	};
 }
 
+// One profile save at a time, across both Settings panels. Each request is built from the newest saved
+// profile when it's sent, so an event-defaults autosave and a profile Save can't undo each other's changes.
+let queue: Promise<unknown> = Promise.resolve();
+
 export default function useSaveProfile(profile: ManagerProfile) {
 	const queryClient = useQueryClient();
 	const { managerProfile } = useActions();
 	const [isSaving, setIsSaving] = React.useState(false);
 
+	/** Saves the changes on top of the latest saved profile. Throws if the save fails. */
+	const send = React.useCallback(
+		(changes: Partial<UpdateParams>) => {
+			const job = queue.then(async () => {
+				const latest = queryClient.getQueryData<ManagerProfile>(profileQueryKey(profile.id)) ?? profile;
+				const saved = await updateManagerProfile({ ...savedValues(latest), ...changes });
+				managerProfile.changeProfile(saved);
+				queryClient.setQueryData(profileQueryKey(saved.id), saved);
+				return saved;
+			});
+			queue = job.catch(() => undefined);
+			return job;
+		},
+		[queryClient, managerProfile, profile]
+	);
+
+	/** Saves with a message either way; returns null if it fails. */
 	const save = async (changes: Partial<UpdateParams>, successMessage: string) => {
 		setIsSaving(true);
 		try {
-			const saved = await updateManagerProfile({ ...savedValues(profile), ...changes });
-			managerProfile.changeProfile(saved);
-			queryClient.setQueryData(profileQueryKey(saved.id), saved);
+			const saved = await send(changes);
 			queryClient.invalidateQueries({ queryKey: profileQueryKey(saved.id) });
 			toast.success(successMessage);
 			return saved;
@@ -54,5 +73,5 @@ export default function useSaveProfile(profile: ManagerProfile) {
 		}
 	};
 
-	return { save, isSaving };
+	return { save, send, isSaving };
 }

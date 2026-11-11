@@ -9,6 +9,7 @@ import getCountries from "@/services/extras/get-countries";
 import { CoverField, LogoField } from "./image-fields";
 import ProfilePreview from "./profile-preview";
 import { BIO_MAX_LENGTH } from "./schema";
+import RestoreBanner from "@/components/app/restore-banner";
 import useSetUpProfile from "./use-set-up-profile";
 
 export function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
@@ -30,6 +31,7 @@ export default function SetUpProfile() {
 		logo,
 		cover,
 		isLoading,
+		saving,
 		accountEmail,
 		update,
 		setValue,
@@ -71,6 +73,16 @@ export default function SetUpProfile() {
 				className="grid gap-8 lg:grid-cols-[minmax(0,560px)_minmax(0,380px)] lg:gap-x-16"
 			>
 				<fieldset disabled={isLoading} className="contents">
+					{saving.offer && (
+						<RestoreBanner
+							variant="started"
+							savedAt={saving.offer.savedAt}
+							files={saving.offer.files}
+							onRestore={saving.restore}
+							onDiscard={saving.discard}
+							className="lg:col-span-2"
+						/>
+					)}
 					<div className="grid gap-8">
 						<FormSection title="Your brand">
 							<Field id="org-name" label="Organizer name" error={errors.name}>

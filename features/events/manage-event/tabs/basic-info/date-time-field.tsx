@@ -28,6 +28,8 @@ type DateTimeFieldProps = {
 	id: string;
 	"aria-invalid"?: boolean;
 	"aria-describedby"?: string;
+	/** For a field whose visible label belongs to another control, e.g. a mode select above it. */
+	"aria-label"?: string;
 	value: number | null;
 	onChange: (value: number) => void;
 	/** "end" lists times after `start`, with how long the event runs. */

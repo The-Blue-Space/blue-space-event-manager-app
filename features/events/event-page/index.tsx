@@ -27,7 +27,7 @@ import useActions from "@/store/actions";
 import EventHeader from "./header";
 import Overview from "./overview";
 import { EventTab } from "./steps";
-import { UnsavedChangesProvider } from "./unsaved-changes";
+import { UnsavedChanges, UnsavedChangesProvider } from "./unsaved-changes";
 
 // `value` is what the reused setup tabs register with; `id` is what the URL shows.
 const TABS: { id: EventTab; value: string; label: string }[] = [
@@ -83,25 +83,43 @@ function EventWorkspace() {
 		onError: (error) => toast.error(ensureError(error).message),
 	});
 
-	// Details saves with one button, so leaving it with unsaved edits asks first.
-	const unsaved = React.useRef(false);
+	// Details reports whether anything on it can't be saved. A draft's Details saves itself, so leaving only asks
+	// when something needs a fix; a published event's Details asks if you haven't pressed Save.
+	const unsaved = React.useRef<UnsavedChanges | null>(null);
+	/** Publishing waits for pending saves, so guests never get the version from before your last edit. */
+	const settled = async () => !unsaved.current || (await unsaved.current.flush());
+
+	// Switching tabs doesn't wait for a save: closing Details saves what's pending, and the device keeps a copy.
 	const goTo = (id: EventTab) => {
-		if (unsaved.current && tab.id === "details" && id !== "details") {
+		if (tab.id === "details" && id !== "details" && unsaved.current?.unsafeToLeave) {
 			ui.changeDialog({
 				show: true,
 				type: "info_dialog",
 				data: {
-					title: "Discard changes?",
-					text: "Your changes on Details haven’t been saved. If you leave this tab, they’ll be lost.",
+					title: "Leave without saving?",
+					text: "Some changes on Details aren’t saved. They’re kept on this device, so you can restore them when you come back.",
 				},
-				action: () => {
-					unsaved.current = false;
-					navigate(`?tab=${id}`);
-				},
+				action: () => navigate(`?tab=${id}`),
 			});
 			return;
 		}
 		navigate(`?tab=${id}`);
+	};
+
+	const publishNow = async () => {
+		if (!(await settled())) {
+			ui.changeDialog({
+				show: true,
+				type: "info_dialog",
+				data: {
+					title: "Publish without your latest changes?",
+					text: "Some changes on Details aren’t saved, so guests won’t see them. Fix them first, or publish without them.",
+				},
+				action: () => publish.mutate(),
+			});
+			return;
+		}
+		publish.mutate();
 	};
 	const confirmUnpublish = () =>
 		ui.changeDialog({
@@ -128,7 +146,7 @@ function EventWorkspace() {
 				<EventHeader
 					summary={summary.data}
 					isBusy={publish.isPending || unpublish.isPending}
-					onPublish={() => publish.mutate()}
+					onPublish={publishNow}
 					onUnpublish={confirmUnpublish}
 				/>
 			) : summary.isError ? (

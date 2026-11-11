@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import AppButton from "@/components/app/app-button";
 import ChoiceCards from "@/components/app/choice-cards";
 import Field, { controlClass, controlProps } from "@/components/app/field";
+import RestoreBanner from "@/components/app/restore-banner";
 import SearchSelect from "@/components/app/search-select";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { ACCESS_CHOICES, DESCRIPTION_MAX_LENGTH, VISIBILITY_CHOICES } from "./schema";
@@ -23,6 +24,7 @@ export default function CreateEventDialog() {
 		set,
 		close,
 		submit,
+		saving,
 	} = useCreateEvent();
 	const descriptionTooLong = form.description.length > DESCRIPTION_MAX_LENGTH;
 
@@ -49,6 +51,14 @@ export default function CreateEventDialog() {
 						disabled={isLoading}
 						className="grid min-h-0 flex-1 content-start gap-[18px] overflow-y-auto px-4 py-5 sm:px-6"
 					>
+						{saving.offer && (
+							<RestoreBanner
+								variant="started"
+								savedAt={saving.offer.savedAt}
+								onRestore={saving.restore}
+								onDiscard={saving.discard}
+							/>
+						)}
 						<Field id="event-title" label="Event name" error={errors.title}>
 							<input
 								{...controlProps("event-title", { error: errors.title })}

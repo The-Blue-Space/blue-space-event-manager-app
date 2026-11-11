@@ -9,6 +9,7 @@ import ProfilePreview from "@/features/home/set-up-profile/profile-preview";
 import { BIO_MAX_LENGTH } from "@/features/home/set-up-profile/schema";
 import getCountries from "@/services/extras/get-countries";
 import { ManagerProfile } from "@/types/user.types";
+import RestoreBanner from "@/components/app/restore-banner";
 import SaveBar from "../save-bar";
 import useProfileForm from "./use-profile-form";
 
@@ -29,6 +30,7 @@ export default function OrganizerProfile({ profile }: { profile: ManagerProfile 
 		removeLogo,
 		removeCover,
 		submit,
+		saving,
 	} = useProfileForm(profile);
 
 	const { data: countries = [], isLoading: loadingCountries } = useQuery({
@@ -45,6 +47,15 @@ export default function OrganizerProfile({ profile }: { profile: ManagerProfile 
 			className="grid gap-8 lg:grid-cols-[minmax(0,560px)_minmax(0,380px)] lg:gap-x-16"
 		>
 			<fieldset disabled={isSaving} className="contents">
+				{saving.offer && (
+					<RestoreBanner
+						savedAt={saving.offer.savedAt}
+						files={saving.offer.files}
+						onRestore={saving.restore}
+						onDiscard={saving.discard}
+						className="lg:col-span-2"
+					/>
+				)}
 				<div className="grid gap-8">
 					<FormSection title="Your brand">
 						<Field id="org-name" label="Organizer name" error={errors.name}>

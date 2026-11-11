@@ -3,6 +3,7 @@ import * as React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { profileQueryKey } from "@/features/settings/use-save-profile";
+import useSavedForm, { SaveMode } from "@/hooks/use-saved-form";
 import ensureError from "@/lib/ensure-error";
 import getManagerProfile from "@/services/account/get-manager-profile";
 import addMedia from "@/services/events/event-media/add-media";
@@ -15,6 +16,7 @@ import useAppSelector from "@/store/hooks";
 import { AgeRestriction, Event, EventFaq, ParkingType } from "@/types/event.types";
 import { DeepPartial } from "@/types/global.types";
 import { COMMON_CATEGORIES } from "@/dialogs/create-event/schema";
+import { useReportUnsavedChanges } from "@/features/events/event-page/unsaved-changes";
 import { useEvent } from "../../context";
 import { lagosDateString, lagosInstantString, parseInstant } from "./lagos-time";
 
@@ -97,6 +99,26 @@ function fromEvent(event: Event): DetailsForm {
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 const VENUE_KEYS = ["venueName", "street", "city", "state", "country", "postalCode", "lat", "lng"] as const;
 
+/** Fields that only make sense saved together: doors is worked out from the start, and the venue goes as one. */
+const GROUPS: (keyof DetailsForm)[][] = [["start", "end", "doors"], ["venueMode", ...VENUE_KEYS], ["faqs"]];
+
+/** Which fields can't be saved as they are. The same rules decide the error messages. */
+function invalidFields(form: DetailsForm, published: boolean, venueQuery: string): (keyof DetailsForm)[] {
+	const invalid: (keyof DetailsForm)[] = [];
+	if (!form.title.trim() || form.title.trim().length > 100) invalid.push("title");
+	if (form.description.length > DESCRIPTION_LIMIT) invalid.push("description");
+	const typedVenue = Boolean(form.venueName.trim() || form.street.trim() || form.city.trim());
+	if (
+		(form.venueMode === "manual" && typedVenue && (!form.street.trim() || !form.city.trim())) ||
+		(form.venueMode === "search" && venueQuery.trim()) ||
+		(published && !form.street.trim() && !form.venueName.trim() && form.venueMode !== "manual")
+	) {
+		invalid.push("venueName");
+	}
+	if (form.faqs.some((faq) => Boolean(faq.question.trim()) !== Boolean(faq.answer.trim()))) invalid.push("faqs");
+	return invalid;
+}
+
 export default function useDetailsForm() {
 	const { event, published, updateEvent } = useEvent();
 	const { account } = useAppSelector("account");
@@ -104,18 +126,17 @@ export default function useDetailsForm() {
 	const queryClient = useQueryClient();
 	const eventId = event?.id ?? "";
 
-	// The form resets only when the saved event changes, not on every background refetch.
+	// The server's copy in the form's shape; it only changes when the saved event does, not on every refetch.
 	const savedKey = `${eventId}:${event?.updated_at ?? ""}`;
-	const initial = React.useMemo(() => (event ? fromEvent(event) : null), [savedKey]); // eslint-disable-line react-hooks/exhaustive-deps
-	const [form, setForm] = React.useState<DetailsForm | null>(initial);
-	React.useEffect(() => setForm(initial), [initial]);
+	const server = React.useMemo(() => (event ? fromEvent(event) : null), [savedKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+	// Guests can't see a draft, so it saves itself. A published event's changes go live, so you press Save.
+	const mode: SaveMode = published ? "manual" : "auto";
 
 	const [cover, setCover] = React.useState<{ file: File; preview: string } | null>(null);
 	const [coverRemoved, setCoverRemoved] = React.useState(false);
-	const [attempted, setAttempted] = React.useState(false);
 	// What's typed in the venue search; a search left unpicked blocks saving.
 	const [venueQuery, setVenueQuery] = React.useState("");
-	const [isSaving, setIsSaving] = React.useState(false);
 
 	const { data: media = [], refetch: refetchMedia } = useQuery({
 		queryKey: ["event-medias-cover", eventId],
@@ -149,35 +170,76 @@ export default function useDetailsForm() {
 	});
 	const { data: countries = [] } = useQuery({ queryKey: ["countries"], queryFn: getCountries });
 	const profileCountry = countries.find((country) => country.id === profile?.operating_country_id)?.country_name;
-	const countryName = profileCountry || form?.country || countries[0]?.country_name || "";
+	const countryName = profileCountry || server?.country || countries[0]?.country_name || "";
 
-	const dirty = Boolean(form && initial && (!same(form, initial) || cover || coverRemoved));
+	const uploadCover = async (file: File) => {
+		await addMedia({
+			event_Id: eventId,
+			file,
+			media_type: "cover",
+			is_active: true,
+			order: 1,
+			user_id: account.id,
+		});
+	};
+	const deleteCovers = async () => {
+		for (const item of covers) {
+			await deleteMedia({ event_Id: eventId, media_id: item.id, user_id: account.id });
+		}
+	};
 
-	// Leaving the page with unsaved changes asks first.
-	React.useEffect(() => {
-		if (!dirty) return;
-		const warn = (e: BeforeUnloadEvent) => e.preventDefault();
-		window.addEventListener("beforeunload", warn);
-		return () => window.removeEventListener("beforeunload", warn);
-	}, [dirty]);
+	const saving = useSavedForm<DetailsForm>({
+		server,
+		resetKey: eventId,
+		mode,
+		backup: eventId ? `event-details:${eventId}` : null,
+		ignore: ["venueMode"],
+		groups: GROUPS,
+		invalid: (values) => invalidFields(values, published, venueQuery),
+		// A draft's cover saves through its own queued job (pickCover), so only Save on a published event carries it.
+		unsavedFiles: mode === "manual" && Boolean(cover || coverRemoved),
+		save: async (next, base) => {
+			const payload = buildPayload(next, base);
+			if (Object.keys(payload).length) {
+				const saved = await updateEventDetails({ event_id: eventId, ...(payload as DeepPartial<Event>) });
+				if (saved) await updateEvent("local", saved);
+			}
+			if (mode === "manual" && (cover || coverRemoved)) {
+				if (coverRemoved) await deleteCovers();
+				if (cover) await uploadCover(cover.file);
+				setCover(null);
+				setCoverRemoved(false);
+				await refetchMedia();
+			}
+		},
+		onSettled: () => {
+			for (const key of [["event-summary", eventId], ["events"], ["home-dashboard"]]) {
+				queryClient.invalidateQueries({ queryKey: key });
+			}
+		},
+	});
+	const form = saving.values;
+	const setForm = saving.setValues;
+	const dirty = saving.dirty || Boolean(cover || coverRemoved);
 
-	const set = React.useCallback(<K extends keyof DetailsForm>(field: K, value: DetailsForm[K]) => {
-		setForm((prev) => (prev ? { ...prev, [field]: value } : prev));
-	}, []);
-	const patch = React.useCallback((values: Partial<DetailsForm>) => {
-		setForm((prev) => (prev ? { ...prev, ...values } : prev));
-	}, []);
+	const set = React.useCallback(
+		<K extends keyof DetailsForm>(field: K, value: DetailsForm[K]) => setForm((prev) => ({ ...prev, [field]: value })),
+		[setForm]
+	);
+	const patch = React.useCallback(
+		(values: Partial<DetailsForm>) => setForm((prev) => ({ ...prev, ...values })),
+		[setForm]
+	);
 
 	/** A new start keeps the event's length. */
 	const setStart = (start: number) =>
 		setForm((prev) => {
-			if (!prev) return prev;
 			const end = prev.end !== null && prev.start !== null ? start + (prev.end - prev.start) : prev.end;
 			return { ...prev, start, end };
 		});
 
 	const errors = React.useMemo<DetailsErrors>(() => {
-		if (!attempted || !form) return {};
+		if (!saving.showErrors || !form) return {};
 		const found: DetailsErrors = {};
 		if (!form.title.trim()) found.title = "Give your event a name.";
 		else if (form.title.trim().length > 100) found.title = "Keep the name under 100 characters.";
@@ -201,21 +263,48 @@ export default function useDetailsForm() {
 		});
 		if (Object.keys(faqErrors).length) found.faqs = faqErrors;
 		return found;
-	}, [attempted, form, published, venueQuery]);
+	}, [saving.showErrors, form, published, venueQuery]);
 
 	const errorCount =
 		Object.keys(errors).filter((key) => key !== "faqs").length +
 		Object.values(errors.faqs ?? {}).reduce((total, item) => total + Object.keys(item).length, 0);
 
+	// On a draft, a picked cover uploads straight away, queued behind the field saves.
 	const pickCover = (file: File) => {
-		const reader = new FileReader();
-		reader.onloadend = () => setCover({ file, preview: reader.result as string });
-		reader.readAsDataURL(file);
 		setCoverRemoved(false);
+		const reader = new FileReader();
+		reader.onloadend = () => {
+			setCover({ file, preview: reader.result as string });
+			// Start after the preview is set, so a quick upload can't finish first and leave the preview behind.
+			if (mode !== "auto") return;
+			saving
+				.run(async () => {
+					if (covers.length) await deleteCovers();
+					await uploadCover(file);
+					await refetchMedia();
+					setCover(null);
+				})
+				.catch((error) => {
+					setCover(null);
+					toast.error(ensureError(error).message || "We couldn’t upload the cover. Try again.");
+				});
+		};
+		reader.readAsDataURL(file);
 	};
 	const removeCover = () => {
 		setCover(null);
 		setCoverRemoved(covers.length > 0);
+		if (mode !== "auto" || !covers.length) return;
+		saving
+			.run(async () => {
+				await deleteCovers();
+				await refetchMedia();
+				setCoverRemoved(false);
+			})
+			.catch((error) => {
+				setCoverRemoved(false);
+				toast.error(ensureError(error).message || "We couldn’t remove the cover. Try again.");
+			});
 	};
 
 	/** Only what changed goes to the server. */
@@ -264,61 +353,21 @@ export default function useDetailsForm() {
 		return payload;
 	}
 
+	/** The form's submit: Save on a published event; on a draft, Enter just saves what's pending now. */
 	const save = async (e?: React.FormEvent) => {
 		e?.preventDefault();
-		if (!form || !initial || !event) return;
-		setAttempted(true);
-		// Validate against the values being saved, not the last render.
-		const blocking =
-			!form.title.trim() ||
-			form.title.trim().length > 100 ||
-			form.description.length > DESCRIPTION_LIMIT ||
-			(form.venueMode === "manual" &&
-				Boolean(form.venueName.trim() || form.street.trim() || form.city.trim()) &&
-				(!form.street.trim() || !form.city.trim())) ||
-			(form.venueMode === "search" && Boolean(venueQuery.trim())) ||
-			(published && !form.street.trim() && !form.venueName.trim() && form.venueMode !== "manual") ||
-			form.faqs.some((faq) => Boolean(faq.question.trim()) !== Boolean(faq.answer.trim()));
-		if (blocking) return;
-
-		setIsSaving(true);
+		if (mode === "auto") {
+			await saving.flush();
+			return;
+		}
 		try {
-			const payload = buildPayload(form, initial);
-			if (Object.keys(payload).length) {
-				const saved = await updateEventDetails({ event_id: event.id, ...(payload as DeepPartial<Event>) });
-				if (saved) await updateEvent("local", saved);
-			}
-			if (coverRemoved) {
-				for (const item of covers) {
-					await deleteMedia({ event_Id: event.id, media_id: item.id, user_id: account.id });
-				}
-			}
-			if (cover) {
-				await addMedia({
-					event_Id: event.id,
-					file: cover.file,
-					media_type: "cover",
-					is_active: true,
-					order: 1,
-					user_id: account.id,
-				});
-			}
-			if (cover || coverRemoved) {
-				setCover(null);
-				setCoverRemoved(false);
-				await refetchMedia();
-			}
-			setAttempted(false);
-			for (const key of [["event-summary", event.id], ["events"], ["home-dashboard"]]) {
-				queryClient.invalidateQueries({ queryKey: key });
-			}
-			toast.success("Saved.");
+			if (await saving.submit()) toast.success("Saved.");
 		} catch (error) {
 			toast.error(ensureError(error).message || "We couldn't save your changes. Try again.");
-		} finally {
-			setIsSaving(false);
 		}
 	};
+
+	useReportUnsavedChanges({ unsafeToLeave: saving.unsafeToLeave, flush: saving.flush });
 
 	return {
 		event,
@@ -329,10 +378,12 @@ export default function useDetailsForm() {
 		setStart,
 		errors,
 		errorCount,
-		attempted,
+		attempted: saving.showErrors,
 		dirty,
-		isSaving,
+		isSaving: saving.isSaving,
 		save,
+		mode,
+		saving,
 		coverUrl,
 		pickCover,
 		removeCover,

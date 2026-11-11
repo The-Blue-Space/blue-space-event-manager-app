@@ -1,11 +1,12 @@
 "use client";
 import * as React from "react";
+import { toast } from "sonner";
 import { setUpProfileSchema, SetUpProfileForm } from "@/features/home/set-up-profile/schema";
 import { FieldErrors, firstErrors, pickImage, PickedImage } from "@/features/home/set-up-profile/use-set-up-profile";
+import useSavedForm from "@/hooks/use-saved-form";
+import ensureError from "@/lib/ensure-error";
 import { ManagerProfile } from "@/types/user.types";
 import useSaveProfile from "../use-save-profile";
-
-type Saved = { form: SetUpProfileForm; logoUrl: string | null; coverUrl: string | null };
 
 const toForm = (profile: ManagerProfile): SetUpProfileForm => ({
 	name: profile.name,
@@ -15,56 +16,60 @@ const toForm = (profile: ManagerProfile): SetUpProfileForm => ({
 	operating_country_id: profile.operating_country_id ?? "",
 });
 
-const FIELDS = Object.keys(setUpProfileSchema.shape) as (keyof SetUpProfileForm)[];
+const invalidFields = (form: SetUpProfileForm) => {
+	const result = setUpProfileSchema.safeParse(form);
+	return result.success ? [] : (Object.keys(firstErrors(result.error)) as (keyof SetUpProfileForm)[]);
+};
 
+/** The organizer profile is public, so it saves when you press Save; unsaved edits are kept on the device. */
 export default function useProfileForm(profile: ManagerProfile) {
-	const { save, isSaving } = useSaveProfile(profile);
-	const [saved, setSaved] = React.useState<Saved>(() => ({
-		form: toForm(profile),
-		logoUrl: profile.logo,
-		coverUrl: profile.display_image,
-	}));
-	const [form, setForm] = React.useState(saved.form);
+	const { send } = useSaveProfile(profile);
+	const server = React.useMemo(() => toForm(profile), [profile]);
 	const [logo, setLogo] = React.useState<PickedImage | null>(null);
 	const [cover, setCover] = React.useState<PickedImage | null>(null);
-	const [attempted, setAttempted] = React.useState(false);
+	// New images upload after the server responds, so keep showing the picked ones instead of the old URLs.
+	const [shown, setShown] = React.useState({ logoUrl: profile.logo, coverUrl: profile.display_image });
+
+	const saving = useSavedForm<SetUpProfileForm>({
+		server,
+		resetKey: profile.id,
+		mode: "manual",
+		backup: "settings-profile",
+		invalid: invalidFields,
+		unsavedFiles: Boolean(logo || cover),
+		save: async (next) => {
+			const { bio, ...values } = setUpProfileSchema.parse(next);
+			const updated = await send({
+				...values,
+				bio: bio || null,
+				logo: logo?.file ?? null,
+				display_image: cover?.file ?? null,
+			});
+			setShown({ logoUrl: logo?.preview ?? updated.logo, coverUrl: cover?.preview ?? updated.display_image });
+			setLogo(null);
+			setCover(null);
+		},
+	});
+	const form = saving.values ?? server;
 
 	const errors = React.useMemo<FieldErrors>(() => {
-		if (!attempted) return {};
+		if (!saving.showErrors) return {};
 		const result = setUpProfileSchema.safeParse(form);
 		return result.success ? {} : firstErrors(result.error);
-	}, [attempted, form]);
+	}, [saving.showErrors, form]);
 
-	const dirty = Boolean(logo || cover) || FIELDS.some((field) => form[field] !== saved.form[field]);
-
-	const setValue = (field: keyof SetUpProfileForm, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
+	const setValue = (field: keyof SetUpProfileForm, value: string) =>
+		saving.setValues((prev) => ({ ...prev, [field]: value }));
 	const update = (field: keyof SetUpProfileForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
 		setValue(field, e.target.value);
 
 	const submit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setAttempted(true);
-		const result = setUpProfileSchema.safeParse(form);
-		if (!result.success) return;
-
-		const { bio, ...values } = result.data;
-		const updated = await save(
-			{ ...values, bio: bio || null, logo: logo?.file ?? null, display_image: cover?.file ?? null },
-			"Profile saved"
-		);
-		if (!updated) return;
-
-		// New images upload after the server responds, so keep showing them instead of the old URLs.
-		const next = {
-			form: toForm(updated),
-			logoUrl: logo?.preview ?? updated.logo,
-			coverUrl: cover?.preview ?? updated.display_image,
-		};
-		setSaved(next);
-		setForm(next.form);
-		setLogo(null);
-		setCover(null);
-		setAttempted(false);
+		try {
+			if (await saving.submit()) toast.success("Profile saved");
+		} catch (error) {
+			toast.error(ensureError(error).message);
+		}
 	};
 
 	return {
@@ -72,10 +77,11 @@ export default function useProfileForm(profile: ManagerProfile) {
 		errors,
 		logo,
 		cover,
-		logoUrl: saved.logoUrl,
-		coverUrl: saved.coverUrl,
-		dirty,
-		isSaving,
+		logoUrl: shown.logoUrl,
+		coverUrl: shown.coverUrl,
+		dirty: saving.dirty || Boolean(logo || cover),
+		isSaving: saving.isSaving,
+		saving,
 		update,
 		setValue,
 		pickLogo: pickImage(setLogo),

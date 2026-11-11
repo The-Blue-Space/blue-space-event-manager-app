@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { ZodError } from "zod";
 import useCustomNavigation from "@/hooks/use-navigation";
+import useSavedForm from "@/hooks/use-saved-form";
 import ensureError from "@/lib/ensure-error";
 import invalidateQuery from "@/lib/invalidate-query";
 import { profileQueryKey } from "@/features/settings/use-save-profile";
@@ -32,10 +33,6 @@ export default function useCreateEvent() {
 	const { ui } = useActions();
 	const { navigate } = useCustomNavigation();
 	const open = dialog.show && dialog.type === "create_event";
-
-	const [form, setForm] = React.useState<NewEventForm>(newEventInitial);
-	const [attempted, setAttempted] = React.useState(false);
-	const [isLoading, setIsLoading] = React.useState(false);
 
 	const { data: categories = [], isLoading: loadingCategories } = useQuery({
 		queryKey: ["event-categories"],
@@ -66,42 +63,54 @@ export default function useCreateEvent() {
 	const locationId = profile?.operating_country_id || countries[0]?.id || "";
 	const countryName = countries.find((country) => country.id === locationId)?.country_name;
 
+	const createdId = React.useRef<string | null>(null);
+
+	// Nothing exists until it's created, so what's typed is kept on the device. Closing the dialog keeps it too,
+	// and opening it again offers to pick up where you left off.
+	const saving = useSavedForm<NewEventForm>({
+		server: newEventInitial,
+		resetKey: open ? "open" : "closed",
+		mode: "manual",
+		backup: "create-event",
+		invalid: (values) => {
+			const result = newEventSchema.safeParse(values);
+			return result.success ? [] : (Object.keys(firstErrors(result.error)) as (keyof NewEventForm)[]);
+		},
+		save: async (next) => {
+			const { event } = await createEvent({ ...newEventSchema.parse(next), location_id: locationId });
+			createdId.current = event.id;
+		},
+	});
+	const form = saving.values ?? newEventInitial;
+	const isLoading = saving.isSaving;
+
 	const errors = React.useMemo<FieldErrors>(() => {
-		if (!attempted) return {};
+		if (!saving.showErrors) return {};
 		const result = newEventSchema.safeParse(form);
 		return result.success ? {} : firstErrors(result.error);
-	}, [attempted, form]);
+	}, [saving.showErrors, form]);
 
 	const set = <K extends keyof NewEventForm>(field: K, value: NewEventForm[K]) =>
-		setForm((prev) => ({ ...prev, [field]: value }));
+		saving.setValues((prev) => ({ ...prev, [field]: value }));
 
 	const close = () => {
 		if (isLoading) return;
-		setForm(newEventInitial);
-		setAttempted(false);
 		ui.resetDialog();
 	};
 
 	const submit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setAttempted(true);
-		const result = newEventSchema.safeParse(form);
-		if (!result.success || !locationId) return;
-
-		setIsLoading(true);
+		if (!locationId) return;
 		try {
-			const { event } = await createEvent({ ...result.data, location_id: locationId });
+			if (!(await saving.submit()) || !createdId.current) return;
 			invalidateQuery(["events"]);
 			invalidateQuery(["home-dashboard"]);
 			toast.success("Draft created");
-			setForm(newEventInitial);
-			setAttempted(false);
 			ui.resetDialog();
-			navigate(`/events/${event.id}`);
+			navigate(`/events/${createdId.current}`);
+			createdId.current = null;
 		} catch (error) {
 			toast.error(ensureError(error).message);
-		} finally {
-			setIsLoading(false);
 		}
 	};
 
@@ -117,5 +126,6 @@ export default function useCreateEvent() {
 		set,
 		close,
 		submit,
+		saving,
 	};
 }

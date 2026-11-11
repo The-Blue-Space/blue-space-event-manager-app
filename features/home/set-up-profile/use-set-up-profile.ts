@@ -2,6 +2,7 @@
 import * as React from "react";
 import { toast } from "sonner";
 import type { ZodError } from "zod";
+import useSavedForm from "@/hooks/use-saved-form";
 import blobReader from "@/lib/blob-reader";
 import ensureError from "@/lib/ensure-error";
 import invalidateQuery from "@/lib/invalidate-query";
@@ -35,38 +36,26 @@ export default function useSetUpProfile() {
 	const { managerProfile: managerProfileActions } = useActions();
 	const accountEmail = account?.email ?? "";
 
-	const [form, setForm] = React.useState<SetUpProfileForm>({
-		name: "",
-		bio: "",
-		email: accountEmail,
-		phone: "",
-		operating_country_id: "",
-	});
+	const blank = React.useMemo<SetUpProfileForm>(
+		() => ({ name: "", bio: "", email: accountEmail, phone: "", operating_country_id: "" }),
+		[accountEmail]
+	);
 	const [logo, setLogo] = React.useState<PickedImage | null>(null);
 	const [cover, setCover] = React.useState<PickedImage | null>(null);
-	const [attempted, setAttempted] = React.useState(false);
-	const [isLoading, setIsLoading] = React.useState(false);
 
-	// Errors appear after the first submit, then follow the values so each one clears once it's fixed.
-	const errors = React.useMemo<FieldErrors>(() => {
-		if (!attempted) return {};
-		const result = setUpProfileSchema.safeParse(form);
-		return result.success ? {} : firstErrors(result.error);
-	}, [attempted, form]);
-
-	const setValue = (field: keyof SetUpProfileForm, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
-	const update = (field: keyof SetUpProfileForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-		setValue(field, e.target.value);
-
-	const submit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setAttempted(true);
-		const result = setUpProfileSchema.safeParse(form);
-		if (!result.success) return;
-
-		const { bio, ...values } = result.data;
-		setIsLoading(true);
-		try {
+	// Nothing exists to save into until the profile is created, so what's typed is kept on the device instead.
+	const saving = useSavedForm<SetUpProfileForm>({
+		server: blank,
+		resetKey: "profile-setup",
+		mode: "manual",
+		backup: "profile-setup",
+		invalid: (values) => {
+			const result = setUpProfileSchema.safeParse(values);
+			return result.success ? [] : (Object.keys(firstErrors(result.error)) as (keyof SetUpProfileForm)[]);
+		},
+		unsavedFiles: Boolean(logo || cover),
+		save: async (next) => {
+			const { bio, ...values } = setUpProfileSchema.parse(next);
 			const profile = await createManagerProfile({
 				...values,
 				user_id: account.id,
@@ -76,11 +65,28 @@ export default function useSetUpProfile() {
 			});
 			managerProfileActions.changeProfile(profile);
 			invalidateQuery(["manager-profile"]);
-			toast.success("Organizer profile created");
+		},
+	});
+	const form = saving.values ?? blank;
+
+	// Errors appear after the first submit, then follow the values so each one clears once it's fixed.
+	const errors = React.useMemo<FieldErrors>(() => {
+		if (!saving.showErrors) return {};
+		const result = setUpProfileSchema.safeParse(form);
+		return result.success ? {} : firstErrors(result.error);
+	}, [saving.showErrors, form]);
+
+	const setValue = (field: keyof SetUpProfileForm, value: string) =>
+		saving.setValues((prev) => ({ ...prev, [field]: value }));
+	const update = (field: keyof SetUpProfileForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+		setValue(field, e.target.value);
+
+	const submit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		try {
+			if (await saving.submit()) toast.success("Organizer profile created");
 		} catch (error) {
 			toast.error(ensureError(error).message);
-		} finally {
-			setIsLoading(false);
 		}
 	};
 
@@ -89,7 +95,8 @@ export default function useSetUpProfile() {
 		errors,
 		logo,
 		cover,
-		isLoading,
+		isLoading: saving.isSaving,
+		saving,
 		accountEmail,
 		update,
 		setValue,

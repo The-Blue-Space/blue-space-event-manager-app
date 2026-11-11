@@ -5,7 +5,8 @@ import classNames from "classnames";
 import Field, { controlClass, controlProps } from "@/components/app/field";
 import { RefundPolicyType } from "@/types/event.types";
 import { ManagerProfile } from "@/types/user.types";
-import SaveBar from "../save-bar";
+import RestoreBanner from "@/components/app/restore-banner";
+import SaveStatus from "@/components/app/save-status";
 import useEventDefaults, { EventDefaultsForm, MAX_REFUND_DAYS } from "./use-event-defaults";
 
 const POLICIES: { value: RefundPolicyType; title: string; detail: string }[] = [
@@ -112,11 +113,19 @@ function SwitchRow({ id, title, detail, checked, onCheckedChange }: SwitchRowPro
 }
 
 export default function EventDefaults({ profile }: { profile: ManagerProfile }) {
-	const { form, daysError, needsDays, dirty, isSaving, set, submit } = useEventDefaults(profile);
+	const { form, daysError, needsDays, saving, set, submit } = useEventDefaults(profile);
 
+	// These save themselves, so the fields stay usable while a save is on its way.
 	return (
-		<form onSubmit={submit} noValidate className="grid max-w-[640px] gap-[22px] sm:gap-8">
-			<fieldset disabled={isSaving} className="contents">
+		<form onSubmit={submit} {...saving.formProps} noValidate className="grid max-w-[640px] gap-[22px] sm:gap-8">
+			<div className="contents">
+				{saving.offer && (
+					<RestoreBanner
+						savedAt={saving.offer.savedAt}
+						onRestore={saving.restore}
+						onDiscard={saving.discard}
+					/>
+				)}
 				<section aria-labelledby="refunds-title" className="grid gap-3.5 sm:gap-[18px]">
 					<SectionHeading id="refunds-title" title="Refunds">
 						What guests can get back if they can’t make it.
@@ -199,8 +208,8 @@ export default function EventDefaults({ profile }: { profile: ManagerProfile }) 
 
 				<hr className="border-auth-line" />
 
-				<SaveBar dirty={dirty} isSaving={isSaving} savedAt={profile.updated_at} />
-			</fieldset>
+				<SaveStatus status={saving.status} onRetry={() => void saving.retry()} />
+			</div>
 		</form>
 	);
 }
