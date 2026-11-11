@@ -1,4 +1,4 @@
-import UnderConstruction from "@/components/app/prompts/under-construction";
+import OpenCreateEvent from "@/features/events/list/open-create-event";
 import { generateMetadata } from "@/lib/generate-metadata";
 
 export const metadata = generateMetadata({
@@ -7,5 +7,5 @@ export const metadata = generateMetadata({
 });
 
 export default function CreateEventPage() {
-	return <UnderConstruction />;
+	return <OpenCreateEvent />;
 }

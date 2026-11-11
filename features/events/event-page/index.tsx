@@ -19,7 +19,6 @@ import useCustomNavigation from "@/hooks/use-navigation";
 import ensureError from "@/lib/ensure-error";
 import getEventSummary from "@/services/events/get-event-summary";
 import publishEvent from "@/services/events/publish-event";
-import unpublishEvent from "@/services/events/unpublish-event";
 import useActions from "@/store/actions";
 import EventHeader from "./header";
 import Overview from "./overview";
@@ -60,7 +59,7 @@ function EventWorkspace() {
 	}, [tab.id, event?.updated_at, refetchSummary]);
 
 	const refresh = () => {
-		for (const key of [["event-summary", eventId], ["event-details", eventId], ["events"], ["home-dashboard"]]) {
+		for (const key of [["event-summary", eventId], ["event-details", eventId], ["events"], ["manager-events"], ["home-dashboard"]]) {
 			queryClient.invalidateQueries({ queryKey: key });
 		}
 	};
@@ -68,14 +67,6 @@ function EventWorkspace() {
 		mutationFn: () => publishEvent({ event_id: eventId }),
 		onSuccess: () => {
 			toast.success("Published. Guests can find it now.");
-			refresh();
-		},
-		onError: (error) => toast.error(ensureError(error).message),
-	});
-	const unpublish = useMutation({
-		mutationFn: () => unpublishEvent({ event_id: eventId }),
-		onSuccess: () => {
-			toast.success("Unpublished. It’s a draft again.");
 			refresh();
 		},
 		onError: (error) => toast.error(ensureError(error).message),
@@ -119,16 +110,6 @@ function EventWorkspace() {
 		}
 		publish.mutate();
 	};
-	const confirmUnpublish = () =>
-		ui.changeDialog({
-			show: true,
-			type: "info_dialog",
-			data: {
-				title: "Unpublish this event?",
-				text: "Guests won’t be able to find it or buy tickets until you publish it again.",
-			},
-			action: () => unpublish.mutate(),
-		});
 
 	return (
 		<div className="mx-auto grid w-full max-w-[1200px] grid-cols-[minmax(0,1fr)] gap-5 px-4 pb-16 pt-6 sm:px-8 lg:px-10">
@@ -143,9 +124,8 @@ function EventWorkspace() {
 			{summary.data ? (
 				<EventHeader
 					summary={summary.data}
-					isBusy={publish.isPending || unpublish.isPending}
+					isBusy={publish.isPending}
 					onPublish={publishNow}
-					onUnpublish={confirmUnpublish}
 				/>
 			) : summary.isError ? (
 				<DashboardError onRetry={() => summary.refetch()} isRetrying={summary.isFetching} />

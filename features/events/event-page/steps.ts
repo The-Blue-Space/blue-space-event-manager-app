@@ -18,15 +18,17 @@ export const STATUS: Record<EventStatus, { label: string; tone: "neutral" | "war
 };
 
 /** "On sale" only makes sense when tickets are being sold; other published events are just "Published". */
-export function statusFor({ status, access_type }: EventSummary["event"]) {
+export function statusFor({ status, access_type }: Pick<EventSummary["event"], "status" | "access_type">) {
 	if (status === "on_sale" && access_type !== "ticket-based") return { label: "Published", tone: "success" as const };
 	return STATUS[status];
 }
 
 export type SetupStep = { key: string; title: string; detail: string; done: boolean; tab?: EventTab; action?: string };
 
+type SetupInput = { event: Pick<EventSummary["event"], "access_type">; setup: EventSummary["setup"] };
+
 /** What has to be in place before an event can be published, in the order the checklist shows it. */
-export function setupSteps({ event, setup }: EventSummary): SetupStep[] {
+export function setupSteps({ event, setup }: SetupInput): SetupStep[] {
 	const steps: SetupStep[] = [
 		{ key: "basics", title: "Name, description and category", detail: "Done when you created it.", done: true, tab: "details", action: "Edit" },
 		{ key: "access", title: "How guests get in", detail: `${ACCESS_LABEL[event.access_type]}.`, done: true },
