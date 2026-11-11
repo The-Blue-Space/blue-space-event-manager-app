@@ -2,13 +2,11 @@
 import * as React from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AlbumManager from "@/features/events/event-details/album-manager";
-import InviteDialog from "@/features/events/event-details/invite-dialog";
-import ParticipantsTab from "@/features/events/event-details/participants-tab";
+import GuestsTab from "@/features/events/guests";
 import { EventProvider, useEvent } from "@/features/events/manage-event/context";
 import Agenda from "@/features/events/manage-event/tabs/agenda";
 import BasicInfo from "@/features/events/manage-event/tabs/basic-info";
@@ -47,7 +45,6 @@ function EventWorkspace() {
 	const { event } = useEvent();
 	const { ui } = useActions();
 	const queryClient = useQueryClient();
-	const [inviteOpen, setInviteOpen] = React.useState(false);
 
 	const summary = useQuery({ queryKey: ["event-summary", eventId], queryFn: () => getEventSummary(eventId) });
 
@@ -171,20 +168,8 @@ function EventWorkspace() {
 							<TabsContent value="vendor" className="mt-5">
 								<VendorsComingSoon />
 							</TabsContent>
-							<TabsContent value="guests" className="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4">
-								<div className="flex justify-end">
-									<button
-										type="button"
-										onClick={() => setInviteOpen(true)}
-										className="inline-flex h-10 items-center gap-2 rounded-lg border border-auth-field bg-white px-3.5 text-[14px] font-semibold text-auth-ink transition-colors duration-150 hover:border-auth-field-hover"
-									>
-										<UserPlus aria-hidden="true" className="size-4" />
-										Invite guests
-									</button>
-								</div>
-								<div className="min-w-0 overflow-x-auto">
-									<ParticipantsTab eventId={eventId} />
-								</div>
+							<TabsContent value="guests" className="mt-5 min-w-0">
+								{tab.id === "guests" && <GuestsTab eventId={eventId} />}
 							</TabsContent>
 							<TabsContent value="album" className="mt-5">
 								<AlbumManager eventId={eventId} open={tab.id === "album"} />
@@ -195,8 +180,6 @@ function EventWorkspace() {
 					)}
 				</Tabs>
 			</UnsavedChangesProvider>
-
-			<InviteDialog open={inviteOpen} onClose={setInviteOpen} eventId={eventId} />
 		</div>
 	);
 }

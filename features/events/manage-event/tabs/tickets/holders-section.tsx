@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { toast } from "sonner";
 import { controlClass } from "@/components/app/field";
@@ -53,8 +54,10 @@ function usePhone() {
 export default function HoldersSection({ data, eventId }: { data: TicketsData; eventId: string }) {
 	const { ui } = useActions();
 	const phone = usePhone();
-	const [search, setSearch] = React.useState("");
-	const [query, setQuery] = React.useState("");
+	// "See their tickets" on the Guests tab opens this list already searched for that person.
+	const initialSearch = useSearchParams().get("holder") ?? "";
+	const [search, setSearch] = React.useState(initialSearch);
+	const [query, setQuery] = React.useState(initialSearch);
 	const [ticketId, setTicketId] = React.useState(ALL);
 	const [page, setPage] = React.useState(1);
 	const [shown, setShown] = React.useState(PAGE);
