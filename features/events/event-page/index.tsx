@@ -9,13 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AlbumManager from "@/features/events/event-details/album-manager";
 import InviteDialog from "@/features/events/event-details/invite-dialog";
 import ParticipantsTab from "@/features/events/event-details/participants-tab";
-import VendorApplicationsTab from "@/features/events/event-details/vendor-applications-tab";
 import { EventProvider, useEvent } from "@/features/events/manage-event/context";
 import Agenda from "@/features/events/manage-event/tabs/agenda";
 import BasicInfo from "@/features/events/manage-event/tabs/basic-info";
 import Media from "@/features/events/manage-event/tabs/media";
 import TicketsTab from "@/features/events/manage-event/tabs/tickets";
-import VendorTab from "@/features/events/manage-event/tabs/vendor";
 import { DashboardError } from "@/features/home/dashboard/states";
 import useCustomNavigation from "@/hooks/use-navigation";
 import ensureError from "@/lib/ensure-error";
@@ -27,15 +25,16 @@ import EventHeader from "./header";
 import Overview from "./overview";
 import { EventTab } from "./steps";
 import { UnsavedChanges, UnsavedChangesProvider } from "./unsaved-changes";
+import VendorsComingSoon from "./vendors-coming-soon";
 
 // `value` is what the reused setup tabs register with; `id` is what the URL shows.
-const TABS: { id: EventTab; value: string; label: string }[] = [
+const TABS: { id: EventTab; value: string; label: string; soon?: boolean }[] = [
 	{ id: "overview", value: "overview", label: "Overview" },
 	{ id: "details", value: "basic-information", label: "Details" },
 	{ id: "tickets", value: "ticket", label: "Tickets" },
 	{ id: "media", value: "medias", label: "Media" },
 	{ id: "agenda", value: "agenda", label: "Agenda" },
-	{ id: "vendors", value: "vendor", label: "Vendors" },
+	{ id: "vendors", value: "vendor", label: "Vendors", soon: true },
 	{ id: "guests", value: "guests", label: "Guests" },
 	{ id: "album", value: "album", label: "Album" },
 ];
@@ -170,6 +169,11 @@ function EventWorkspace() {
 								className="-mb-px h-auto rounded-none border-b-2 border-transparent bg-transparent px-0 pb-2.5 pt-2 text-[14px] font-semibold text-auth-muted shadow-none data-[state=active]:border-primary-500 data-[state=active]:bg-transparent data-[state=active]:font-bold data-[state=active]:text-auth-ink data-[state=active]:shadow-none"
 							>
 								{item.label}
+								{item.soon && (
+									<span className="ml-1.5 inline-flex h-[18px] items-center rounded-full bg-auth-info-soft px-1.5 text-[11px] font-bold text-primary-500">
+										Soon
+									</span>
+								)}
 							</TabsTrigger>
 						))}
 					</TabsList>
@@ -184,9 +188,8 @@ function EventWorkspace() {
 							<TicketsTab eventId={eventId} onNavigate={goTo} />
 							<Media />
 							<Agenda />
-							<VendorTab />
-							<TabsContent value="vendor" className="mx-auto w-full p-5 xl:max-w-3xl">
-								<VendorApplicationsTab eventId={eventId} />
+							<TabsContent value="vendor" className="mt-5">
+								<VendorsComingSoon />
 							</TabsContent>
 							<TabsContent value="guests" className="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4">
 								<div className="flex justify-end">

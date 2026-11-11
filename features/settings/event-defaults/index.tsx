@@ -28,11 +28,6 @@ const ALBUM: { field: SwitchField; title: string; detail: string }[] = [
 		detail: "Attendees can upload photos to the event’s shared album.",
 	},
 	{
-		field: "allow_professional_upload",
-		title: "Photographers can add photos",
-		detail: "Professionals you bring in, like a freelance photographer, can upload to the album.",
-	},
-	{
 		field: "enable_downloads",
 		title: "Guests can save photos",
 		detail: "Attendees can download photos and videos from the album.",

@@ -91,7 +91,7 @@ function Checklist({ summary, onNavigate }: OverviewProps) {
 const EXTRAS: { title: string; detail: string; tab: EventTab }[] = [
 	{ title: "Overview and good to know", detail: "Age limit, parking, FAQs.", tab: "details" },
 	{ title: "Agenda and lineup", detail: "What happens when, and who’s on.", tab: "agenda" },
-	{ title: "Vendor booths", detail: "Let vendors book a spot.", tab: "vendors" },
+	{ title: "Photos and a video", detail: "Show what the night is like.", tab: "media" },
 ];
 
 function GoodToAdd({ onNavigate }: Pick<OverviewProps, "onNavigate">) {
