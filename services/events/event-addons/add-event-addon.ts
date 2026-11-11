@@ -10,6 +10,8 @@ type Parameters = {
 	price: number | null;
 	currency_id: string | null;
 	ticket_ids: string[] | null;
+	total_quantity?: number | null;
+	unlimited_quantity?: boolean;
 	sales_start_date: string;
 	sales_start_time?: string | null;
 	sales_end_date?: string | null;

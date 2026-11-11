@@ -8,14 +8,16 @@ type Parameters = {
 	page?: number;
 	limit?: number;
 	search?: string;
+	/** Only tickets of this ticket type. */
+	ticketId?: string;
 };
 
 type Response = PaginatedResponse<UserTicket>;
 
 export async function production(params: Parameters): Promise<Response> {
-	const { eventId, page = 1, limit = 10, search } = params;
+	const { eventId, page = 1, limit = 10, search, ticketId } = params;
 	const response = await axios.get(`/v1/events/${eventId}/user-tickets`, {
-		params: { page, limit, search },
+		params: { page, limit, search: search || undefined, ticket_id: ticketId || undefined },
 	});
 	return response.data;
 }

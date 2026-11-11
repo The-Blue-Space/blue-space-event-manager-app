@@ -9,13 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AlbumManager from "@/features/events/event-details/album-manager";
 import InviteDialog from "@/features/events/event-details/invite-dialog";
 import ParticipantsTab from "@/features/events/event-details/participants-tab";
-import TicketsTab from "@/features/events/event-details/tickets-tab";
 import VendorApplicationsTab from "@/features/events/event-details/vendor-applications-tab";
 import { EventProvider, useEvent } from "@/features/events/manage-event/context";
 import Agenda from "@/features/events/manage-event/tabs/agenda";
 import BasicInfo from "@/features/events/manage-event/tabs/basic-info";
 import Media from "@/features/events/manage-event/tabs/media";
-import Ticket from "@/features/events/manage-event/tabs/ticket";
+import TicketsTab from "@/features/events/manage-event/tabs/tickets";
 import VendorTab from "@/features/events/manage-event/tabs/vendor";
 import { DashboardError } from "@/features/home/dashboard/states";
 import useCustomNavigation from "@/hooks/use-navigation";
@@ -182,10 +181,7 @@ function EventWorkspace() {
 					{event ? (
 						<>
 							<BasicInfo />
-							<Ticket />
-							<TabsContent value="ticket" className="mx-auto w-full p-5 xl:max-w-3xl">
-								<TicketsTab event={event} />
-							</TabsContent>
+							<TicketsTab eventId={eventId} onNavigate={goTo} />
 							<Media />
 							<Agenda />
 							<VendorTab />
