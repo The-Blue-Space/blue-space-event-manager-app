@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AlbumManager from "@/features/events/event-details/album-manager";
+import AlbumTab from "@/features/events/album";
 import GuestsTab from "@/features/events/guests";
 import { EventProvider, useEvent } from "@/features/events/manage-event/context";
 import AgendaTab from "@/features/events/agenda";
@@ -176,7 +176,7 @@ function EventWorkspace() {
 								{tab.id === "guests" && <GuestsTab eventId={eventId} />}
 							</TabsContent>
 							<TabsContent value="album" className="mt-5">
-								<AlbumManager eventId={eventId} open={tab.id === "album"} />
+								{tab.id === "album" && <AlbumTab eventId={eventId} />}
 							</TabsContent>
 						</>
 					) : (

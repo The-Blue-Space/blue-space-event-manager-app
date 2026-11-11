@@ -458,7 +458,7 @@ export default function GuestsTab({ eventId }: { eventId: string }) {
 				open={asking?.kind === "block"}
 				onOpenChange={(open) => !open && setAsking(null)}
 				title={`Block ${asking?.guest?.name ?? "this guest"}?`}
-				text={`They can’t get into ${title}, and we email them to say so. ${ticketed ? "Their ticket stays as it is. To refund it, revoke it on the Tickets tab. " : ""}You can unblock them later from Blocked.`}
+				text={`They can’t get into ${title} or add photos to its album, and we email them to say so. ${ticketed ? "Their ticket stays as it is. To refund it, revoke it on the Tickets tab. " : ""}You can unblock them later from Blocked.`}
 				confirmLabel="Block"
 				icon={<Ban />}
 				onConfirm={async () => {
