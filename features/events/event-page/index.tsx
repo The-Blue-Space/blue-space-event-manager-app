@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AlbumManager from "@/features/events/event-details/album-manager";
 import GuestsTab from "@/features/events/guests";
 import { EventProvider, useEvent } from "@/features/events/manage-event/context";
-import Agenda from "@/features/events/manage-event/tabs/agenda";
+import AgendaTab from "@/features/events/agenda";
 import BasicInfo from "@/features/events/manage-event/tabs/basic-info";
 import MediaTab from "@/features/events/media";
 import TicketsTab from "@/features/events/manage-event/tabs/tickets";
@@ -166,7 +166,9 @@ function EventWorkspace() {
 							<TabsContent value="medias" className="mt-5 min-w-0">
 								{tab.id === "media" && <MediaTab eventId={eventId} />}
 							</TabsContent>
-							<Agenda />
+							<TabsContent value="agenda" className="mt-5 min-w-0">
+								{tab.id === "agenda" && <AgendaTab eventId={eventId} />}
+							</TabsContent>
 							<TabsContent value="vendor" className="mt-5">
 								<VendorsComingSoon />
 							</TabsContent>
