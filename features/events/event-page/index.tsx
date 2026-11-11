@@ -10,7 +10,7 @@ import GuestsTab from "@/features/events/guests";
 import { EventProvider, useEvent } from "@/features/events/manage-event/context";
 import Agenda from "@/features/events/manage-event/tabs/agenda";
 import BasicInfo from "@/features/events/manage-event/tabs/basic-info";
-import Media from "@/features/events/manage-event/tabs/media";
+import MediaTab from "@/features/events/media";
 import TicketsTab from "@/features/events/manage-event/tabs/tickets";
 import { DashboardError } from "@/features/home/dashboard/states";
 import useCustomNavigation from "@/hooks/use-navigation";
@@ -163,7 +163,9 @@ function EventWorkspace() {
 						<>
 							<BasicInfo />
 							<TicketsTab eventId={eventId} onNavigate={goTo} />
-							<Media />
+							<TabsContent value="medias" className="mt-5 min-w-0">
+								{tab.id === "media" && <MediaTab eventId={eventId} />}
+							</TabsContent>
 							<Agenda />
 							<TabsContent value="vendor" className="mt-5">
 								<VendorsComingSoon />
