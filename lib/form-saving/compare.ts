@@ -147,7 +147,15 @@ export function backupDiffers<T extends FormValues>(backup: Backup<T>, server: T
 export function applyBackup<T extends FormValues>(values: T, backup: Backup<T>): T {
 	const restored = { ...values };
 	for (const key of Object.keys(backup.fields) as (keyof T)[]) {
-		if (key in values) restored[key] = backup.fields[key] as T[keyof T];
+		// A stored value of the wrong kind (an older form, or a tampered backup) would break the screen: skip it
+		if (key in values && sameKind(backup.fields[key], values[key])) restored[key] = backup.fields[key] as T[keyof T];
 	}
 	return restored;
+}
+
+/** Same kind of value: both text, both numbers, both lists… A null only stands in for a field that may be null. */
+function sameKind(stored: unknown, current: unknown): boolean {
+	if (stored === null || current === null) return stored === current || current === null;
+	if (Array.isArray(stored) || Array.isArray(current)) return Array.isArray(stored) && Array.isArray(current);
+	return typeof stored === typeof current;
 }

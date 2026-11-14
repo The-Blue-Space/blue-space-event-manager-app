@@ -13,6 +13,8 @@ export type Guest = {
 	username: string | null;
 	email: string;
 	avatar_url: string | null;
+	/** we made their account from an invite and they haven't set it up in the app yet; their name and username are placeholders */
+	account_waiting: boolean;
 	status: GuestStatus;
 	is_blocked: boolean;
 	/** when they reached their current status: first paid ticket, joining, the invite or the block */
@@ -35,5 +37,5 @@ export type GuestsPage = {
 	limit: number;
 };
 
-/** Someone found by email or username, ready to invite. */
-export type Invitee = { id: string; name: string; username?: string; email?: string; avatar_url?: string };
+/** Someone found by email or username, ready to invite. `isNew` is an email nobody on Blue Space uses yet: their id is `new:<email>`. */
+export type Invitee = { id: string; name: string; username?: string; email?: string; avatar_url?: string; isNew?: boolean };

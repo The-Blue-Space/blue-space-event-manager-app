@@ -274,7 +274,9 @@ export function PersonSheet({ person, onCreated, ...common }: Common & { person:
 		setAbout(person?.notes ?? "");
 		setStart(optionForHHMM(options, person?.start_time));
 		setEnd(optionForHHMM(options, person?.end_time));
-		setLinks(person?.socials?.length ? person.socials : [""]);
+		// "[]" was once saved as a link by mistake; never show it as one
+		const saved = (person?.socials ?? []).filter((link) => link.trim() && link.trim() !== "[]");
+		setLinks(saved.length ? saved : [""]);
 		setHeadliner(person?.is_headliner ?? false);
 		setPhoto(null);
 		setPreview(person?.artist_image_url ?? null);

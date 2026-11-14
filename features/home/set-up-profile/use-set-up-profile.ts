@@ -2,6 +2,8 @@
 import * as React from "react";
 import { toast } from "sonner";
 import type { ZodError } from "zod";
+import { variables } from "@/constants";
+import useCookie from "@/hooks/use-cookie";
 import useSavedForm from "@/hooks/use-saved-form";
 import blobReader from "@/lib/blob-reader";
 import ensureError from "@/lib/ensure-error";
@@ -34,6 +36,7 @@ export const pickImage = (setImage: (image: PickedImage) => void) => async (file
 export default function useSetUpProfile() {
 	const { account } = useAppSelector("account");
 	const { managerProfile: managerProfileActions } = useActions();
+	const { set: setCookie } = useCookie();
 	const accountEmail = account?.email ?? "";
 
 	const blank = React.useMemo<SetUpProfileForm>(
@@ -63,6 +66,8 @@ export default function useSetUpProfile() {
 				logo: logo?.file ?? null,
 				display_image: cover?.file ?? null,
 			});
+			// Every request from now on is for this profile
+			setCookie(variables.STORAGE_KEYS.manager_profile_id, profile.id);
 			managerProfileActions.changeProfile(profile);
 			invalidateQuery(["manager-profile"]);
 		},

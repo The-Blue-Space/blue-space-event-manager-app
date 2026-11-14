@@ -41,12 +41,14 @@ export function Avatar({ name, dashed }: { name: string; dashed?: boolean }) {
 	);
 }
 
-/** Name over @username (or email when they have no username). */
-export function Person({ guest }: { guest: Pick<Guest, "name" | "username" | "email"> }) {
+/** Name over @username (or email when they have no username). Someone we made an account for shows by email until they set it up. */
+export function Person({ guest }: { guest: Pick<Guest, "name" | "username" | "email"> & { account_waiting?: boolean } }) {
 	return (
 		<span className="grid min-w-0">
 			<span className="truncate text-[14px] font-bold text-auth-ink">{guest.name}</span>
-			<span className="truncate text-[13px] text-auth-muted">{guest.username ? `@${guest.username}` : guest.email}</span>
+			<span className="truncate text-[13px] text-auth-muted">
+				{guest.account_waiting ? "Account not set up yet" : guest.username ? `@${guest.username}` : guest.email}
+			</span>
 		</span>
 	);
 }

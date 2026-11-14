@@ -8,4 +8,8 @@ export const PASSWORD_RULES = [
 	{ id: "number", label: "At least one number", test: (p: string) => /[0-9]/.test(p) },
 ] as const;
 
-export const meetsPasswordRules = (password: string) => PASSWORD_RULES.every((rule) => rule.test(password));
+/** bcrypt's limit on the server: longer passwords can't be stored. Checked separately, it's shown only when broken. */
+export const PASSWORD_MAX_BYTES = 72;
+export const passwordTooLong = (password: string) => new TextEncoder().encode(password).length > PASSWORD_MAX_BYTES;
+
+export const meetsPasswordRules = (password: string) => PASSWORD_RULES.every((rule) => rule.test(password)) && !passwordTooLong(password);

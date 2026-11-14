@@ -131,10 +131,13 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				interceptor.current = null;
 			}
 			deleteCookie(sessionKey);
+			// The organizer profile belongs to whoever signed out: the next person on this browser mustn't send it
+			deleteCookie(businessIdKey);
+			deleteCookie(variables.STORAGE_KEYS.email);
 			setIsAuthenticated(false);
 			navigate("/", { replace: true });
 		}
-	}, [deleteCookie, navigate, sessionKey]);
+	}, [deleteCookie, navigate, sessionKey, businessIdKey]);
 
 	const session = React.useCallback(async () => {
 		if (isAuthenticated) {
@@ -162,6 +165,8 @@ export const AuthGateProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			if (response.manager_profile) {
 				setCookie(businessIdKey, response.manager_profile.id);
 				managerProfileActions.changeProfile(response.manager_profile);
+			} else {
+				deleteCookie(businessIdKey);
 			}
 			setIsAuthenticated(true);
 		} catch (error) {

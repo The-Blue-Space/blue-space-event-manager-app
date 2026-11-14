@@ -26,6 +26,8 @@ export type HomeSpotlight = {
 		cover_url: string | null;
 		published: boolean;
 		capacity: number | null;
+		/** "ticket-based" events have sales to show; the others don't sell tickets */
+		access_type?: string;
 	};
 	tickets_sold: number;
 	revenue_kobo: number;

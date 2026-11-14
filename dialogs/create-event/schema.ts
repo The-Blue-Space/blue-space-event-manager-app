@@ -15,7 +15,12 @@ export const COMMON_CATEGORIES = [
 
 // Messages are listed in the order they should win: the form shows the first problem per field.
 export const newEventSchema = z.object({
-	title: z.string().trim().min(1, "Enter the event name.").min(3, "Use at least 3 characters."),
+	title: z
+		.string()
+		.trim()
+		.min(1, "Enter the event name.")
+		.min(3, "Use at least 3 characters.")
+		.max(100, "Keep the name to 100 characters or fewer."),
 	description: z
 		.string()
 		.trim()

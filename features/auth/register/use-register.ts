@@ -3,17 +3,25 @@ import { formatZodErrors } from "@/lib/ensure-error";
 import registerAccount from "@/services/account/register-account";
 import * as React from "react";
 import { z, ZodError } from "zod";
-import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from "../constants";
-import { describeError, matches } from "../lib/messages";
+import { NAME_MAX_LENGTH, USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from "../constants";
+import { describeError, matches, serverMessage } from "../lib/messages";
 import { meetsPasswordRules } from "../lib/password";
 
 const validate = z.object({
-	name: z.string().trim().min(1, "Enter your full name."),
+	name: z
+		.string()
+		.trim()
+		.min(1, "Enter your full name.")
+		.max(NAME_MAX_LENGTH, `Your name can be up to ${NAME_MAX_LENGTH} characters.`)
+		.refine((name) => !/[<>]/.test(name), "Your name can’t contain < or >."),
 	username: z
 		.string()
 		.trim()
+		.toLowerCase()
 		.min(USERNAME_MIN_LENGTH, `Your username needs ${USERNAME_MIN_LENGTH} to ${USERNAME_MAX_LENGTH} characters.`)
-		.max(USERNAME_MAX_LENGTH, `Your username needs ${USERNAME_MIN_LENGTH} to ${USERNAME_MAX_LENGTH} characters.`),
+		.max(USERNAME_MAX_LENGTH, `Your username needs ${USERNAME_MIN_LENGTH} to ${USERNAME_MAX_LENGTH} characters.`)
+		// Mirrors the server's ValidateUsername
+		.regex(/^[a-z0-9][a-z0-9._]*[a-z0-9]$/, "Use letters, numbers, dots and underscores, starting and ending with a letter or number."),
 	email: z.string().trim().email("Enter a valid email address, like name@example.com."),
 	// The checklist under the field explains what is missing, so this message is never shown.
 	password: z.string().refine(meetsPasswordRules, "Password doesn’t meet the requirements."),
@@ -64,6 +72,8 @@ export default function useRegister() {
 		} catch (error) {
 			if (matches(error, "usernameTaken")) {
 				setErrors({ username: "That username is taken. Try another one." });
+			} else if (/usernames can use/i.test(serverMessage(error))) {
+				setErrors({ username: "Use letters, numbers, dots and underscores, starting and ending with a letter or number." });
 			} else if (matches(error, "emailExists")) {
 				setErrors({ email: "There’s already an account with this email. Log in, or reset your password." });
 			} else {

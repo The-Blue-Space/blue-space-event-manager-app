@@ -4,15 +4,13 @@ import axios from "@/lib/axios";
 import { buildFormData } from "@/lib/build-form-data";
 import { ManagerProfile } from "@/types/user.types";
 
-type Parameters = Partial<Omit<ManagerProfile, "logo" | "display_image">> & {
+// Only the fields sent are changed; anything left out stays as saved.
+type Parameters = Partial<Omit<ManagerProfile, "logo" | "display_image" | "bio" | "phone">> & {
 	id: string;
-	name: string;
-	logo: File | null;
-	display_image: File | null;
-	bio: string | null;
-	phone: string | null;
-	email: string;
-	operating_country_id: string;
+	logo?: File | null;
+	display_image?: File | null;
+	bio?: string | null;
+	phone?: string | null;
 };
 
 type Response = ManagerProfile;

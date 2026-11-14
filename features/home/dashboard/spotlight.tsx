@@ -116,6 +116,8 @@ function Photos({ spotlight }: { spotlight: HomeSpotlight }) {
 export default function Spotlight({ spotlight }: { spotlight: HomeSpotlight }) {
 	const { event, status } = spotlight;
 	const live = status === "live";
+	// Only ticket events have sales; an invite, code or open event would read "0 tickets sold"
+	const sellsTickets = !event.access_type || event.access_type === "ticket-based";
 	const place = [event.venue_name, event.address, event.city].filter(Boolean).join(", ");
 	const eventLink = variables.EXTERNAL_LINKS.website ? `${variables.EXTERNAL_LINKS.website}/events/${event.id}` : "";
 
@@ -150,7 +152,7 @@ export default function Spotlight({ spotlight }: { spotlight: HomeSpotlight }) {
 								<span className="text-[13px] font-semibold text-auth-muted">
 									Next event{event.starts_at && ` · ${describeDaysUntil(event.starts_at)}`}
 								</span>
-								<Pill tone="success">On sale</Pill>
+								<Pill tone="success">{sellsTickets ? "On sale" : "Published"}</Pill>
 							</>
 						)}
 						{live && when && <span className="text-[13px] font-semibold text-auth-muted">{when}</span>}
@@ -171,8 +173,8 @@ export default function Spotlight({ spotlight }: { spotlight: HomeSpotlight }) {
 					</>
 				) : (
 					<>
-						<Sales sold={spotlight.tickets_sold} capacity={event.capacity} revenueKobo={spotlight.revenue_kobo} />
-						<Tiers tiers={spotlight.tiers} />
+						{sellsTickets && <Sales sold={spotlight.tickets_sold} capacity={event.capacity} revenueKobo={spotlight.revenue_kobo} />}
+						{sellsTickets && <Tiers tiers={spotlight.tiers} />}
 					</>
 				)}
 

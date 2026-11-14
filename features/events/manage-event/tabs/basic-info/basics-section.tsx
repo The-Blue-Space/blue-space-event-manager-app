@@ -5,17 +5,23 @@ import Field, { controlClass, controlProps } from "@/components/app/field";
 import SearchSelect from "@/components/app/search-select";
 import { DESCRIPTION_LIMIT, DetailsFormApi } from "./use-details-form";
 
+const MAX_TAGS = 20;
+const MAX_TAG_LENGTH = 30;
+
 /** Name, short description, category and tags. */
 export default function BasicsSection({ api }: { api: DetailsFormApi }) {
 	const { form, set, errors, categoryOptions, commonCategories, loadingCategories } = api;
 	const [tagDraft, setTagDraft] = React.useState("");
 	if (!form) return null;
 
+	// A pasted "one, two, three" becomes three tags; repeats (any case), blanks and overlong tags are dropped.
 	const addTag = () => {
-		const tag = tagDraft.trim().replace(/,$/, "").trim();
-		if (tag && !form.tags.some((existing) => existing.toLowerCase() === tag.toLowerCase())) {
-			set("tags", [...form.tags, tag]);
+		const next = [...form.tags];
+		for (const raw of tagDraft.split(",")) {
+			const tag = raw.trim().slice(0, MAX_TAG_LENGTH);
+			if (tag && next.length < MAX_TAGS && !next.some((existing) => existing.toLowerCase() === tag.toLowerCase())) next.push(tag);
 		}
+		if (next.length !== form.tags.length) set("tags", next);
 		setTagDraft("");
 	};
 

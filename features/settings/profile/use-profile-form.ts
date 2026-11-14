@@ -41,7 +41,8 @@ export default function useProfileForm(profile: ManagerProfile) {
 			const { bio, ...values } = setUpProfileSchema.parse(next);
 			const updated = await send({
 				...values,
-				bio: bio || null,
+				// Sent empty when cleared, so the server removes it (null would mean "unchanged")
+				bio: bio ?? "",
 				logo: logo?.file ?? null,
 				display_image: cover?.file ?? null,
 			});

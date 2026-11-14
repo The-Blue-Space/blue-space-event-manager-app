@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { Check } from "lucide-react";
-import { PASSWORD_RULES } from "../lib/password";
+import { PASSWORD_MAX_BYTES, PASSWORD_RULES, passwordTooLong } from "../lib/password";
 
 type PasswordRulesProps = {
 	/** Point the password input's aria-describedby at this id. */
@@ -36,6 +36,9 @@ export default function PasswordRules({ id, password, attempted }: PasswordRules
 					</li>
 				);
 			})}
+			{passwordTooLong(password) && (
+				<li className="text-[13px] font-semibold text-auth-error">Use {PASSWORD_MAX_BYTES} characters or fewer.</li>
+			)}
 		</ul>
 	);
 }

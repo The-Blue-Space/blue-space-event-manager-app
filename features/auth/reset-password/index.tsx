@@ -1,7 +1,6 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
-import classNames from "classnames";
 import { Check } from "lucide-react";
 import { variables } from "@/constants";
 import useCustomNavigation from "@/hooks/use-navigation";
@@ -10,7 +9,9 @@ import AuthButton, { authButtonClass } from "../components/auth-button";
 import AuthField from "../components/auth-field";
 import AuthShell from "../components/auth-shell";
 import { AuthAlert, AuthHeading, AuthSwitch, AuthTextLink, StatusTile } from "../components/auth-ui";
-import { PASSWORD_MIN_LENGTH, RESET_LINK_HOURS } from "../constants";
+import PasswordRules from "../components/password-rules";
+import { RESET_LINK_HOURS } from "../constants";
+import { meetsPasswordRules } from "../lib/password";
 import { describeError, matches } from "../lib/messages";
 
 type State = "form" | "updated" | "invalid";
@@ -29,7 +30,7 @@ export default function ResetPassword() {
 	const [alert, setAlert] = React.useState<string | null>(null);
 	const [isLoading, setIsLoading] = React.useState(false);
 
-	const longEnough = password.length >= PASSWORD_MIN_LENGTH;
+	const longEnough = meetsPasswordRules(password);
 
 	const submit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -121,25 +122,7 @@ export default function ResetPassword() {
 						invalid={submitted && !longEnough}
 						aria-describedby="password-rules"
 					/>
-					<ul id="password-rules" className="-mt-1 grid gap-1.5" aria-live="polite">
-						<li
-							className={classNames(
-								"flex items-center gap-2 text-[13px]",
-								longEnough ? "text-auth-success" : submitted ? "font-semibold text-auth-error" : "text-auth-muted"
-							)}
-						>
-							<span
-								className={classNames(
-									"grid size-4 place-items-center rounded-full border",
-									longEnough ? "border-auth-success bg-auth-success" : submitted ? "border-auth-error" : "border-auth-field"
-								)}
-							>
-								{longEnough && <Check aria-hidden="true" strokeWidth={3} className="size-2.5 text-white" />}
-							</span>
-							At least {PASSWORD_MIN_LENGTH} characters
-							<span className="sr-only">{longEnough ? "(done)" : "(not yet)"}</span>
-						</li>
-					</ul>
+					<PasswordRules id="password-rules" password={password} attempted={submitted} />
 					<AuthField
 						id="confirm"
 						type="password"

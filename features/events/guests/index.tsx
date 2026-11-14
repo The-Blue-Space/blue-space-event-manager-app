@@ -401,7 +401,7 @@ export default function GuestsTab({ eventId }: { eventId: string }) {
 											: guest.status === "retracted"
 												? { label: "Invite again", danger: false, run: () => act(guest, () => inviteAgain(guest.id), `Invited again. We emailed ${guest.name}.`) }
 												: guest.status === "rejected"
-													? { label: "Invite", danger: false, run: () => act(guest, () => invitePeople(eventId, [guest.user_id]), `Invited. We emailed ${guest.name}.`) }
+													? { label: "Invite", danger: false, run: () => act(guest, () => invitePeople(eventId, [{ id: guest.user_id }]), `Invited. We emailed ${guest.name}.`) }
 													: null;
 									return (
 										<tr key={guest.id} className="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-4 py-3 sm:table-row sm:p-0">

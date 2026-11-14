@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Mail } from "lucide-react";
 import { variables } from "@/constants";
 import useCookie from "@/hooks/use-cookie";
@@ -12,11 +13,18 @@ import { maskEmail } from "../lib/messages";
 
 export default function MFA() {
 	const { get: getCookie } = useCookie();
+	const router = useRouter();
 	// Read after mount: the cookie is only available in the browser.
 	const [email, setEmail] = React.useState<string | null>(null);
 
 	React.useEffect(() => {
-		setEmail(getCookie<string>(variables.STORAGE_KEYS.email, "") ?? "");
+		const pending = getCookie<string>(variables.STORAGE_KEYS.email, "") ?? "";
+		// Nobody is part-way through signing in on this browser: there's no link on its way
+		if (!pending) {
+			router.replace("/");
+			return;
+		}
+		setEmail(pending);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 

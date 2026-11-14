@@ -29,6 +29,7 @@ type Picked = Invitee & { problem?: string };
 /** Add people by email or username, see what each gets, and send every invite at once. */
 export default function InviteSheet({ open, onClose, eventId, eventTitle, accessType, isPrivate, onInvited }: InviteSheetProps) {
 	const { managerProfile } = useAppSelector("manager_profile");
+	const { account } = useAppSelector("account");
 	const organizer = managerProfile?.name ?? "you";
 	const [value, setValue] = React.useState("");
 	const [error, setError] = React.useState("");
@@ -47,7 +48,7 @@ export default function InviteSheet({ open, onClose, eventId, eventTitle, access
 
 	const add = async () => {
 		const entry = value.trim();
-		if (!entry) {
+		if (!entry || entry.replace(/^@+/, "").trim() === "") {
 			setError("Enter an email or a username.");
 			return;
 		}
@@ -59,16 +60,18 @@ export default function InviteSheet({ open, onClose, eventId, eventTitle, access
 		setFinding(true);
 		setError("");
 		try {
-			const person = await findPerson(entry);
-			if (!person) {
-				setError(
-					isEmail
-						? "No one on Blue Space uses this email yet. For now you can invite people who already have the Blue Space app. Inviting new people by email is coming soon."
-						: `No one uses the username @${entry.replace(/^@/, "")}. Check the spelling, or add them by email instead.`
-				);
+			const found = await findPerson(entry);
+			if (found && account?.id && found.id === account.id) {
+				setError("That’s you. You’re running this event, so you don’t need an invite.");
 				return;
 			}
-			if (people.some((picked) => picked.id === person.id)) {
+			const email = entry.toLowerCase();
+			const person: Invitee | null = found ?? (isEmail ? { id: `new:${email}`, name: email, email, isNew: true } : null);
+			if (!person) {
+				setError(`No one uses the username @${entry.replace(/^@/, "")}. Check the spelling, or add them by email instead.`);
+				return;
+			}
+			if (people.some((picked) => picked.id === person.id || (person.email && picked.email === person.email))) {
 				setError(`${person.name} is already on your list.`);
 				return;
 			}
@@ -86,8 +89,9 @@ export default function InviteSheet({ open, onClose, eventId, eventTitle, access
 		if (!people.length) return;
 		setSending(true);
 		try {
-			const results = await invitePeople(eventId, people.map((person) => person.id));
-			const failed = new Map(results.filter((result) => result.error).map((result) => [result.user_id, result.error as string]));
+			const results = await invitePeople(eventId, people.map((person) => (person.isNew && person.email ? { email: person.email } : { id: person.id })));
+			// One result per person, in the order sent
+			const failed = new Map(results.flatMap((result, index) => (result.error && people[index] ? [[people[index].id, result.error] as const] : [])));
 			const sent = people.length - failed.size;
 			if (sent > 0) {
 				toast.success(sent === 1 ? "Invite sent. We emailed them." : `${sent} invites sent. We emailed each of them.`);
@@ -113,6 +117,7 @@ export default function InviteSheet({ open, onClose, eventId, eventTitle, access
 			: accessType === "general" && !isPrivate
 				? `Each person gets an email from ${organizer} with the event details, and they’re in straight away.`
 				: `Each person gets an email from ${organizer} with the event details.`;
+	const anyoneNew = people.some((person) => person.isNew);
 
 	return (
 		<Sheet
@@ -179,7 +184,7 @@ export default function InviteSheet({ open, onClose, eventId, eventTitle, access
 								<span className="grid min-w-0 flex-1">
 									<span className="truncate text-[14px] font-bold">{person.name}</span>
 									<span className={classNames("truncate text-[13px]", person.problem ? "text-auth-error" : "text-auth-muted")}>
-										{person.problem ?? (person.username ? `@${person.username}` : person.email)}
+										{person.problem ?? (person.isNew ? "New to Blue Space" : person.username ? `@${person.username}` : person.email)}
 									</span>
 								</span>
 								<button
@@ -198,7 +203,10 @@ export default function InviteSheet({ open, onClose, eventId, eventTitle, access
 
 			<p className="flex items-start gap-3 rounded-xl bg-auth-page p-4 text-[13px] leading-normal text-auth-muted">
 				<Mail aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary-500" />
-				{whatTheyGet}
+				<span>
+					{whatTheyGet}
+					{anyoneNew && " People new to Blue Space are asked to get the app and sign up with that email. Your event is waiting for them there."}
+				</span>
 			</p>
 		</Sheet>
 	);
@@ -209,5 +217,6 @@ function describeFailure(error: string) {
 	if (lower.includes("already joined")) return "Already a guest.";
 	if (lower.includes("already invited") || lower.includes("already been invited")) return "Already invited.";
 	if (lower.includes("capacity")) return "The event is full.";
+	if (lower.includes("deleted")) return "This email belonged to a deleted Blue Space account.";
 	return "We couldn’t invite them. Try again.";
 }

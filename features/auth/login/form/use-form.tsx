@@ -23,6 +23,8 @@ const initial: FormData = {
 
 export default function useForm() {
 	const [isLoading, setIsLoading] = React.useState(false);
+	// A second click before the button disables would send a second link and kill the first one
+	const sending = React.useRef(false);
 	const [formData, setFormData] = React.useState<FormData>(initial);
 	const [errors, setErrors] = React.useState<FieldErrors>({});
 	const [alert, setAlert] = React.useState<{ message: string; unverified?: boolean } | null>(null);
@@ -39,6 +41,7 @@ export default function useForm() {
 
 	const submit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		if (sending.current) return;
 		setAlert(null);
 
 		let values: FormData;
@@ -50,6 +53,7 @@ export default function useForm() {
 		}
 
 		setIsLoading(true);
+		sending.current = true;
 		try {
 			const response = await loginAccount(values);
 			setCookie(variables.STORAGE_KEYS.email, response?.user?.email ?? "", { expires: 1 });
@@ -68,6 +72,7 @@ export default function useForm() {
 			} else {
 				setAlert({ message: describeError(error) });
 			}
+			sending.current = false;
 			setIsLoading(false);
 		}
 	};
