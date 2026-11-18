@@ -7,6 +7,7 @@ import loginAccount from "@/services/account/login-account";
 import * as React from "react";
 import { z, ZodError } from "zod";
 import { describeError, matches } from "../../lib/messages";
+import useFinishSignIn from "../../lib/use-finish-sign-in";
 
 const validate = z.object({
 	login: z.string().trim().min(1, "Enter your email or username."),
@@ -30,6 +31,7 @@ export default function useForm() {
 	const [alert, setAlert] = React.useState<{ message: string; unverified?: boolean } | null>(null);
 
 	const { set: setCookie } = useCookie();
+	const finishSignIn = useFinishSignIn();
 	const { navigate } = useCustomNavigation();
 
 	const updateForm = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +58,16 @@ export default function useForm() {
 		sending.current = true;
 		try {
 			const response = await loginAccount(values);
+			// A browser that has used an emailed link before is signed in straight away
+			if (response?.access_token && response.expires_in) {
+				finishSignIn({
+					access_token: response.access_token,
+					manager_profile: response.manager_profile,
+					expires_in: response.expires_in,
+				});
+				navigate("/home", { replace: true });
+				return;
+			}
 			setCookie(variables.STORAGE_KEYS.email, response?.user?.email ?? "", { expires: 1 });
 
 			if (variables.IS_DEV) {

@@ -12,12 +12,14 @@ import AuthShell from "../components/auth-shell";
 import { AuthHeading, AuthSwitch, AuthTextLink, StatusTile } from "../components/auth-ui";
 import { SIGN_IN_LINK_MINUTES } from "../constants";
 import { describeError } from "../lib/messages";
+import useFinishSignIn from "../lib/use-finish-sign-in";
 import Link from "next/link";
 
 type State = "loading" | "success" | "error";
 
 export default function VerifyMFA() {
-	const { get: getCookie, set: setCookie, delete: deleteCookie } = useCookie();
+	const { get: getCookie } = useCookie();
+	const finishSignIn = useFinishSignIn();
 	const { queryParams, navigate } = useCustomNavigation();
 	const [state, setState] = React.useState<State>("loading");
 	const [email, setEmail] = React.useState("");
@@ -42,17 +44,7 @@ export default function VerifyMFA() {
 					setState("error");
 					return;
 				}
-				setCookie(variables.STORAGE_KEYS.session, res.access_token, {
-					expires: new Date(res.expires_in * 1000),
-				});
-				// Always replace it: a profile id left by someone who used this browser before isn't this person's
-				if (res.manager_profile?.id) {
-					setCookie(variables.STORAGE_KEYS.manager_profile_id, res.manager_profile.id);
-				} else {
-					deleteCookie(variables.STORAGE_KEYS.manager_profile_id);
-				}
-				// Only needed while the sign-in is pending (to resend the link)
-				deleteCookie(variables.STORAGE_KEYS.email);
+				finishSignIn(res);
 				setState("success");
 				navigate("/home", { replace: true });
 			})
