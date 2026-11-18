@@ -9,6 +9,9 @@ type Parameters = {
 type Response = {
 	success: boolean;
 	message: string;
+	/** Kobo being refunded to the guest; 0 for free or unpaid tickets. */
+	refund_amount?: number;
+	refund_status?: string;
 };
 
 export async function production(params: Parameters): Promise<Response> {

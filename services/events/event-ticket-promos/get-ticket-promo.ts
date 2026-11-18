@@ -7,8 +7,13 @@ type Parameters = { ticketId: string };
 type Response = EventTicketPromo | null;
 
 export async function production(params: Parameters): Promise<Response> {
-	const response = await axios.get(`/v1/event-tickets/${params.ticketId}/promo`);
-	return response.data;
+	try {
+		const response = await axios.get(`/v1/event-tickets/${params.ticketId}/promo`);
+		return response.data;
+	} catch (err: any) {
+		if (err?.response?.status === 404) return null;
+		throw err;
+	}
 }
 
 export async function development(params: Parameters): Promise<Response> {

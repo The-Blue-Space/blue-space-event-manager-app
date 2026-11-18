@@ -2,6 +2,7 @@ import AppButton from "@/components/app/app-button";
 import AppDialog from "@/components/app/app-dialog";
 import { useAuth } from "@/contexts/use-auth-gate";
 import ensureError from "@/lib/ensure-error";
+import { clearDrafts } from "@/lib/form-saving/draft-storage";
 
 import useActions from "@/store/actions";
 import useAppSelector from "@/store/hooks";
@@ -11,6 +12,7 @@ import { toast } from "sonner";
 
 export default React.memo(function LogoutDialog() {
 	const { dialog } = useAppSelector("ui");
+	const { account } = useAppSelector("account");
 
 	const [isLoading, setIsLoading] = React.useState(false);
 
@@ -29,6 +31,8 @@ export default React.memo(function LogoutDialog() {
 
 	const logout = async () => {
 		setIsLoading(true);
+		// Unsaved changes kept on this device go with the person signing out (a profile backup holds their email and phone).
+		if (account?.id) clearDrafts(account.id);
 		try {
 			await logoutAccount();
 			ui.resetDialog();

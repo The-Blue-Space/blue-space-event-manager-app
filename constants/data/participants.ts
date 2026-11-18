@@ -44,7 +44,7 @@ export const participants: Participant[] = [
 		id: "part-3",
 		event_id: "8c08fc52-65f3-4eba-81ef-e66b3302e216",
 		user_id: users[2].id,
-		role: "photographer",
+		role: "attendee",
 		status: "joined",
 		user_ticket_id: null,
 		access_code_id: null,

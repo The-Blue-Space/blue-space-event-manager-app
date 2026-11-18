@@ -23,7 +23,8 @@ type Response = {
 };
 
 export async function production(params: Parameters): Promise<Response> {
-	const response = await axios.post(`/v1/tickets/fee-breakdown`, params);
+	const { event_id, price, currency_id } = params;
+	const response = await axios.post(`/v1/tickets/fee-breakdown`, { event_id, price, currency_id });
 	return response.data;
 }
 

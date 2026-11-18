@@ -3,11 +3,11 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "NEXT_PUBLIC_SERVICE_ENV=development next dev --turbopack",
-		"prod": "NEXT_PUBLIC_SERVICE_ENV=production next dev --turbopack",
-		"local": "NEXT_PUBLIC_SERVICE_ENV=local NEXT_PUBLIC_BASE_URL=http://$(ipconfig getifaddr en0):8080 next dev --turbopack",
+		"dev": "NEXT_PUBLIC_SERVICE_ENV=development next dev --turbopack -p 3847",
+		"prod": "NEXT_PUBLIC_SERVICE_ENV=production next dev --turbopack -p 3847",
+		"local": "NEXT_PUBLIC_SERVICE_ENV=local NEXT_PUBLIC_BASE_URL=http://$(ipconfig getifaddr en0):8080 next dev --turbopack -p 3847",
 		"build": "NEXT_PUBLIC_SERVICE_ENV=production next build --turbopack",
-		"start": "next start",
+		"start": "next start -p 3847",
 		"lint": "eslint"
 	},
 	"dependencies": {
@@ -42,6 +42,7 @@
 		"class-variance-authority": "^0.7.1",
 		"classnames": "^2.5.1",
 		"clsx": "^2.1.1",
+		"cmdk": "^1.1.1",
 		"date-fns": "^4.1.0",
 		"js-cookie": "^3.0.5",
 		"lucide-react": "^0.503.0",

@@ -39,7 +39,10 @@ export type EventTicket = {
 
 export type EventTicketAddon = {
 	id: string;
+	event_id?: string;
 	ticket_ids: string[] | null; // if null, then it is a standalone addon
+	total_quantity?: number | null;
+	unlimited_quantity?: boolean;
 	name: string;
 	description?: string;
 	type: EventTicketType;

@@ -1,53 +1,70 @@
 "use client";
-import { Input } from "@/components/app/form-input";
-import { formFields } from "./data";
+import AuthButton from "../../components/auth-button";
+import AuthField from "../../components/auth-field";
+import { AuthAlert, AuthHeading, AuthMeta, AuthSwitch, AuthTextLink } from "../../components/auth-ui";
 import useForm from "./use-form";
-import Button from "@/components/app/app-button";
-import * as React from "react";
-
-import { variables } from "@/constants";
 
 export default function Form() {
-	const { isLoading, formData, errors, updateForm, submit } = useForm();
-
-	const enableSubmit = React.useMemo(() => {
-		return Object.values(formData).every((value) => value.trim() !== "");
-	}, [formData]);
+	const { isLoading, formData, errors, alert, updateForm, submit } = useForm();
+	const credentialsRejected = Boolean(alert) && !alert?.unverified;
 
 	return (
-		<form className="flex flex-col gap-4" onSubmit={submit}>
-			{formFields.map((item, idx) => {
-				return (
-					<Input
-						key={idx}
-						{...item}
-						value={formData[item.name as keyof typeof formData]}
-						onChange={updateForm}
-						disabled={isLoading}
-						errorMessage={errors[item.name as keyof typeof errors]}
-					/>
-				);
-			})}
+		<div className="grid gap-6">
+			<AuthHeading
+				title="Log in to Blue Space"
+				description="Use your Blue Space account. It’s the same one you use in the app."
+			/>
 
-			<div className="pt-5 space-y-3 flex flex-col items-center gap-2">
-				<Button
-					type="submit"
-					isLoading={isLoading}
-					variant={"primary"}
-					className="flex items-center justify-center w-full"
-					disabled={isLoading || !enableSubmit}
-				>
-					Sign in
-				</Button>
+			{alert && (
+				<AuthAlert>
+					{alert.message}
+					{alert.unverified && (
+						<>
+							{" "}
+							<AuthTextLink href="/verify-email">Send a new link</AuthTextLink>
+						</>
+					)}
+				</AuthAlert>
+			)}
 
-				<a
-					href={variables.EXTERNAL_LINKS.mobile_app}
-					target="_blank"
-					className="text-primary-300 hover:text-primary-1000 body-3 transition-colors"
-				>
-					Forgot password?
-				</a>
-			</div>
-		</form>
+			<form className="grid gap-4" onSubmit={submit} noValidate>
+				<AuthField
+					id="login"
+					label="Email or username"
+					placeholder="you@example.com"
+					autoComplete="username"
+					value={formData.login}
+					onChange={updateForm}
+					disabled={isLoading}
+					error={errors.login}
+					invalid={credentialsRejected}
+				/>
+				<AuthField
+					id="password"
+					type="password"
+					label="Password"
+					placeholder="Enter your password"
+					autoComplete="current-password"
+					value={formData.password}
+					onChange={updateForm}
+					disabled={isLoading}
+					error={errors.password}
+					invalid={credentialsRejected}
+					aside={
+						<AuthTextLink href="/forgot-password" className="text-[13px]">
+							Forgot password?
+						</AuthTextLink>
+					}
+				/>
+				<AuthButton type="submit" isLoading={isLoading} loadingText="Logging in…">
+					Log in
+				</AuthButton>
+				<AuthMeta>To keep your account safe, we’ll email you a link to finish logging in.</AuthMeta>
+			</form>
+
+			<AuthSwitch>
+				New to Blue Space? <AuthTextLink href="/register">Create an account</AuthTextLink>
+			</AuthSwitch>
+		</div>
 	);
 }

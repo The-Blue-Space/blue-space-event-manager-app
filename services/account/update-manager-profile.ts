@@ -4,27 +4,26 @@ import axios from "@/lib/axios";
 import { buildFormData } from "@/lib/build-form-data";
 import { ManagerProfile } from "@/types/user.types";
 
-type Parameters = Partial<Omit<ManagerProfile, "logo" | "display_image">> & {
+// Only the fields sent are changed; anything left out stays as saved.
+type Parameters = Partial<Omit<ManagerProfile, "logo" | "display_image" | "bio" | "phone">> & {
 	id: string;
-	name: string;
-	logo: File | null;
-	display_image: File | null;
-	bio: string | null;
-	phone: string | null;
-	email: string;
-	operating_country_id: string;
+	logo?: File | null;
+	display_image?: File | null;
+	bio?: string | null;
+	phone?: string | null;
 };
 
 type Response = ManagerProfile;
 
 export async function production(params: Parameters): Promise<Response> {
 	const formData = buildFormData(params, "dot"); // dot notation;
-	const response = await axios.put(`/v1/manager-profiles/${params.id}`, formData, {
+	const url = `/v1/manager-profiles/${params.id}`;
+	const response = await axios.put<{ message: string; profile: ManagerProfile }>(url, formData, {
 		headers: {
 			"Content-Type": "multipart/form-data",
 		},
 	});
-	return response.data;
+	return response.data.profile;
 }
 
 export async function development(): Promise<Response> {

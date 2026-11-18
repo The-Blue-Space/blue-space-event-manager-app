@@ -4,7 +4,7 @@ import { generateMetadata } from "@/lib/generate-metadata";
 
 export const metadata = generateMetadata({
 	title: "Settings",
-	description: "Manage your profile and event settings",
+	description: "Your organizer profile, and the defaults your events start with.",
 });
 
 export default function Page() {

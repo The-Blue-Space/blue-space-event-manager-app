@@ -22,7 +22,15 @@ export async function production(params: Parameters): Promise<Response> {
 	const response = await axios.get(`/v1/events/${event_id}/vendor-applications`, {
 		params: query,
 	});
-	return response.data;
+	// The server sends its standard page shape ({docs, totalDocs, totalPages}); map it to what the tab expects.
+	const page = response.data;
+	return {
+		data: page.docs ?? page.data ?? [],
+		total: page.totalDocs ?? page.total ?? 0,
+		page: page.page ?? 1,
+		limit: page.limit ?? 10,
+		total_pages: page.totalPages ?? page.total_pages ?? 1,
+	};
 }
 
 export async function development(): Promise<Response> {

@@ -1,15 +1,22 @@
 import { variables } from "@/constants";
 import { users } from "@/constants/data/user";
 import axios from "@/lib/axios";
-import { User } from "@/types/user.types";
+import { ManagerProfile, User } from "@/types/user.types";
 
 type Parameters = {
 	login: string;
 	password: string;
 };
 
+/**
+ * On a browser that has finished an emailed sign-in link before, the server signs in straight away and sends the
+ * session (the same answer as verify-mfa). On any other browser it emails a link and sends only the user.
+ */
 type Response = {
 	user: User;
+	access_token?: string;
+	manager_profile?: ManagerProfile | null;
+	expires_in?: number;
 };
 
 export async function production(data: Parameters): Promise<Response> {

@@ -18,6 +18,8 @@ type Parameters = {
 	discount_percentage?: number | null;
 	discount_amount?: number | null;
 	discount_type?: DiscountType;
+	discount_start_date?: string | null;
+	discount_end_date?: string | null;
 
 	is_active: boolean;
 	sales_start_date: string;

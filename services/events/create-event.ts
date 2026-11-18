@@ -3,15 +3,15 @@ import { events } from "@/constants/data/events/events";
 import axios from "@/lib/axios";
 import { AccessType, Event } from "@/types/event.types";
 
+// The manager profile comes from the X-Manager-ID header, so it isn't part of the body.
 type Parameters = {
-	manager_id: string;
 	is_private: boolean;
 	title: string;
 	description: string;
 	location_id: string;
 	access_type: AccessType;
 	event_category_id: string;
-	tags: string[];
+	tags?: string[];
 };
 type Response = {
 	event: Event;

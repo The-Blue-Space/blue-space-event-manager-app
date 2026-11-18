@@ -4,6 +4,8 @@ import axios from "@/lib/axios";
 import { Event } from "@/types/event.types";
 
 export type DuplicateEventOptions = {
+	/** The copy's name; the server uses "<original> (Copy)" when it's empty */
+	title?: string;
 	include_tickets?: boolean;
 	include_addons?: boolean;
 	include_promos?: boolean;
