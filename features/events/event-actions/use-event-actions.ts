@@ -13,10 +13,9 @@ export type ActionableEvent = { id: string; title: string; status: EventStatus; 
 export const eventLink = (eventId: string) =>
 	variables.EXTERNAL_LINKS.website ? `${variables.EXTERNAL_LINKS.website}/events/${eventId}` : "";
 
-/** Why an event can't be deleted, or null when it can. Only drafts nobody has bought into can go. */
+/** Why an event can't be deleted, or null when it can. Once tickets are sold it can only be cancelled. */
 export function whyNotDeletable(event: ActionableEvent): string | null {
-	if (event.has_sales) return "It has ticket sales, so it can’t be deleted.";
-	if (event.published) return "Unpublish it first to delete it.";
+	if (event.has_sales) return "Tickets have been sold, so it can only be cancelled.";
 	return null;
 }
 
@@ -53,10 +52,10 @@ export default function useEventActions({ onDeleted }: { onDeleted?: () => void 
 		refresh(event.id);
 	};
 
-	/** Deletes a draft after the organizer has confirmed. Throws so the confirm dialog can stay open on failure. */
+	/** Deletes the event after the organizer has confirmed. Throws so the confirm dialog can stay open on failure. */
 	const remove = async (event: ActionableEvent) => {
 		await deleteEvent({ eventId: event.id });
-		toast.success("Draft deleted.");
+		toast.success(event.published ? "Event deleted." : "Draft deleted.");
 		onDeleted?.();
 		refresh(event.id);
 	};

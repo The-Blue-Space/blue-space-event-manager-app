@@ -89,8 +89,12 @@ export default function EventMenu({ event, variant = "row", onDeleted }: EventMe
 				open={asking === "delete"}
 				onOpenChange={(open) => !open && setAsking(null)}
 				title={`Delete ${event.title}?`}
-				text="The draft goes for good, with its details, ticket types, agenda and the photos you uploaded. You can’t undo this."
-				confirmLabel="Delete draft"
+				text={
+					event.published
+						? "It comes off Blue Space: guests can’t find or open it any more. You can’t undo this."
+						: "The draft goes for good, with its details, ticket types, agenda and the photos you uploaded. You can’t undo this."
+				}
+				confirmLabel={event.published ? "Delete event" : "Delete draft"}
 				icon={<Trash2 />}
 				onConfirm={() => actions.remove(event)}
 			/>

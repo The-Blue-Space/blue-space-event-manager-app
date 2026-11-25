@@ -121,7 +121,6 @@ function invalidFields(form: DetailsForm, published: boolean, venueQuery: string
 
 export default function useDetailsForm() {
 	const { event, published, updateEvent } = useEvent();
-	const { account } = useAppSelector("account");
 	const { managerProfile } = useAppSelector("manager_profile");
 	const queryClient = useQueryClient();
 	const eventId = event?.id ?? "";
@@ -179,12 +178,11 @@ export default function useDetailsForm() {
 			media_type: "cover",
 			is_active: true,
 			order: 1,
-			user_id: account.id,
 		});
 	};
 	const deleteCovers = async () => {
 		for (const item of covers) {
-			await deleteMedia({ event_Id: eventId, media_id: item.id, user_id: account.id });
+			await deleteMedia({ event_Id: eventId, media_id: item.id });
 		}
 	};
 

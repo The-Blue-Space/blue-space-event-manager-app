@@ -13,7 +13,6 @@ import updateTicketPromo from "@/services/events/event-ticket-promos/update-tick
 import deleteEventTicket from "@/services/events/event-tickets/delete-event-ticket";
 import toggleTicketStatus from "@/services/events/event-tickets/toggle-ticket-status";
 import useActions from "@/store/actions";
-import useAppSelector from "@/store/hooks";
 import { EventTicket, EventTicketAddon, EventTicketPromo } from "@/types/event-ticket.types";
 import AddonSheet, { AddonSheetState } from "./addon-sheet";
 import DiscountSheet, { DiscountSheetState } from "./discount-sheet";
@@ -34,7 +33,6 @@ function TicketsWorkspace({ eventId, onNavigate }: TicketsTabProps) {
 	const data = useTickets(eventId);
 	const { summary, event, tickets, promos, addons, times, refresh } = data;
 	const { ui } = useActions();
-	const { account } = useAppSelector("account");
 	const queryClient = useQueryClient();
 
 	const [ticketSheet, setTicketSheet] = React.useState<TicketSheetState>({ open: false, ticket: null });
@@ -121,7 +119,7 @@ function TicketsWorkspace({ eventId, onNavigate }: TicketsTabProps) {
 			`Remove ${promo.name}?`,
 			"Guests stop getting this discount. Tickets already bought keep their price.",
 			"Remove",
-			() => run(promo.id, () => deleteTicketPromo({ promoId: promo.id, userId: account.id }), `${promo.name} removed.`)
+			() => run(promo.id, () => deleteTicketPromo({ promoId: promo.id }), `${promo.name} removed.`)
 		);
 
 	const toggleAddon = (addon: EventTicketAddon) =>
