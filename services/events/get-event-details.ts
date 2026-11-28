@@ -9,8 +9,8 @@ type Parameters = {
 type Response = Event;
 
 export async function production(params: Parameters): Promise<Response> {
-	const response = await axios.get(`/v1/events/${params.id}`);
-	return response.data;
+	const response = await axios.get<{ data: Event }>(`/v1/events/${params.id}`);
+	return response.data.data;
 }
 
 export async function development(): Promise<Response> {

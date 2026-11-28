@@ -5,9 +5,12 @@ import { Check } from "lucide-react";
 import { formatNaira, formatShortDate, formatWhen, plural } from "@/features/home/dashboard/format";
 import { Sales, Tiers } from "@/features/home/dashboard/spotlight";
 import { EventSummary } from "@/types/event-summary.types";
+import { fullLabel } from "@/features/events/manage-event/tabs/basic-info/lagos-time";
+import ScheduledCard from "./scheduled-card";
 import { ACCESS_LABEL, EventTab, setupSteps } from "./steps";
 
 type OverviewProps = { summary: EventSummary; onNavigate: (tab: EventTab) => void };
+type Scheduling = { isBusy: boolean; onChangeTime: () => void; onBackToDraft: () => void };
 
 const linkButton = "text-[14px] font-semibold text-auth-link hover:text-primary-500";
 
@@ -165,6 +168,7 @@ function AtAGlance({ summary }: { summary: EventSummary }) {
 		{ label: "Who can find it", value: event.is_private ? "Private" : "Public" },
 		{ label: "Refunds", value: refundText(refunds), note: refunds.inherited ? "From your event defaults." : undefined },
 		...(event.published_at ? [{ label: "Published", value: formatShortDate(event.published_at) }] : []),
+		...(event.status === "scheduled" && event.publish_at ? [{ label: "Publishes", value: fullLabel(new Date(event.publish_at).getTime()) }] : []),
 	];
 	return (
 		<aside aria-labelledby="at-a-glance" className="grid min-w-0 max-w-[360px] flex-[1_1_300px] content-start">
@@ -189,7 +193,7 @@ function AtAGlance({ summary }: { summary: EventSummary }) {
 	);
 }
 
-export default function Overview({ summary, onNavigate }: OverviewProps) {
+export default function Overview({ summary, onNavigate, scheduling }: OverviewProps & { scheduling: Scheduling }) {
 	const isDraft = summary.event.status === "draft" || summary.event.status === "scheduled";
 	const { sales, event } = summary;
 
@@ -198,6 +202,7 @@ export default function Overview({ summary, onNavigate }: OverviewProps) {
 			<div className="grid min-w-0 flex-[999_1_560px] gap-7">
 				{isDraft ? (
 					<>
+						{event.status === "scheduled" && event.publish_at && <ScheduledCard publishAt={event.publish_at} {...scheduling} />}
 						<Checklist summary={summary} onNavigate={onNavigate} />
 						<GoodToAdd onNavigate={onNavigate} />
 					</>

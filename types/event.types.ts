@@ -4,7 +4,7 @@ import type { EventCategory } from "./event-category.types";
 import type { EventShotQuota } from "./event-shot-quota.types";
 import { EventAgenda, EventLineup } from "./event-agenda.types";
 
-export const ACCESS_TYPES = ["general", "individual", "ticket-based", "none"] as const;
+export const ACCESS_TYPES = ["ticket-based", "individual"] as const;
 
 export type AccessType = (typeof ACCESS_TYPES)[number];
 
@@ -19,6 +19,8 @@ export type ParkingType = (typeof PARKING_TYPES)[number];
 
 export const REFUND_POLICY_TYPES = ["no-refund", "partial-refund", "full-refund"] as const;
 export type RefundPolicyType = (typeof REFUND_POLICY_TYPES)[number];
+
+export type EventLifecycle = "draft" | "scheduled" | "published" | "cancelled";
 
 
 export type Event = {
@@ -40,8 +42,8 @@ export type Event = {
 	latitude?: string | null;
 	event_category_id?: string | null;
 	tags?: string[];
-	scheduled_publish_at?: string | null;
-	scheduled_publish_enabled?: boolean;
+	status: EventLifecycle;
+	publish_at?: string | null;
 	event_start_date?: string | null;
 	event_end_date?: string | null;
 	event_start_time?: string | null;
@@ -49,12 +51,13 @@ export type Event = {
 	event_ticket_id?: string | null;
 	is_private: boolean;
 	access_type: AccessType;
-	access_code?: string | null;
-	qr_code?: string | null;
+	place_tba: boolean;
+	address_reveal_minutes?: number | null;
+	address_shown_at?: string | null;
+	joined_count?: number;
 	enable_downloads: boolean;
 	allow_individual_upload: boolean;
 	allow_professional_upload: boolean;
-	published: boolean;
 	published_at?: string | null;
 	is_duplicated: boolean;
 	event_plan_id?: string | null;
@@ -148,7 +151,7 @@ export type EventsFilterParams = {
 	search?: string; // Search by title, tags
 	category?: string; // Filter by category ID
 	access_type?: AccessType; // Filter by access type
-	published?: string; // Filter by published status ("true" | "false")
+	status?: EventLifecycle;
 	start_date?: string; // Filter by date range (ISO string)
 	end_date?: string; // Filter by date range (ISO string)
 	sort_by?: string; // Sort field (backend decides options)

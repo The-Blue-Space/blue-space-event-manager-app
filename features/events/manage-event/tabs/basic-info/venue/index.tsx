@@ -4,6 +4,7 @@ import classNames from "classnames";
 import { MapPin, Search } from "lucide-react";
 import Field, { controlClass, controlProps } from "@/components/app/field";
 import { DetailsFormApi } from "../use-details-form";
+import AddressTiming from "./address-timing";
 import geocodeAddress, { GeocodeRefused } from "./geocode";
 import { useMapsState, useReportMapsBroken } from "./maps-health";
 import usePlaceSearch, { PlaceSuggestion } from "./place-search";
@@ -150,6 +151,8 @@ export default function VenueSection({ api }: { api: DetailsFormApi }) {
 					addressLine={addressLine}
 				/>
 			)}
+
+			<AddressTiming api={api} />
 		</section>
 	);
 }

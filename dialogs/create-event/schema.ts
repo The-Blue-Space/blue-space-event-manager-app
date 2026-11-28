@@ -44,17 +44,7 @@ export const newEventInitial: NewEventForm = {
 
 export const ACCESS_CHOICES: { value: NewEventForm["access_type"]; title: string; detail: string }[] = [
 	{ value: "ticket-based", title: "Sell tickets", detail: "Guests buy a ticket. You set the ticket types and prices." },
-	{
-		value: "general",
-		title: "One code for everyone",
-		detail: "Guests join with a shared code or QR. Public events let them straight in.",
-	},
-	{
-		value: "individual",
-		title: "Invite each guest",
-		detail: "Every guest gets their own code, and you approve who joins.",
-	},
-	{ value: "none", title: "Open to everyone", detail: "No tickets or codes. Anyone can join." },
+	{ value: "individual", title: "Invite each guest", detail: "Every guest gets their own code, and you approve who joins." },
 ];
 
 export const VISIBILITY_CHOICES: { value: boolean; title: string; detail: string }[] = [

@@ -25,8 +25,8 @@ type Response = {
 };
 
 export async function production(params: Parameters): Promise<Response> {
-	const response = await axios.post(`/v1/events/${params.eventId}/duplicate`, params.options || {});
-	return response.data;
+	const response = await axios.post<{ data: Response }>(`/v1/events/${params.eventId}/duplicate`, params.options || {});
+	return response.data.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {
@@ -44,7 +44,7 @@ export async function development(params: Parameters): Promise<Response> {
 		title: `${eventToDuplicate.title} (Copy)`,
 		is_duplicated: true,
 		previous_event_id: eventToDuplicate.id,
-		published: false, // Duplicates start as unpublished
+		status: "draft",
 		published_at: null,
 		created_at: new Date().toISOString(),
 		updated_at: new Date().toISOString(),

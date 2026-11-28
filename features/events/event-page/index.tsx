@@ -1,8 +1,7 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AlbumTab from "@/features/events/album";
@@ -14,14 +13,14 @@ import MediaTab from "@/features/events/media";
 import TicketsTab from "@/features/events/manage-event/tabs/tickets";
 import { DashboardError } from "@/features/home/dashboard/states";
 import useCustomNavigation from "@/hooks/use-navigation";
-import ensureError from "@/lib/ensure-error";
 import getEventSummary from "@/services/events/get-event-summary";
-import publishEvent from "@/services/events/publish-event";
 import useActions from "@/store/actions";
 import EventHeader from "./header";
 import Overview from "./overview";
+import PublishLaterDialog from "./publish-later-dialog";
 import { EventTab } from "./steps";
 import { UnsavedChanges, UnsavedChangesProvider } from "./unsaved-changes";
+import usePublishing from "./use-publishing";
 import VendorsComingSoon from "./vendors-coming-soon";
 
 // `value` is what the reused setup tabs register with; `id` is what the URL shows.
@@ -44,7 +43,6 @@ function EventWorkspace() {
 	const tab = resolveTab(queryParams.get("tab"));
 	const { event } = useEvent();
 	const { ui } = useActions();
-	const queryClient = useQueryClient();
 
 	const summary = useQuery({ queryKey: ["event-summary", eventId], queryFn: () => getEventSummary(eventId) });
 
@@ -55,25 +53,12 @@ function EventWorkspace() {
 		if (tab.id === "overview") refetchSummary();
 	}, [tab.id, event?.updated_at, refetchSummary]);
 
-	const refresh = () => {
-		for (const key of [["event-summary", eventId], ["event-details", eventId], ["events"], ["manager-events"], ["home-dashboard"]]) {
-			queryClient.invalidateQueries({ queryKey: key });
-		}
-	};
-	const publish = useMutation({
-		mutationFn: () => publishEvent({ event_id: eventId }),
-		onSuccess: () => {
-			toast.success("Published. Guests can find it now.");
-			refresh();
-		},
-		onError: (error) => toast.error(ensureError(error).message),
-	});
-
 	// Details reports whether anything on it can't be saved. A draft's Details saves itself, so leaving only asks
 	// when something needs a fix; a published event's Details asks if you haven't pressed Save.
 	const unsaved = React.useRef<UnsavedChanges | null>(null);
 	/** Publishing waits for pending saves, so guests never get the version from before your last edit. */
 	const settled = async () => !unsaved.current || (await unsaved.current.flush());
+	const publishing = usePublishing(eventId, settled);
 
 	// Switching tabs doesn't wait for a save: closing Details saves what's pending, and the device keeps a copy.
 	const goTo = (id: EventTab) => {
@@ -92,22 +77,6 @@ function EventWorkspace() {
 		navigate(`?tab=${id}`);
 	};
 
-	const publishNow = async () => {
-		if (!(await settled())) {
-			ui.changeDialog({
-				show: true,
-				type: "info_dialog",
-				data: {
-					title: "Publish without your latest changes?",
-					text: "Some changes on Details aren’t saved, so guests won’t see them. Fix them first, or publish without them.",
-				},
-				action: () => publish.mutate(),
-			});
-			return;
-		}
-		publish.mutate();
-	};
-
 	return (
 		<div className="mx-auto grid w-full max-w-[1200px] grid-cols-[minmax(0,1fr)] gap-5 px-4 pb-16 pt-6 sm:px-8 lg:px-10">
 			<nav aria-label="Breadcrumb" className="text-[13px] text-auth-muted">
@@ -121,8 +90,9 @@ function EventWorkspace() {
 			{summary.data ? (
 				<EventHeader
 					summary={summary.data}
-					isBusy={publish.isPending}
-					onPublish={publishNow}
+					isBusy={publishing.isBusy}
+					onPublishNow={publishing.publishNow}
+					onPublishLater={publishing.chooseTime}
 				/>
 			) : summary.isError ? (
 				<DashboardError onRetry={() => summary.refetch()} isRetrying={summary.isFetching} />
@@ -156,7 +126,13 @@ function EventWorkspace() {
 					</TabsList>
 
 					<TabsContent value="overview" className="mt-5">
-						{summary.data && <Overview summary={summary.data} onNavigate={goTo} />}
+						{summary.data && (
+							<Overview
+								summary={summary.data}
+								onNavigate={goTo}
+								scheduling={{ isBusy: publishing.isBusy, onChangeTime: publishing.chooseTime, onBackToDraft: publishing.backToDraft }}
+							/>
+						)}
 					</TabsContent>
 
 					{event ? (
@@ -184,6 +160,15 @@ function EventWorkspace() {
 					)}
 				</Tabs>
 			</UnsavedChangesProvider>
+
+			<PublishLaterDialog
+				open={publishing.choosingTime}
+				eventTitle={summary.data?.event.title ?? "This event"}
+				startsAt={summary.data?.event.starts_at ?? null}
+				publishAt={summary.data?.event.publish_at ?? null}
+				onClose={publishing.closeTime}
+				onSchedule={publishing.schedule}
+			/>
 		</div>
 	);
 }

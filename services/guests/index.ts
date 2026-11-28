@@ -57,4 +57,3 @@ export const withdrawInvite = (participantId: string) => axios.patch(`/v1/partic
 export const inviteAgain = (participantId: string) => axios.post(`/v1/participants/${participantId}/reinvite`);
 export const blockGuest = (participantId: string) => axios.patch(`/v1/participants/${participantId}/block`);
 export const unblockGuest = (participantId: string) => axios.patch(`/v1/participants/${participantId}/unblock`);
-export const resetEventCode = (eventId: string) => axios.post(`/v1/events/${eventId}/reset-access-code`, {});

@@ -1,11 +1,11 @@
 import { variables } from "@/constants";
 import axios from "@/lib/axios";
 
-type Parameters = { event_id: string; published_at?: string };
+type Parameters = { event_id: string; publish_at?: string };
 
-// The server takes the user from the session; published_at in the future schedules the event instead.
-export async function production({ event_id, published_at }: Parameters): Promise<void> {
-	await axios.put(`/v1/events/${event_id}/publish`, published_at ? { published_at } : {});
+// A publish_at in the future schedules the event; without one it goes live now.
+export async function production({ event_id, publish_at }: Parameters): Promise<void> {
+	await axios.put(`/v1/events/${event_id}/publish`, publish_at ? { publish_at } : {});
 }
 
 export async function development(): Promise<void> {

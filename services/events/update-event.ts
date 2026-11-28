@@ -10,10 +10,10 @@ type Parameters = DeepPartial<Event> & {
 type Response = Event;
 
 export async function production(params: Parameters): Promise<Response> {
-	const response = await axios.put(`/v1/events/${params.event_id}`, {
+	const response = await axios.put<{ data: Event }>(`/v1/events/${params.event_id}`, {
 		...params,
 	});
-	return response.data;
+	return response.data.data;
 }
 
 export async function development(): Promise<Response> {

@@ -2,7 +2,7 @@ import { variables } from "@/constants";
 import { events } from "@/constants/data/events/events";
 import axios from "@/lib/axios";
 import buildQueryString from "@/lib/build-query-string";
-import { generatePaginateResponse } from "@/lib/paginate";
+import { fromPage, generatePaginateResponse } from "@/lib/paginate";
 import { Event, EventsFilterParams } from "@/types/event.types";
 import { PaginatedResponse } from "@/types/global.types";
 
@@ -12,7 +12,7 @@ type Response = PaginatedResponse<Event>;
 export async function production(params: Parameters): Promise<Response> {
 	const query_string = buildQueryString(params);
 	const response = await axios.get(`/v1/events?${query_string}`);
-	return response.data;
+	return fromPage<Event>(response.data);
 }
 
 export async function development(params: Parameters): Promise<Response> {
@@ -40,9 +40,8 @@ export async function development(params: Parameters): Promise<Response> {
 	}
 
 	// Published status filter
-	if (params.published !== undefined) {
-		const isPublished = params.published === "true";
-		filteredEvents = filteredEvents.filter((event) => event.published === isPublished);
+	if (params.status) {
+		filteredEvents = filteredEvents.filter((event) => event.status === params.status);
 	}
 
 	// Date range filter

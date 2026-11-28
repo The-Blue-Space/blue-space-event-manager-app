@@ -19,7 +19,7 @@ export type ManagerEvent = {
 	status: EventStatus;
 	access_type: EventAccessType;
 	is_private: boolean;
-	scheduled_publish_at: string | null;
+	publish_at: string | null;
 	tickets_sold: number;
 	/** null when a ticket type is unlimited or none is on sale */
 	tickets_total: number | null;
