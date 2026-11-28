@@ -36,6 +36,10 @@ export type DetailsForm = {
 	postalCode: string;
 	lat: string;
 	lng: string;
+	/** "Not decided yet": guests see "Venue to be announced". */
+	placeTBA: boolean;
+	/** Minutes before the start that the address shows; "" when it shows straight away. */
+	revealMinutes: string;
 	title: string;
 	description: string;
 	categoryId: string;
@@ -85,6 +89,8 @@ function fromEvent(event: Event): DetailsForm {
 		postalCode: event.postal_code ?? "",
 		lat: event.latitude ?? "",
 		lng: event.longitude ?? "",
+		placeTBA: event.place_tba ?? false,
+		revealMinutes: event.address_reveal_minutes ? String(event.address_reveal_minutes) : "",
 		title: event.title ?? "",
 		description: event.description ?? "",
 		categoryId: event.event_category_id ?? "",
@@ -111,7 +117,7 @@ function invalidFields(form: DetailsForm, published: boolean, venueQuery: string
 	if (
 		(form.venueMode === "manual" && typedVenue && (!form.street.trim() || !form.city.trim())) ||
 		(form.venueMode === "search" && venueQuery.trim()) ||
-		(published && !form.street.trim() && !form.venueName.trim() && form.venueMode !== "manual")
+		(published && !form.placeTBA && !form.street.trim() && !form.venueName.trim() && form.venueMode !== "manual")
 	) {
 		invalid.push("venueName");
 	}
@@ -249,7 +255,7 @@ export default function useDetailsForm() {
 		}
 		if (form.venueMode === "search" && venueQuery.trim()) {
 			found.venue = "Pick a place from the list, or type the address.";
-		} else if (published && !form.street.trim() && !form.venueName.trim() && form.venueMode !== "manual") {
+		} else if (published && !form.placeTBA && !form.street.trim() && !form.venueName.trim() && form.venueMode !== "manual") {
 			found.venue = "A published event needs a venue. Pick a place from the list, or type the address.";
 		}
 		const faqErrors: NonNullable<DetailsErrors["faqs"]> = {};
@@ -334,6 +340,8 @@ export default function useDetailsForm() {
 			payload.latitude = hasVenue ? values.lat : "";
 			payload.longitude = hasVenue ? values.lng : "";
 		}
+		if (values.placeTBA !== base.placeTBA) payload.place_tba = values.placeTBA;
+		if (values.revealMinutes !== base.revealMinutes) payload.address_reveal_minutes = values.revealMinutes ? Number(values.revealMinutes) : null;
 		if (values.title !== base.title) payload.title = values.title.trim();
 		if (values.description !== base.description) payload.description = values.description.trim();
 		if (values.categoryId !== base.categoryId && values.categoryId) payload.event_category_id = values.categoryId;

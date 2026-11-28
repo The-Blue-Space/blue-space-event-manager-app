@@ -20,14 +20,13 @@ type InviteSheetProps = {
 	eventId: string;
 	eventTitle: string;
 	accessType: EventAccessType;
-	isPrivate: boolean;
 	onInvited: () => void;
 };
 
 type Picked = Invitee & { problem?: string };
 
 /** Add people by email or username, see what each gets, and send every invite at once. */
-export default function InviteSheet({ open, onClose, eventId, eventTitle, accessType, isPrivate, onInvited }: InviteSheetProps) {
+export default function InviteSheet({ open, onClose, eventId, eventTitle, accessType, onInvited }: InviteSheetProps) {
 	const { managerProfile } = useAppSelector("manager_profile");
 	const { account } = useAppSelector("account");
 	const organizer = managerProfile?.name ?? "you";
@@ -114,9 +113,7 @@ export default function InviteSheet({ open, onClose, eventId, eventTitle, access
 	const whatTheyGet =
 		accessType === "individual"
 			? `Each person gets an email from ${organizer} with the event details and their own code to get in. The code is in their Blue Space app too.`
-			: accessType === "general" && !isPrivate
-				? `Each person gets an email from ${organizer} with the event details, and they’re in straight away.`
-				: `Each person gets an email from ${organizer} with the event details.`;
+			: `Each person gets an email from ${organizer} with the event details.`;
 	const anyoneNew = people.some((person) => person.isNew);
 
 	return (

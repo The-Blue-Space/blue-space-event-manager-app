@@ -183,7 +183,7 @@ export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
 		error,
 		event,
 		accessType: event?.access_type ?? ("" as any),
-		published: event?.published ?? false,
+		published: event?.status === "published",
 		updateEvent,
 		updateEventLocation,
 		uploadImages,

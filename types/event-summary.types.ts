@@ -2,8 +2,8 @@ import { HomeOrder } from "./home.types";
 
 // Shape of GET /v1/events/:id/summary. Money is integer kobo; instants are RFC3339 or null.
 
-export type EventStatus = "draft" | "scheduled" | "on_sale" | "live" | "ended";
-export type EventAccessType = "general" | "individual" | "ticket-based" | "none";
+export type EventStatus = "draft" | "scheduled" | "on_sale" | "live" | "ended" | "cancelled";
+export type EventAccessType = "individual" | "ticket-based";
 
 export type EventSummaryTier = {
 	id: string;
@@ -23,9 +23,11 @@ export type EventSummary = {
 		status: EventStatus;
 		published: boolean;
 		published_at: string | null;
-		scheduled_publish_at: string | null;
+		publish_at: string | null;
 		access_type: EventAccessType;
 		is_private: boolean;
+		place_tba: boolean;
+		joined_count: number;
 		starts_at: string | null;
 		ends_at: string | null;
 		doors_open_at: string | null;

@@ -55,3 +55,20 @@ export function generatePaginateResponse<T>(data: T[]): PaginatedResponse<T> {
 		pagingCounter: 1,
 	};
 }
+type PagedBody<T> = { data: T[]; page: { page: number; limit: number; total: number; pages: number } };
+
+/** The server's list shape, `{data, page}`, as the portal's PaginatedResponse. */
+export function fromPage<T>({ data, page }: PagedBody<T>): PaginatedResponse<T> {
+	return {
+		docs: data,
+		totalDocs: page.total,
+		limit: page.limit,
+		page: page.page,
+		totalPages: page.pages,
+		hasNextPage: page.page < page.pages,
+		nextPage: page.page < page.pages ? page.page + 1 : null,
+		hasPrevPage: page.page > 1,
+		prevPage: page.page > 1 ? page.page - 1 : null,
+		pagingCounter: (page.page - 1) * page.limit + 1,
+	};
+}

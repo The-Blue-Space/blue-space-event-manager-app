@@ -57,8 +57,8 @@ type Parameters = {
 type Response = EventDuplicationPreview;
 
 export async function production(params: Parameters): Promise<Response> {
-	const response = await axios.get(`/v1/events/${params.eventId}/duplicate/preview`);
-	return response.data;
+	const response = await axios.get<{ data: Response }>(`/v1/events/${params.eventId}/duplicate/preview`);
+	return response.data.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

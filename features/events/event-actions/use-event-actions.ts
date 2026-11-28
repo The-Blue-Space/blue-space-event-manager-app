@@ -7,7 +7,15 @@ import unpublishEvent from "@/services/events/unpublish-event";
 import useActions from "@/store/actions";
 import { EventStatus } from "@/types/event-summary.types";
 
-export type ActionableEvent = { id: string; title: string; status: EventStatus; published: boolean; has_sales: boolean };
+export type ActionableEvent = {
+	id: string;
+	title: string;
+	status: EventStatus;
+	published: boolean;
+	has_sales: boolean;
+	/** People in: joined guests plus paid ticket holders. */
+	joined_count?: number;
+};
 
 /** The public page for an event, or "" while the site's address isn't configured. */
 export const eventLink = (eventId: string) =>
@@ -16,6 +24,14 @@ export const eventLink = (eventId: string) =>
 /** Why an event can't be deleted, or null when it can. Once tickets are sold it can only be cancelled. */
 export function whyNotDeletable(event: ActionableEvent): string | null {
 	if (event.has_sales) return "Tickets have been sold, so it can only be cancelled.";
+	return null;
+}
+
+/** Why a published event can't go back to draft, or null when it can. */
+export function whyNotUnpublishable(event: ActionableEvent): string | null {
+	const people = event.joined_count ?? 0;
+	if (people > 0) return `${people === 1 ? "1 person has" : `${people} people have`} joined, so it stays published. You can still edit it.`;
+	if (event.has_sales) return "Tickets have been sold, so it stays published. You can still edit it.";
 	return null;
 }
 

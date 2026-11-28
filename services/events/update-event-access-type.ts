@@ -10,10 +10,10 @@ type Parameters = {
 type Response = Event;
 
 export async function production(params: Parameters): Promise<Response> {
-	const response = await axios.patch(`/v1/events/${params.event_id}/access-type`, {
+	const response = await axios.patch<{ data: Event }>(`/v1/events/${params.event_id}/access-type`, {
 		access_type: params.access_type,
 	});
-	return response.data;
+	return response.data.data;
 }
 
 export async function development(params: Parameters): Promise<Response> {

@@ -4,9 +4,7 @@ export type EventTab = "overview" | "details" | "tickets" | "media" | "agenda" |
 
 export const ACCESS_LABEL: Record<EventAccessType, string> = {
 	"ticket-based": "Sell tickets",
-	general: "One code for everyone",
 	individual: "Invite each guest",
-	none: "Open to everyone",
 };
 
 export const STATUS: Record<EventStatus, { label: string; tone: "neutral" | "warning" | "success" }> = {
@@ -15,6 +13,7 @@ export const STATUS: Record<EventStatus, { label: string; tone: "neutral" | "war
 	on_sale: { label: "On sale", tone: "success" },
 	live: { label: "Live now", tone: "warning" },
 	ended: { label: "Ended", tone: "neutral" },
+	cancelled: { label: "Cancelled", tone: "neutral" },
 };
 
 /** "On sale" only makes sense when tickets are being sold; other published events are just "Published". */

@@ -7,9 +7,7 @@ import { EventAccessType } from "@/types/event-summary.types";
 import { outlineButton } from "./ui";
 
 const HOW_GUESTS_GET_IN: Record<Exclude<EventAccessType, "ticket-based">, string> = {
-	general: "Guests get in with one code for everyone.",
 	individual: "Every guest gets their own code, and you approve who joins.",
-	none: "There are no tickets or codes. Anyone can join.",
 };
 
 type NotSellingProps = {

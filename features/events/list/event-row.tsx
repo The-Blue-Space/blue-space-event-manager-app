@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ImageIcon } from "lucide-react";
 import EventMenu from "@/features/events/event-actions/event-menu";
 import { setupSteps, statusFor } from "@/features/events/event-page/steps";
+import { fullLabel } from "@/features/events/manage-event/tabs/basic-info/lagos-time";
 import { formatCount, formatShortDate, formatTime, plural } from "@/features/home/dashboard/format";
 import { Pill } from "@/features/home/dashboard/ui";
 import { ManagerEvent } from "@/types/manager-events.types";
@@ -28,10 +29,9 @@ function Cover({ url }: { url: string | null }) {
 	);
 }
 
-/** "Private, invite only", "One code for everyone", or nothing for an ordinary ticket event. */
+/** "Private, invite only", or nothing for an ordinary ticket event. */
 function accessNote(event: ManagerEvent) {
-	const how =
-		event.access_type === "individual" ? "invite only" : event.access_type === "general" ? "one code for everyone" : "";
+	const how = event.access_type === "individual" ? "invite only" : "";
 	const parts = [event.is_private ? "Private" : "", how].filter(Boolean).join(", ");
 	return parts ? parts.charAt(0).toUpperCase() + parts.slice(1) : "";
 }
@@ -56,6 +56,13 @@ function Bar({ value, max, tone = "indigo" }: { value: number; max: number; tone
 function KeyNumber({ event }: { event: ManagerEvent }) {
 	const strong = (value: number) => <strong className="font-bold text-auth-ink">{formatCount(value)}</strong>;
 
+	if (event.status === "scheduled" && event.publish_at) {
+		return (
+			<p className="text-[14px] text-auth-muted">
+				Publishes <strong className="font-bold text-auth-ink">{fullLabel(new Date(event.publish_at).getTime())}</strong>
+			</p>
+		);
+	}
 	if (event.status === "draft" || event.status === "scheduled") {
 		const steps = setupSteps({ event, setup: event.setup });
 		const left = steps.filter((step) => !step.done).length;
@@ -141,7 +148,7 @@ export default function EventRow({ event }: { event: ManagerEvent }) {
 				<KeyNumber event={event} />
 			</div>
 			<div className="relative z-10 -mr-1.5 sm:mr-0">
-				<EventMenu event={event} />
+				<EventMenu event={{ ...event, joined_count: event.guests_joined }} />
 			</div>
 		</li>
 	);

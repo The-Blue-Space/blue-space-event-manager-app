@@ -10,7 +10,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ConfirmDialog from "@/components/app/confirm-dialog";
-import useEventActions, { ActionableEvent, eventLink, whyNotDeletable } from "./use-event-actions";
+import useEventActions, { ActionableEvent, eventLink, whyNotDeletable, whyNotUnpublishable } from "./use-event-actions";
 
 type EventMenuProps = {
 	event: ActionableEvent;
@@ -29,6 +29,7 @@ export default function EventMenu({ event, variant = "row", onDeleted }: EventMe
 	// An ended event keeps its page for the album, so it can't be unpublished.
 	const canUnpublish = event.published && event.status !== "ended";
 	const deleteBlocked = whyNotDeletable(event);
+	const unpublishBlocked = whyNotUnpublishable(event);
 	const [asking, setAsking] = React.useState<"delete" | "unpublish" | null>(null);
 
 	return (
@@ -61,9 +62,16 @@ export default function EventMenu({ event, variant = "row", onDeleted }: EventMe
 						Duplicate
 					</DropdownMenuItem>
 					{canUnpublish && (
-						<DropdownMenuItem className={itemClass} onSelect={() => setAsking("unpublish")}>
+						<DropdownMenuItem
+							className={classNames(itemClass, unpublishBlocked && "cursor-not-allowed text-auth-muted data-[disabled]:opacity-100")}
+							disabled={Boolean(unpublishBlocked)}
+							onSelect={() => setAsking("unpublish")}
+						>
 							<EyeOff aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-auth-muted" />
-							Unpublish
+							<span className="grid gap-0.5">
+								Unpublish
+								{unpublishBlocked && <span className="text-[12px] font-medium leading-snug text-auth-muted">{unpublishBlocked}</span>}
+							</span>
 						</DropdownMenuItem>
 					)}
 					<DropdownMenuSeparator className="mx-1 my-1.5 bg-auth-line" />

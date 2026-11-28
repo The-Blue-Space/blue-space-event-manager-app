@@ -1,10 +1,9 @@
 "use client";
 import * as React from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
-import { Ban, Check, Copy, Download, MoreHorizontal, RefreshCw, Ticket, UserPlus } from "lucide-react";
+import { Ban, Check, MoreHorizontal, Ticket, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/app/confirm-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -21,7 +20,6 @@ import {
 	getGuests,
 	inviteAgain,
 	invitePeople,
-	resetEventCode,
 	unblockGuest,
 	withdrawInvite,
 } from "@/services/guests";
@@ -54,7 +52,7 @@ function describe(guest: Guest, accessType: EventAccessType): { label: string; t
 /** "Regular × 2, VIP" */
 const ticketSummary = (guest: Guest) => guest.tickets.map((ticket) => (ticket.count > 1 ? `${ticket.name} × ${ticket.count}` : ticket.name)).join(", ");
 
-type Asking = { kind: "block" | "unblock" | "withdraw" | "new-code"; guest?: Guest } | null;
+type Asking = { kind: "block" | "unblock" | "withdraw"; guest?: Guest } | null;
 
 function RowMenu({ guest, ticketed, onAsk, onTickets }: { guest: Guest; ticketed: boolean; onAsk: (asking: Asking) => void; onTickets: (guest: Guest) => void }) {
 	const item = "flex h-9 cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-[14px] font-semibold focus:bg-auth-page";
@@ -86,70 +84,6 @@ function RowMenu({ guest, ticketed, onAsk, onTickets }: { guest: Guest; ticketed
 				)}
 			</DropdownMenuContent>
 		</DropdownMenu>
-	);
-}
-
-function CodeCard({ code, qrCode, onNewCode }: { code: string | null; qrCode: string | null; onNewCode: () => void }) {
-	const copy = async () => {
-		if (!code) return;
-		try {
-			await navigator.clipboard.writeText(code);
-			toast.success("Code copied");
-		} catch {
-			toast.error("We couldn’t copy the code.");
-		}
-	};
-	const download = async () => {
-		if (!qrCode) return;
-		try {
-			const blob = await (await fetch(qrCode)).blob();
-			const link = document.createElement("a");
-			link.href = URL.createObjectURL(blob);
-			link.download = "event-qr-code.png";
-			link.click();
-			URL.revokeObjectURL(link.href);
-		} catch {
-			window.open(qrCode, "_blank", "noopener");
-		}
-	};
-	return (
-		<section aria-labelledby="event-code" className="flex flex-wrap items-start gap-x-8 gap-y-6 rounded-[14px] border border-auth-line bg-white p-6">
-			<div className="grid min-w-0 flex-[1_1_420px] gap-4">
-				<div className="grid gap-1">
-					<h2 id="event-code" className="text-[18px] font-bold text-auth-ink">
-						Event code
-					</h2>
-					<p className="text-[14px] text-auth-muted">Everyone uses the same code. Guests type it in the Blue Space app or scan the QR code to join.</p>
-				</div>
-				<p className="font-mono text-[36px] font-bold tracking-[0.18em] text-auth-ink" aria-label={code ? `Code ${code.split("").join(" ")}` : undefined}>
-					{code ?? "No code yet"}
-				</p>
-				<div className="flex flex-wrap gap-2">
-					<button type="button" onClick={copy} disabled={!code} className={primaryButton}>
-						<Copy aria-hidden="true" className="size-4" />
-						Copy code
-					</button>
-					{qrCode && (
-						<button type="button" onClick={download} className={outlineButton}>
-							<Download aria-hidden="true" className="size-4" />
-							Download QR code
-						</button>
-					)}
-				</div>
-				<div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-auth-line pt-4">
-					<button type="button" onClick={onNewCode} className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-auth-link hover:text-primary-500">
-						<RefreshCw aria-hidden="true" className="size-4" />
-						Get a new code
-					</button>
-					<span className="text-[13px] text-auth-muted">The old code stops working. People who already joined stay in.</span>
-				</div>
-			</div>
-			{qrCode && (
-				<span className="relative grid size-[180px] shrink-0 place-items-center rounded-xl border border-auth-line bg-white p-3">
-					<Image src={qrCode} alt="QR code for this event" width={156} height={156} className="size-[156px] object-contain" unoptimized />
-				</span>
-			)}
-		</section>
 	);
 }
 
@@ -270,12 +204,8 @@ export default function GuestsTab({ eventId }: { eventId: string }) {
 			</button>{" "}
 			tab.
 		</>
-	) : inviteOnly ? (
-		[`${formatCount(counts.invited + counts.joined)} invited`, counts.waiting ? `${formatCount(counts.waiting)} waiting for you` : ""].filter(Boolean).join(" · ")
-	) : accessType === "general" ? (
-		`${counts.joined === 1 ? "1 person has" : `${formatCount(counts.joined)} people have`} joined with the code.`
 	) : (
-		"Anyone can join from the Blue Space app. Everyone who joined shows here."
+		[`${formatCount(counts.invited + counts.joined)} invited`, counts.waiting ? `${formatCount(counts.waiting)} waiting for you` : ""].filter(Boolean).join(" · ")
 	);
 
 	const noun = filter === "all" ? "people" : filter === "blocked" ? "blocked" : filter;
@@ -291,8 +221,6 @@ export default function GuestsTab({ eventId }: { eventId: string }) {
 
 	return (
 		<div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-6">
-			{accessType === "general" && <CodeCard code={event?.access_code ?? null} qrCode={event?.qr_code ?? null} onNewCode={() => setAsking({ kind: "new-code" })} />}
-
 			<div className="flex flex-wrap items-start justify-between gap-4">
 				<div className="grid max-w-[64ch] gap-1">
 					<h2 className="text-[20px] font-bold text-auth-ink">Guests</h2>
@@ -450,7 +378,6 @@ export default function GuestsTab({ eventId }: { eventId: string }) {
 				eventId={eventId}
 				eventTitle={title}
 				accessType={accessType}
-				isPrivate={data.is_private}
 				onInvited={refresh}
 			/>
 
@@ -495,20 +422,6 @@ export default function GuestsTab({ eventId }: { eventId: string }) {
 					await withdrawInvite(asking.guest.id);
 					setNote(`Invite withdrawn. We emailed ${asking.guest.name}, and their code stops working.`);
 					refresh();
-				}}
-			/>
-			<ConfirmDialog
-				open={asking?.kind === "new-code"}
-				onOpenChange={(open) => !open && setAsking(null)}
-				title="Get a new code?"
-				text="The old code stops working straight away, so share the new one with anyone who hasn’t joined yet. People who already joined stay in."
-				confirmLabel="Get a new code"
-				tone="primary"
-				icon={<RefreshCw />}
-				onConfirm={async () => {
-					await resetEventCode(eventId);
-					await queryClient.invalidateQueries({ queryKey: ["event-details", eventId] });
-					toast.success("New code ready. The old one no longer works.");
 				}}
 			/>
 		</div>

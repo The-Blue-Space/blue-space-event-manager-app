@@ -24,8 +24,6 @@ const initials = (name: string) =>
 const ACCESS_COPIED: Record<string, string> = {
 	"ticket-based": "How guests get in, who can find it, and album settings",
 	individual: "Invite only, who can find it, and album settings",
-	general: "One code for everyone (with a new code), who can find it, and album settings",
-	none: "Open to everyone, who can find it, and album settings",
 };
 
 function Box({ checked, onChange, title, text, disabled }: { checked: boolean; onChange: () => void; title: string; text: string; disabled?: boolean }) {
